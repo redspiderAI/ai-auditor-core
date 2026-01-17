@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # 成员 D: Go 网关与任务调度 (中控)
+  gateway-go:
+    build: ./services/gateway-go
+    container_name: audit-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - RUST_PARSER_ADDR=parser-rs:52051
+      - JAVA_ENGINE_ADDR=engine-java:9191
+      - PY_INFERENCE_ADDR=inference-py:8123
+    depends_on:
+      parser-rs:
+        condition: service_healthy
+    networks:
+      - audit-network
+
+  # 成员 A: Rust 高性能解析模块
+  parser-rs:
+    build: ./services/parser-rs
+    container_name: audit-parser
+    volumes:
+      - ./temp_docs:/app/data  # 共享文档存储
+    networks:
+      - audit-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 成员 B: Java 业务规则引擎
+  engine-java:
+    build: ./services/engine-java
+    container_name: audit-engine
+    environment:
+      - JAVA_OPTS=-Xmx2g -Xms2g
+    networks:
+      - audit-network
+    depends_on:
+      - parser-rs
+
+  # 成员 C: Python Qwen 模型推理中台
+  inference-py:
+    build: ./services/inference-py
+    container_name: audit-inference
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - QWEN_API_KEY=${QWEN_API_KEY}
+      - MODEL_PATH=/app/models/qwen2.5
+    networks:
+      - audit-network
+    volumes:
+      - ./models:/app/models # 映射本地预下载的模型
+
+networks:
+  audit-network:
+    driver: bridge
+
+volumes:
+  temp_docs:
+  models:

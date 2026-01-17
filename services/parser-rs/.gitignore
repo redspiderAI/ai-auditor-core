@@ -1,0 +1,21 @@
+# Rust / Cargo
+/target/
+/**/target/
+**/*.rs.bk
+Cargo.lock
+
+# Editor configs
+.vscode/
+.idea/
+.DS_Store
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+
+# Generated protobufs (if any)
+/proto_generated/

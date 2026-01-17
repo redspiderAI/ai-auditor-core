@@ -1,0 +1,226 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.auditor</groupId>
+    <artifactId>engine-java</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>engine-java</name>
+    <description>Rule engine for academic auditor (Spring Boot + Drools)</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <spring.boot.version>3.2.0</spring.boot.version>
+        <kie.version>8.59.0.Final</kie.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Drools/KIE BOM disabled temporarily: some kie-bom versions are not available
+                 in configured repositories for this environment. To enable Drools, replace
+                 this block with a concrete BOM version known to exist in your repo, or add
+                 the appropriate KIE repository. -->
+            <!--
+            <dependency>
+                <groupId>org.kie</groupId>
+                <artifactId>kie-bom</artifactId>
+                <version>${kie.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            -->
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>sonatype-public</id>
+            <name>Sonatype OSS Releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Spring Boot basics -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Drools / KIE (rules engine)
+             Temporarily commented out because the BOM/imported versions are not resolvable
+             in the current environment. To enable, either:
+             1) Uncomment and set `${kie.version}` to a released version available in your
+                Maven repos; or
+             2) Add a specific Drools dependency versions that exist in Maven Central.
+        -->
+        <!--
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-ci</artifactId>
+            <version>${kie.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>${kie.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+            <version>${kie.version}</version>
+        </dependency>
+        -->
+
+        <!-- Protobuf runtime (use version compatible with protoc used in build)
+             If you need protobuf-java 4.x, add the appropriate repo or update version. -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.21.12</version>
+        </dependency>
+
+        <!-- gRPC runtime (optional, for later integration) -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>1.56.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>1.56.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>1.56.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring Boot plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+            </plugin>
+
+            <!-- Java compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
+
+            <!-- protoc/antrun/build-helper moved into a profile below. -->
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>generate-protobuf</id>
+            <!-- Only activate generation when generated sources are NOT checked into src/main/java -->
+            <activation>
+                <file>
+                    <missing>${project.basedir}/src/main/java/com/auditor/grpc</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- protoc-jar-maven-plugin: 使用 protoc-jar 在构建时生成 Java POJO -->
+                    <plugin>
+                        <groupId>com.github.os72</groupId>
+                        <artifactId>protoc-jar-maven-plugin</artifactId>
+                        <version>3.11.4</version>
+                        <executions>
+                            <execution>
+                                <id>generate-protobuf</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <protocVersion>3.21.12</protocVersion>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- copy proto files from shared/protos into this module's src/main/protobuf -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy-protos</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${project.basedir}/src/main/protobuf"/>
+                                        <copy todir="${project.basedir}/src/main/protobuf" overwrite="true">
+                                            <fileset dir="${project.basedir}/../../shared/protos" includes="**/*.proto"/>
+                                        </copy>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 把生成的 sources 加入编译路径 -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>add-generated-sources</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.build.directory}/generated-sources/protobuf/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
