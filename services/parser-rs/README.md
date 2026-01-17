@@ -10,7 +10,7 @@
 cd services/parser-rs
 ```
 
-2. 构建：
+1. 构建：
 
 ```
 cargo build
