@@ -1,0 +1,16 @@
+# Build artifacts
+/gateway-go
+/gateway-go.exe
+/bin/
+/*.out
+/*.test
+/coverage.out
+
+# Vendored deps
+/vendor/
+
+# Editor/OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
