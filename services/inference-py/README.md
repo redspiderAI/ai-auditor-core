@@ -36,6 +36,25 @@ uv add torch fastapi langgraph
 
 说明：`milvus` 在 Windows 上可能没有可用 wheel，安装可能会因平台不匹配失败；遇到错误可参考下文说明。
 
+## 配置说明
+
+本项目使用 `.env` 文件管理配置。请复制 `.env.example` 文件并重命名为 `.env`，然后填入您的配置信息：
+
+```bash
+cp .env.example .env
+```
+
+需要配置的主要参数包括：
+
+- `DASHSCOPE_API_KEY`: 通义千问API密钥（必填）
+- `HOST`: 服务器主机地址（默认: 127.0.0.1）
+- `PORT`: 服务器端口（默认: 50051）
+- `MILVUS_HOST`: Milvus数据库主机地址（可选）
+- `MILVUS_PORT`: Milvus数据库端口（可选）
+- `MODEL_NAME`: 使用的模型名称（默认: qwen-max）
+- `WINDOW_SIZE`: 滑动窗口大小（默认: 3）
+- `DEBUG`: 是否开启调试模式（默认: false）
+
 运行测试
 
 - 直接运行（不通过 `uv`）：
