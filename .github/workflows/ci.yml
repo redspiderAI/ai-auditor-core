@@ -44,8 +44,8 @@ jobs:
         run: |
           cd services/inference-py
           uv venv
-          uv sync
-          uv run ruff check .
+          uv sync --extra dev
+          uv run --extra dev ruff check .
 
   # 成员 D: Go 检查 (网关逻辑、并发安全)
   go-audit:
