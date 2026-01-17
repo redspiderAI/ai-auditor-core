@@ -43,6 +43,7 @@ jobs:
       - name: Python Lint
         run: |
           cd services/inference-py
+          uv venv
           uv sync
           uv run ruff check .
 

@@ -8,13 +8,16 @@ dependencies = [
     "fastapi>=0.128.0",
     "grpcio-tools>=1.76.0",
     "langgraph>=1.0.6",
-    "milvus>=2.2.16",
+    "pymilvus>=2.3.9",
     "numpy>=2.4.1",
     "torch>=2.9.1",
 ]
 
 [tool.uv]
-required-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
+required-environments = [
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
 
 [project.optional-dependencies]
 cu126 = ["torch>=2.9.1", "torchvision>=0.24.1"]
