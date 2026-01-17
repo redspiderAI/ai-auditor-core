@@ -1,1 +1,32 @@
+# --- System ---
+.DS_Store
+Thumbs.db
+
+# --- Rust (Member A) ---
+/services/parser-rs/target/
+/services/parser-rs/Cargo.lock
+
+# --- Java (Member B) ---
+/services/engine-java/target/
+*.class
+*.jar
+*.war
+.mtl.xml
+
+# --- Python (Member C) ---
+/services/inference-py/__pycache__/
+/services/inference-py/.venv/
+/services/inference-py/.uv/
+*.py[cod]
 .env
+
+# --- Go (Member D) ---
+/services/gateway-go/bin/
+/services/gateway-go/gateway-go
+/services/gateway-go/vendor/
+
+# --- Project Global ---
+temp_docs/
+models/
+.idea/
+.vscode/
