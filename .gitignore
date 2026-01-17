@@ -1,1 +1,2 @@
-.env/services/inference-py/.git.bak
+.env
+/services/inference-py/.git.bak
