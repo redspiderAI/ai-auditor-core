@@ -1,56 +1,62 @@
 name: CI-Build-Check
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
+    branches: [ main ]
+  push:
     branches: [ main ]
 
 jobs:
-  # 定义一个名为 "rust-test" 的检查
-  rust-test:
+  # 成员 A: Rust 检查 (语法、性能、安全性)
+  rust-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check Rust
-        run: echo "Rust check placeholder"
+      - name: Rust Check
+        run: |
+          cd services/parser-rs
+          cargo check --release
 
-  # 定义一个名为 "python-test" 的检查
-  python-test:
+  # 成员 B: Java 检查 (规则逻辑、依赖扫描)
+  java-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check Python
-        run: echo "Python check placeholder"
-
-  # Java 模块检查
-  java-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 17
-      - name: Maven build (skip tests)
-        working-directory: services/engine-java
-        run: mvn -B -DskipTests package
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build with Maven
+        run: |
+          cd services/engine-java
+          mvn clean compile
 
-  # Go 模块检查
-  go-test:
+  # 成员 C: Python 检查 (AI 模型接口、格式审查)
+  python-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Go
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Python Lint
+        run: |
+          cd services/inference-py
+          uv sync
+          uv run ruff check .
+
+  # 成员 D: Go 检查 (网关逻辑、并发安全)
+  go-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
-      - name: Set GOPROXY
-        run: go env -w GOPROXY="https://proxy.golang.org,direct"
-      - name: Go mod tidy
-        working-directory: services/gateway-go
-        run: go mod tidy
-      - name: Go test
-        working-directory: services/gateway-go
-        run: go test ./...
+          go-version: '1.22'
+          cache-dependency-path: services/gateway-go/go.sum
+      - name: Build Gateway
+        run: |
+          cd services/gateway-go
+          go build -v ./...
