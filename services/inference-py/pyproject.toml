@@ -11,6 +11,11 @@ dependencies = [
     "pymilvus>=2.3.9",
     "numpy>=2.4.1",
     "torch>=2.9.1",
+    "dashscope>=1.25.8",
+    "langchain>=1.2.6",
+    "langchain-community>=0.4.1",
+    "pydantic-settings>=2.12.0",
+    "typing-extensions>=4.15.0",
 ]
 
 [tool.uv]
