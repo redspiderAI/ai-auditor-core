@@ -3,6 +3,36 @@ use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Check if we're running in document processing mode or server mode
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() > 1 && args[1] == "process" {
+        // Run document processing mode
+        run_document_processing().await
+    } else {
+        // Run server mode (default)
+        run_server_mode().await
+    }
+}
+
+async fn run_document_processing() -> Result<()> {
+    println!("Starting document processing mode...");
+
+    // Process documents from input directory
+    match parser_rs::utils::document_processor::run_document_processing() {
+        Ok(_) => {
+            println!("Document processing completed successfully!");
+        },
+        Err(e) => {
+            eprintln!("Failed to process documents: {}", e);
+            return Err(e);
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_server_mode() -> Result<()> {
     // Ports can be overridden by env vars to match docker-compose expectations
     let grpc_port = std::env::var("RUST_GRPC_PORT").unwrap_or_else(|_| "52051".into());
     let health_port = std::env::var("RUST_HEALTH_PORT").unwrap_or_else(|_| "50051".into());
