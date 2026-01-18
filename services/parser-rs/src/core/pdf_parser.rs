@@ -14,10 +14,9 @@ pub struct LopdfParser;
 impl PdfParser for LopdfParser {
     fn parse<P: AsRef<Path>>(&self, path: P) -> Result<crate::core::layout::DocumentTree> {
         use lopdf::Document;
-        use std::collections::BTreeMap;
 
         // Load the PDF document
-        let mut doc = Document::load(path.as_ref())?;
+        let doc = Document::load(path.as_ref())?;
 
         let mut sections = Vec::new();
         let mut section_id = 1;

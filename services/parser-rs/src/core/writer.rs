@@ -31,7 +31,6 @@ impl Writer for DocxWriter {
         issues: &[crate::grpc::Issue],
     ) -> Result<()> {
         use tempfile::TempDir;
-        use zip::write::FileOptions;
 
         let original_path = original.as_ref();
         let output_path = out_path.as_ref();
@@ -97,7 +96,7 @@ impl DocxWriter {
         File::open(&doc_xml_path)?.read_to_string(&mut doc_content)?;
         
         // Parse the XML
-        let doc = Document::parse(&doc_content)?;
+        let _doc = Document::parse(&doc_content)?;
         
         // Create a map of section_id to issues for quick lookup
         let mut issues_map: HashMap<i32, Vec<&crate::grpc::Issue>> = HashMap::new();
@@ -111,7 +110,7 @@ impl DocxWriter {
         
         // Add a simple comment reference at the end of the document body
         if !issues.is_empty() {
-            let comment_refs: Vec<String> = issues.iter().map(|issue| {
+            let comment_refs: Vec<String> = issues.iter().map(|_issue| {
                 let comment_id = COMMENT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
                 format!(r#"<w:commentReference w:id="{}"/>"#, comment_id)
             }).collect();
@@ -132,7 +131,6 @@ impl DocxWriter {
 
     /// Updates comments.xml with actual comment content
     fn update_comments_xml(&self, extracted_dir: &Path, issues: &[crate::grpc::Issue]) -> Result<()> {
-        use std::io::BufWriter;
 
         let word_dir = extracted_dir.join("word");
         let comments_path = word_dir.join("comments.xml");

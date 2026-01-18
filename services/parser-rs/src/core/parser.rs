@@ -45,7 +45,7 @@ pub struct DocxParser;
 
 impl DocxParser {
     /// Extract formatting properties from a paragraph node
-    fn extract_formatting(&self, p_node: roxmltree::Node, doc: &Document) -> HashMap<String, String> {
+    fn extract_formatting(&self, p_node: roxmltree::Node, _doc: &Document) -> HashMap<String, String> {
         let mut formatting = HashMap::new();
 
         // Look for paragraph properties (pPr)
@@ -105,7 +105,7 @@ impl DocxParser {
     }
 
     /// Determine element type based on paragraph properties
-    fn determine_element_type(&self, p_node: roxmltree::Node, doc: &Document) -> ElementType {
+    fn determine_element_type(&self, p_node: roxmltree::Node, _doc: &Document) -> ElementType {
         // Check for heading styles based on outline level
         if let Some(p_pr) = p_node.children()
             .find(|child| child.is_element() && child.tag_name().name() == "pPr") {
@@ -167,10 +167,10 @@ impl Parser for DocxParser {
         let doc = Document::parse(&doc_xml)?;
 
         // Read styles.xml to get style definitions
-        let mut styles_xml = String::new();
+        let mut _styles_xml = String::new();
         // Since we can't access the archive twice, we'll handle styles differently
         // For now, we'll skip reading styles.xml to avoid the double borrow
-        let styles_doc: Option<Document> = None;
+        let _styles_doc: Option<Document> = None;
 
         let mut sections = Vec::new();
         let mut section_id = 1;
