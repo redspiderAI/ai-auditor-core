@@ -30,3 +30,7 @@ temp_docs/
 models/
 .idea/
 .vscode/
+
+# --- inputdata ---
+data/input/
+data/output/
