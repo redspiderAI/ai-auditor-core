@@ -6,8 +6,12 @@ mod docx_parser;
 mod layout;
 mod layout_modeler;
 mod protobuf_converter;
-mod mmap_reader;
-mod comment_writer;
+mod utils {
+    pub mod mmap_reader;
+}
+mod core {
+    pub mod comment_writer;
+}
 
 use docx_parser::DocxParser;
 use parser::Parser;
@@ -34,14 +38,14 @@ fn main() -> anyhow::Result<()> {
 
     // Test comment injection functionality
     let error_items = vec![
-        crate::comment_writer::ErrorItem {
+        crate::core::comment_writer::ErrorItem {
             paragraph_index: 0,
             comment: "This is a test comment".to_string(),
         }
     ];
 
     if std::path::Path::new(test_file).exists() {
-        match crate::comment_writer::inject_comments(
+        match crate::core::comment_writer::inject_comments(
             test_file,
             error_items,
             "output_with_comments.docx",
