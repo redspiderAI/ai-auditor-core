@@ -5,6 +5,7 @@ Thumbs.db
 # --- Rust (Member A) ---
 /services/parser-rs/target/
 /services/parser-rs/Cargo.lock
+/services/parser-rs/tests
 
 # --- Java (Member B) ---
 /services/engine-java/target/
