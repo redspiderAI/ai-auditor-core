@@ -1,0 +1,4348 @@
+{
+  "root": {
+    "id": 0,
+    "title": "Root",
+    "level": 0,
+    "xml_path": "document.xml#root",
+    "children": [
+      {
+        "content": {
+          "id": 3,
+          "type": "paragraph",
+          "raw_text": "中国计量大学",
+          "formatting": {
+            "font-size": "36pt",
+            "font-family": "宋体",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2"
+        }
+      },
+      {
+        "content": {
+          "id": 18,
+          "type": "paragraph",
+          "raw_text": "本科毕业设计（论文）",
+          "formatting": {
+            "font-size": "36pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "30pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_17"
+        }
+      },
+      {
+        "content": {
+          "id": 48,
+          "type": "paragraph",
+          "raw_text": "虚拟现实三维全景仿真技术研究",
+          "formatting": {
+            "font-family": "黑体",
+            "line-spacing": "1.5",
+            "font-size": "24pt"
+          },
+          "xml_path": "document.xml#offset_47"
+        }
+      },
+      {
+        "content": {
+          "id": 66,
+          "type": "paragraph",
+          "raw_text": "Research on Virtual Reality 3D Panoramic Simulation Technology",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "24pt"
+          },
+          "xml_path": "document.xml#offset_65"
+        }
+      },
+      {
+        "content": {
+          "id": 98,
+          "type": "paragraph",
+          "raw_text": "学生姓名   李良循     学号   1800301208    ",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "宋体",
+            "first-line-indent": "36pt",
+            "font-size": "18pt"
+          },
+          "xml_path": "document.xml#offset_97"
+        }
+      },
+      {
+        "content": {
+          "id": 208,
+          "type": "paragraph",
+          "raw_text": "学生专业   通信工程   班级   18通信2      ",
+          "formatting": {
+            "first-line-indent": "36pt",
+            "font-size": "18pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_207"
+        }
+      },
+      {
+        "content": {
+          "id": 341,
+          "type": "paragraph",
+          "raw_text": "二级学院 信息工程学院 指导教师   杨力      ",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "36pt",
+            "font-size": "18pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_340"
+        }
+      },
+      {
+        "content": {
+          "id": 432,
+          "type": "paragraph",
+          "raw_text": "中国计量大学",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "宋体",
+            "font-size": "16pt"
+          },
+          "xml_path": "document.xml#offset_431"
+        }
+      },
+      {
+        "content": {
+          "id": 448,
+          "type": "paragraph",
+          "raw_text": "2022年5月",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "宋体",
+            "font-size": "15pt"
+          },
+          "xml_path": "document.xml#offset_447"
+        }
+      },
+      {
+        "content": {
+          "id": 488,
+          "type": "paragraph",
+          "raw_text": "郑 重 声 明",
+          "formatting": {
+            "line-spacing": "1.8333334",
+            "font-family": "宋体",
+            "font-size": "22pt"
+          },
+          "xml_path": "document.xml#offset_487"
+        }
+      },
+      {
+        "content": {
+          "id": 527,
+          "type": "paragraph",
+          "raw_text": "本人呈交的毕业设计论文，是在导师的指导下，独立进行研究工作所取得的成果，所有数据、图片资料真实可靠。尽我所知，除文中已经注明引用的内容外，本学位论文的研究成果不包含他人享有著作权的内容。对本论文所涉及的研究工作做出贡献的其他个人和集体，均已在文中以明确的方式标明。本学位论文的知识产权归属于培养单位。",
+          "formatting": {
+            "font-size": "14pt",
+            "first-line-indent": "36pt",
+            "line-spacing": "1.8333334",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_526"
+        }
+      },
+      {
+        "content": {
+          "id": 601,
+          "type": "paragraph",
+          "raw_text": "学生签名：                     日期：               ",
+          "formatting": {
+            "line-spacing": "1.8333334",
+            "font-family": "宋体",
+            "first-line-indent": "36pt",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_600"
+        }
+      },
+      {
+        "content": {
+          "id": 736,
+          "type": "paragraph",
+          "raw_text": "分类号： TP37                                  密    级：  公开   ",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_735"
+        }
+      },
+      {
+        "content": {
+          "id": 800,
+          "type": "paragraph",
+          "raw_text": "UDC：  654                                   学校代码：  10356   ",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_799"
+        }
+      },
+      {
+        "content": {
+          "id": 877,
+          "type": "paragraph",
+          "raw_text": "中国计量大学",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "36pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_876"
+        }
+      },
+      {
+        "content": {
+          "id": 891,
+          "type": "paragraph",
+          "raw_text": "  本科毕业设计（论文）",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "36pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_890"
+        }
+      },
+      {
+        "content": {
+          "id": 914,
+          "type": "paragraph",
+          "raw_text": "虚拟现实三维全景仿真技术研究",
+          "formatting": {
+            "font-size": "24pt",
+            "font-family": "黑体",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_913"
+        }
+      },
+      {
+        "content": {
+          "id": 941,
+          "type": "paragraph",
+          "raw_text": "Research on Virtual Reality 3D Panoramic Simulation Technology",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "24pt"
+          },
+          "xml_path": "document.xml#offset_940"
+        }
+      },
+      {
+        "content": {
+          "id": 988,
+          "type": "paragraph",
+          "raw_text": "作    者    李良循             学号      1800301208    ",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_987"
+        }
+      },
+      {
+        "content": {
+          "id": 1075,
+          "type": "paragraph",
+          "raw_text": "申请学位   工学学士           指导教师  杨力  副教授  ",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_1074"
+        }
+      },
+      {
+        "content": {
+          "id": 1181,
+          "type": "paragraph",
+          "raw_text": "学科专业   通信工程           培养单位  中国计量大学  ",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_1180"
+        }
+      },
+      {
+        "content": {
+          "id": 1291,
+          "type": "paragraph",
+          "raw_text": "答辩委员会主席  单良          评 阅 人    汪晓峰      ",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "14pt",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_1290"
+        }
+      },
+      {
+        "content": {
+          "id": 1426,
+          "type": "paragraph",
+          "raw_text": "2022 年5月",
+          "formatting": {
+            "font-size": "15pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_1425"
+        }
+      },
+      {
+        "content": {
+          "id": 1481,
+          "type": "paragraph",
+          "raw_text": "致 谢",
+          "formatting": {
+            "line-spacing": "1.8333334",
+            "font-family": "宋体",
+            "font-size": "22pt"
+          },
+          "xml_path": "document.xml#offset_1480"
+        }
+      },
+      {
+        "content": {
+          "id": 1509,
+          "type": "paragraph",
+          "raw_text": "我首先要感谢我的论文指导老师，中国计量大学信息工程学院的杨力老师以及他的学生闫珍锜学长。他们对我论文的研究方向做出了指导性的意见和帮助，在论文撰写过程中及时对我遇到的困难和疑惑给予悉心指点，提出了许多有益的改善性意见，投入了大量的心血和精力，他们对我的帮忙和关怀表示诚挚的谢意！",
+          "formatting": {
+            "font-family": "宋体",
+            "first-line-indent": "36pt",
+            "font-size": "14pt",
+            "line-spacing": "1.8333334"
+          },
+          "xml_path": "document.xml#offset_1508"
+        }
+      },
+      {
+        "content": {
+          "id": 1640,
+          "type": "paragraph",
+          "raw_text": "同时，还要感谢中国计量大学信息工程学院通信工程专业的授课老师们和所有同学们，大家在中国计量大学的生活中互相学习，互相帮助,共同度过了一段难忘的时光。",
+          "formatting": {
+            "first-line-indent": "36pt",
+            "line-spacing": "1.8333334",
+            "font-size": "14pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_1639"
+        }
+      },
+      {
+        "content": {
+          "id": 1710,
+          "type": "paragraph",
+          "raw_text": "此外,还要感谢我的朋友以及同学们在论文编写中带给的大力支持和帮忙,给我带来极大的启发，同时也要感谢参考文献中的作者们，透过他们的研究文章,使我对研究课题有了很好的出发点。",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "14pt",
+            "line-spacing": "1.8333334",
+            "first-line-indent": "36pt"
+          },
+          "xml_path": "document.xml#offset_1709"
+        }
+      },
+      {
+        "content": {
+          "id": 1789,
+          "type": "paragraph",
+          "raw_text": "最后，谢谢论文评阅老师们的辛苦工作，衷心感谢我的家人、朋友,以及同学们，正是在他们的鼓励和支持下我才得以顺利完成此论文。",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.8333334",
+            "font-family": "宋体",
+            "first-line-indent": "36pt"
+          },
+          "xml_path": "document.xml#offset_1788"
+        }
+      },
+      {
+        "content": {
+          "id": 1838,
+          "type": "paragraph",
+          "raw_text": "虚拟现实三维全景仿真技术研究",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "黑体",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_1837"
+        }
+      },
+      {
+        "content": {
+          "id": 1856,
+          "type": "paragraph",
+          "raw_text": "摘要：三维仿真漫游系统是虚拟现实技术在工程领域的重要应用之一，开发三维仿真漫游系统的技术随着人机交互技术的成熟而不断发展。根据真实场景模拟出虚拟场景的虚拟现实漫游系统在航空、建筑、医学、教育等众多领域的科学可视化方面有广泛的应用。",
+          "formatting": {
+            "font-size": "12pt",
+            "font-family": "宋体",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_1855"
+        }
+      },
+      {
+        "content": {
+          "id": 1891,
+          "type": "paragraph",
+          "raw_text": "全景图技术是虚拟现实技术的一个重要分支，全景摄像装置的产生与发展给虚拟现实技术的应用开辟了一片新的天地，使构建虚拟场景不局限于通过构建3D模型来实现。因为基于全景图的虚拟现实系统具有硬件要求低、真实还原度高等优点，目前在各个领域越来越受欢迎。",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_1890"
+        }
+      },
+      {
+        "content": {
+          "id": 1912,
+          "type": "paragraph",
+          "raw_text": "本文研究了基于全景图的虚拟现实技术，选择采用Unity3D软件作为建模仿真工具，着重分析了三维全景虚拟现实系统的制作流程与关键技术，主要包括全景图的拍摄、图像拼接缝合、全景图的展示以及通过脚本实现鼠标控制场景切换4个部分，为三维全景技术在虚拟现实中的应用提供了一种思路和实现途径。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_1911"
+        }
+      },
+      {
+        "content": {
+          "id": 1922,
+          "type": "paragraph",
+          "raw_text": "关键词：虚拟现实；图像拼接融合；Unity3D；全景图技术",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_1921"
+        }
+      },
+      {
+        "content": {
+          "id": 1940,
+          "type": "paragraph",
+          "raw_text": "中图分类号：TP37",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_1939"
+        }
+      },
+      {
+        "content": {
+          "id": 1970,
+          "type": "paragraph",
+          "raw_text": "Research on Virtual Reality 3D Panoramic Simulation Technology",
+          "formatting": {
+            "font-size": "15pt",
+            "font-family": "仿宋_GB2312",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_1969"
+        }
+      },
+      {
+        "content": {
+          "id": 1993,
+          "type": "paragraph",
+          "raw_text": "Abstract: The 3D simulation roaming system is one of the important applications of virtual reality technology in the engineering field. The technology of developing 3D simulation roaming system is developing continuously with the maturity of human-computer interaction technology. The virtual reality roaming system that simulates the virtual scene according to the real scene has a wide range of applications in the scientific visualization of aviation, architecture, medicine, education and many other fields.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_1992"
+        }
+      },
+      {
+        "content": {
+          "id": 2011,
+          "type": "paragraph",
+          "raw_text": "Panorama technology is an important branch of virtual reality technology. The emergence and development of panoramic camera devices has opened up a new world for the application of virtual reality technology, so that the construction of virtual scenes is not limited to the construction of 3D models. Because the panorama-based virtual reality system has the advantages of low hardware requirements and high degree of real restoration, it is becoming more and more popular in various fields.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_2010"
+        }
+      },
+      {
+        "content": {
+          "id": 2021,
+          "type": "paragraph",
+          "raw_text": "This paper studies the virtual reality technology based on panorama, chooses Unity3D software as the modeling and simulation tool, and focuses on the analysis of the production process and key technologies of the panorama virtual reality system, including panorama shooting, image stitching and stitching, the display of panorama and the mouse-controlled scene switching through scripts are four parts, which provide a way of thinking and realization for the application of 3D panoramic technology in virtual reality.",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_2020"
+        }
+      },
+      {
+        "content": {
+          "id": 2029,
+          "type": "paragraph",
+          "raw_text": "Keywords: VirtualReality; Image Stitching Fusion; Unity3D; Panorama Technology",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2028"
+        }
+      },
+      {
+        "content": {
+          "id": 2127,
+          "type": "paragraph",
+          "raw_text": "Classification: TP37",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2126"
+        }
+      },
+      {
+        "content": {
+          "id": 2166,
+          "type": "paragraph",
+          "raw_text": "目   次",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_2165"
+        }
+      },
+      {
+        "content": {
+          "id": 2210,
+          "type": "paragraph",
+          "raw_text": " TOC \\o \"1-5\" \\f \\t \"Decimal Aligned,1\" 摘要 PAGEREF _Toc24105 \\h I",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_2209"
+        }
+      },
+      {
+        "content": {
+          "id": 2245,
+          "type": "paragraph",
+          "raw_text": "目次 PAGEREF _Toc22255 \\h III",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_2244"
+        }
+      },
+      {
+        "content": {
+          "id": 2281,
+          "type": "paragraph",
+          "raw_text": "1 绪论 PAGEREF _Toc26074 \\h 1",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "font-family": "Times New Roman"
+          },
+          "xml_path": "document.xml#offset_2280"
+        }
+      },
+      {
+        "content": {
+          "id": 2313,
+          "type": "paragraph",
+          "raw_text": "1.1 虚拟现实技术 PAGEREF _Toc14360 \\h 1",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "Times New Roman",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2312"
+        }
+      },
+      {
+        "content": {
+          "id": 2351,
+          "type": "paragraph",
+          "raw_text": "1.2 三维全景仿真技术 PAGEREF _Toc17487 \\h 1",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "Times New Roman",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2350"
+        }
+      },
+      {
+        "content": {
+          "id": 2384,
+          "type": "paragraph",
+          "raw_text": "1.3 国内外研究现状 PAGEREF _Toc22277 \\h 1",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2383"
+        }
+      },
+      {
+        "content": {
+          "id": 2417,
+          "type": "paragraph",
+          "raw_text": "1.4 研究意义及其改善 PAGEREF _Toc30792 \\h 2",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2416"
+        }
+      },
+      {
+        "content": {
+          "id": 2450,
+          "type": "paragraph",
+          "raw_text": "1.5 论文组织结构 PAGEREF _Toc18944 \\h 2",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2449"
+        }
+      },
+      {
+        "content": {
+          "id": 2484,
+          "type": "paragraph",
+          "raw_text": "2 虚拟现实仿真基础 PAGEREF _Toc12097 \\h 3",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2483"
+        }
+      },
+      {
+        "content": {
+          "id": 2517,
+          "type": "paragraph",
+          "raw_text": "2.1 仿真方法的选择 PAGEREF _Toc16242 \\h 3",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2516"
+        }
+      },
+      {
+        "content": {
+          "id": 2551,
+          "type": "paragraph",
+          "raw_text": "2.2 全景图仿真技术 PAGEREF _Toc8569 \\h 4",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "Times New Roman",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2550"
+        }
+      },
+      {
+        "content": {
+          "id": 2584,
+          "type": "paragraph",
+          "raw_text": "3 基于虚拟现实三维全景仿真方法 PAGEREF _Toc3141 \\h 6",
+          "formatting": {
+            "font-size": "12pt",
+            "font-family": "Times New Roman",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2583"
+        }
+      },
+      {
+        "content": {
+          "id": 2617,
+          "type": "paragraph",
+          "raw_text": "3.1 三维全景图的采集与生成 PAGEREF _Toc32558 \\h 6",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "font-family": "Times New Roman"
+          },
+          "xml_path": "document.xml#offset_2616"
+        }
+      },
+      {
+        "content": {
+          "id": 2650,
+          "type": "paragraph",
+          "raw_text": "3.2 立方体纹理贴图 PAGEREF _Toc6840 \\h 9",
+          "formatting": {
+            "font-size": "12pt",
+            "font-family": "Times New Roman",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2649"
+        }
+      },
+      {
+        "content": {
+          "id": 2683,
+          "type": "paragraph",
+          "raw_text": "4 实验方法与实现结果 PAGEREF _Toc184 \\h 12",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "font-family": "Times New Roman"
+          },
+          "xml_path": "document.xml#offset_2682"
+        }
+      },
+      {
+        "content": {
+          "id": 2717,
+          "type": "paragraph",
+          "raw_text": "4.1 Unity3D软件介绍 PAGEREF _Toc9362 \\h 12",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2716"
+        }
+      },
+      {
+        "content": {
+          "id": 2750,
+          "type": "paragraph",
+          "raw_text": "4.2 材质球制作 PAGEREF _Toc30817 \\h 12",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "Times New Roman",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2749"
+        }
+      },
+      {
+        "content": {
+          "id": 2784,
+          "type": "paragraph",
+          "raw_text": "4.3 仿真控制脚本及编码 PAGEREF _Toc15372 \\h 15",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "font-family": "Times New Roman"
+          },
+          "xml_path": "document.xml#offset_2783"
+        }
+      },
+      {
+        "content": {
+          "id": 2817,
+          "type": "paragraph",
+          "raw_text": "4.4 仿真效果及其实现 PAGEREF _Toc31797 \\h 18",
+          "formatting": {
+            "font-family": "Times New Roman",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_2816"
+        }
+      },
+      {
+        "content": {
+          "id": 2850,
+          "type": "paragraph",
+          "raw_text": "5 总结与展望 PAGEREF _Toc237 \\h 19",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "font-family": "Times New Roman"
+          },
+          "xml_path": "document.xml#offset_2849"
+        }
+      },
+      {
+        "content": {
+          "id": 2882,
+          "type": "paragraph",
+          "raw_text": "参考文献 PAGEREF _Toc12063 \\h 21",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_2881"
+        }
+      },
+      {
+        "content": {
+          "id": 2908,
+          "type": "paragraph",
+          "raw_text": "作者简介 PAGEREF _Toc2989 \\h 24",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2907"
+        }
+      },
+      {
+        "content": {
+          "id": 2934,
+          "type": "paragraph",
+          "raw_text": "学位论文数据集 PAGEREF _Toc11269 \\h 25",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2933"
+        }
+      },
+      {
+        "content": {
+          "id": 2977,
+          "type": "paragraph",
+          "raw_text": "绪论",
+          "formatting": {
+            "font-size": "15pt",
+            "line-spacing": "1.5",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_2976"
+        }
+      },
+      {
+        "content": {
+          "id": 2991,
+          "type": "paragraph",
+          "raw_text": "虚拟现实技术",
+          "formatting": {
+            "font-family": "黑体",
+            "font-size": "14pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_2990"
+        }
+      },
+      {
+        "content": {
+          "id": 3010,
+          "type": "paragraph",
+          "raw_text": "“虚拟现实 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [1]”这个术语最初是在1989年由美国 VPL公司 Laniner发明的，它描绘了电脑仿真技术。在过去的数十年里，它的发展从最初的娱乐性和仿真性的培训到了现在的虚拟实境，在众多领域中被大量使用。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_3009"
+        }
+      },
+      {
+        "content": {
+          "id": 3106,
+          "type": "paragraph",
+          "raw_text": "虚拟现实是一种以人为核心的的闭合体系，主要利用计算机来进行操作，它由使用者在需要的装置辅助下，利用装置与虚拟世界内的物体进行互动，并由此来操纵物体来真实地体会与感觉。它最主要的功能是使使用者能够超越时间与空间的局限，对真实世界中那些看不见的元素进行操控。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_3105"
+        }
+      },
+      {
+        "content": {
+          "id": 3141,
+          "type": "paragraph",
+          "raw_text": "三维全景仿真技术",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_3140"
+        }
+      },
+      {
+        "content": {
+          "id": 3153,
+          "type": "paragraph",
+          "raw_text": "三维全景技术是一种通过360°拍摄实现全景可视化的技术，通过拼接图像并发布三维全景图 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [2-4]，用户可以从任何角度和方向观察和控制场景。三维全景技术利用相机以真实图像为基础，看似孤立，但根据时间和空间关系进行组织，具有操纵空间的能力，进而构建虚拟环境。该技术的主要特点是利用基于现场真实照片的数据，因而更好地给用户带来身临其境的感觉。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_3152"
+        }
+      },
+      {
+        "content": {
+          "id": 3227,
+          "type": "paragraph",
+          "raw_text": "国内外研究现状",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "黑体",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_3226"
+        }
+      },
+      {
+        "content": {
+          "id": 3241,
+          "type": "paragraph",
+          "raw_text": "三维虚拟场景 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [5-11]交互是一个重点，它在数字信息化、分布规划、宣传展示方面起到重要作用。现今通过虚拟场景的漫游沉浸式平台来身临其境地全方位了解真实场景是人们的迫切需求，在这样的现实背景下，三维虚拟现实仿真交互系统应运而生。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_3240"
+        }
+      },
+      {
+        "content": {
+          "id": 3310,
+          "type": "paragraph",
+          "raw_text": "三维空间 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [12,13]的主动互动与传统的被动观景相比，存在很大差异。新科技的发展也将为我们提供新的思考方式，并将为我们的数字化技术做出巨大的改变。数字化3D全景 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [14-17]比传统2D更直观、生动、逼真。目前网页将真实场景抽象为二维文本描述和图片展示，让用户了解该场景。没有去过的用户只能在脑海中构建想象中的场景。三维全景虚拟场景能够再现真实场景的自然环境和人文环境。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_3309"
+        }
+      },
+      {
+        "content": {
+          "id": 3435,
+          "type": "paragraph",
+          "raw_text": "例如Google推出的街景服务 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [18]，能够提供360°横向和290°纵向全景街景，用户可以在不同的位置上看到城市街道和街道两侧。该服务目前尚未在中国大陆覆盖。相比Google的街景服务，在谷歌地图中集成真实的三维街景，可以定制三维场景，将室外的三维场景链接到室内，实现室内外场景漫游。",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_3434"
+        }
+      },
+      {
+        "content": {
+          "id": 3504,
+          "type": "paragraph",
+          "raw_text": "近年来，车载激光扫描(VLS)被广泛用于获取城市街道两侧不同物体的三维信息。虽然可以从激光扫描的点云数据中提取特征信息，但是绘制的图像不能显示真实的场景，然而全景图能够实现。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_3503"
+        }
+      },
+      {
+        "content": {
+          "id": 3528,
+          "type": "paragraph",
+          "raw_text": "研究意义及其改善",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_3527"
+        }
+      },
+      {
+        "content": {
+          "id": 3542,
+          "type": "paragraph",
+          "raw_text": "传统的三维场景是通过在遥感影像上创建大量的三维模型来构建的。这种方法的缺点是创建三维模型的生产周期长、数据量大、成本高、缺乏真实感等。与传统的三维建模相比，三维全景图利用三维全景照片构建身临其境的三维漫游场景 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [19,20]，数据量更小，画面更真实。在真实环境中的漫游和导航是通过定位全景图并在它们之间建立连接来实现的，这可以带来更好的用户体验。此外，三维实景可以丰富三维可视化的表达，有助于用户更好地理解和分析空间数据，进而提高交互感。本文主要介绍了利用360°全景照片，以中国计量大学校园中的两个实际场景为例，构建三维虚拟场景并实现漫游的方法。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_3541"
+        }
+      },
+      {
+        "content": {
+          "id": 3614,
+          "type": "paragraph",
+          "raw_text": "论文组织结构",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "黑体",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_3613"
+        }
+      },
+      {
+        "content": {
+          "id": 3629,
+          "type": "paragraph",
+          "raw_text": "本文结构共分为五个章节，其中每章的重点内容包括如下：",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_3628"
+        }
+      },
+      {
+        "content": {
+          "id": 3697,
+          "type": "paragraph",
+          "raw_text": "第一章：绪论。首先对虚拟现实技术、三维全景仿真技术进行了简单的阐述，然后分析了国内外对虚拟现实三维全景技术的研究现状以及目前技术中出现的不足之处，并在最后介绍了论文的组织结构。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_3696"
+        }
+      },
+      {
+        "content": {
+          "id": 3807,
+          "type": "paragraph",
+          "raw_text": "第二章：虚拟现实仿真基础。首先比较了现有的利用虚拟现实技术进行实景仿真的方式并选择了采用对图像进行序列建模的方式进行仿真设计，然后介绍了全景图仿真技术的知识并选择了采用球型全景模型进行设计，为接下来第三章所提出的全景图仿真技术提供理依据。",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_3806"
+        }
+      },
+      {
+        "content": {
+          "id": 3915,
+          "type": "paragraph",
+          "raw_text": "第三章：基于虚拟现实三维全景仿真方法。对三维全景图的采集与生成、立方体纹理贴图两个设计部分进行了理论阐述和方法介绍，为第四章的仿真设计提供了前期准备。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_3914"
+        }
+      },
+      {
+        "content": {
+          "id": 3971,
+          "type": "paragraph",
+          "raw_text": "第四章：实验方法与实现结果。在简单介绍了仿真采用的软件Unity3D之后细述了仿真设计的步骤，包括制作材质球、利用脚本实现全景漫游以及场景切换、生成应用程序3个设计步骤。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_3970"
+        }
+      },
+      {
+        "content": {
+          "id": 4027,
+          "type": "paragraph",
+          "raw_text": "第五章：总结与展望。对本文的重点研究内容加以总结，并分析了目前工作中出现的问题，同时提出下一步的研究方向。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4026"
+        }
+      },
+      {
+        "content": {
+          "id": 4093,
+          "type": "paragraph",
+          "raw_text": "虚拟现实仿真基础",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "15pt",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_4092"
+        }
+      },
+      {
+        "content": {
+          "id": 4107,
+          "type": "paragraph",
+          "raw_text": "虚拟现实技术以计算机技术为核心，结合相关的科学技术，创造出一个高度逼真的视觉、听觉、触觉等虚拟环境。在这种虚拟场景中，使用者能够与该物体进行互动，能够达到一种“身临其境”的感觉。它的根本特点是沉浸式和实时交互，其终极目的是要将其转化为真实的时间和空间的概念，也就是从虚拟的环境中获取与真实的环境相关的内容。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4106"
+        }
+      },
+      {
+        "content": {
+          "id": 4142,
+          "type": "paragraph",
+          "raw_text": "仿真方法的选择",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_4141"
+        }
+      },
+      {
+        "content": {
+          "id": 4157,
+          "type": "paragraph",
+          "raw_text": "通过使用虚拟现实技术进行实景仿真的方式有两种：构建三维模型以及对图像进行序列建模；传统的三维模型中，一般都是以创造和设计为基础的，所产生的环境受局限。以影像为基础的建模利用相机对序列图像进行采集，并利用后期的拼接合成来实现对虚拟现实的重建。由于这种算法是利用相机捕获来实现的，所以无论是否由于物体的复杂度限制都尽可能地贴近实际的自然环境，能给观众带来较好的沉浸体验。三维立体影像相对于普通的平板影像具有更多的影像数据，能够实现任意的操控，具有良好的互动效果。三维立体影像相对于电脑建模，能生产复杂性较高的场景。      ",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4156"
+        }
+      },
+      {
+        "content": {
+          "id": 4260,
+          "type": "paragraph",
+          "raw_text": "现有的对虚拟现实场景的构建方法是使用3DMAX、Photoshop以及Unity3D构建三维模型的方式。这种方式在虚拟场景中选择某一建筑物作为参照物、作为三维坐标系的原点，其他的建筑物一参考建筑物为参考点建立相对坐标来规划整个仿真场景，仿真时需要根据按照场景的实际尺寸进行等比例仿真。需要在3DMAX中建立相关建筑物的模型，通过Photoshop对建筑物模型外观的贴图进行处理，最后导入至Unity3D进行仿真设计。设计过程中不仅需要对建筑物进行建模还需要对场景中的植被景观，对建筑物的门窗、线条、墙体等细节进行处理。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_4259"
+        }
+      },
+      {
+        "content": {
+          "id": 4341,
+          "type": "paragraph",
+          "raw_text": "设计初期也曾考虑过采取这种方式进行构建，但由于校园建筑物复杂密集很难通过肉眼观察、没有详细的布局图进行等比例仿真布局并且没有较为详细的建筑物设计图进行模型构建的因素，因此通过Unity3D、3DMAX来构建3D模型的方法难以实现，设计实现周期长，数据量很大且会存在现实场景还原度不高的问题。比较之下通过三维全景图进行拼接转换的方式得到的漫游场景能够更为真实的还原现实场景，因此最后选择通过使用三维全景图来构建三维漫游场景的方法来进行仿真实现。仿真主要包括全景图的拼接融合、利用全景图制作材质球、编写代码控制材质球转化以及将虚拟场景导出成应用程序等部分。设计主要通过使用Unity3D软件进行实现。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_4340"
+        }
+      },
+      {
+        "content": {
+          "id": 4512,
+          "type": "paragraph",
+          "raw_text": "图 2.1 利用全景图进行序列建模",
+          "formatting": {
+            "font-family": "宋体",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_4511"
+        }
+      },
+      {
+        "content": {
+          "id": 4551,
+          "type": "paragraph",
+          "raw_text": "143700552070",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_4550"
+        }
+      },
+      {
+        "content": {
+          "id": 4624,
+          "type": "paragraph",
+          "raw_text": "      图 2.2 构建三维模型",
+          "formatting": {
+            "font-size": "10.5pt",
+            "font-family": "宋体",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_4623"
+        }
+      },
+      {
+        "content": {
+          "id": 4655,
+          "type": "paragraph",
+          "raw_text": "全景图仿真技术",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_4654"
+        }
+      },
+      {
+        "content": {
+          "id": 4669,
+          "type": "paragraph",
+          "raw_text": "全景图技术 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [21,22]是虚拟现实技术的主要分支，是新兴的互动媒体技术，有着手机制作方便、视觉全方位、记录和再现能力强、系统性能需要不高等优势。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4668"
+        }
+      },
+      {
+        "content": {
+          "id": 4738,
+          "type": "paragraph",
+          "raw_text": "全景图（Panorama）是指利用照相装置以360°均匀分角度转动360°拍摄与人类的普通有效视角一致的360°图像。全景图的生成分为模型选取、图像采集、图像拼接和调整三个阶段。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4737"
+        }
+      },
+      {
+        "content": {
+          "id": 4762,
+          "type": "paragraph",
+          "raw_text": "常见的全景模型有立方体全景、球面全景和柱形全景三大类，各种模型的投射模式也不尽相同。模型的差别实质上是在一次转动照相拍照时，转动角的变化会引起相邻两幅影像发生的角偏离，继而得到到的影像序列没在相同投射平面上，并为此对位置的几何关系有一定的制约、对现实情景的视觉统一性等有关特征引起了损坏。为了能得到优良的图像融合成效、确保视觉上的统一性，在拼凑影像前必须把在不一样成像平面上的影像投射到一致的标准的空间面上，后期全景图的拼凑结合也是根据这个空间面展开的，全景模型就是这个一致的标准的空间面。立方体全景、球面全景和柱形全景的主要特征如下：",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_4761"
+        }
+      },
+      {
+        "content": {
+          "id": 4815,
+          "type": "paragraph",
+          "raw_text": "立方体全景是将全景图划分六个方向，即：上下左右前后，在观看的过程中把六个不同的平面形成一个封闭的区域，继而完成水平和竖直的360°全景；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_4814"
+        }
+      },
+      {
+        "content": {
+          "id": 4838,
+          "type": "paragraph",
+          "raw_text": "球型全景是将球型的经度纬度座标，直接连接到水平和垂直座标的一格，这一栅格的高度大约是宽的二倍。所以从赤道到南北极，纵向伸拉持续增加，南北两个极点被伸拉成平扁的栅格在整个上端和下端边沿。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4837"
+        }
+      },
+      {
+        "content": {
+          "id": 4861,
+          "type": "paragraph",
+          "raw_text": "圆柱状的全景图和球面一样，但当物体靠近南北级时，两极则会产生无限的垂直伸展。这样，平面栅格的上下两端都没有水平线，所以圆柱形的投射对于有很大的垂直角度的图片来说是不合适的。圆柱形投射是传统的摇晃镜头全景摄影机所采用及提供的一种标准投射模式。其对目标规格的维持比直线投射更精确，这样就将平行于观测者视野的直线渲染成为曲线。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4860"
+        }
+      },
+      {
+        "content": {
+          "id": 4875,
+          "type": "paragraph",
+          "raw_text": "由于球面的全景视野是水平360°、垂直180°的全方位视野，它最接近于人类的眼睛，它可以从任何角度来观看周围的景色，从而更好地描绘出视野中的各个景观。所以在进行全景拍摄时，我们选用了最强沉浸感和最佳全景效果的球面全景模式来设计全景图。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_4874"
+        }
+      },
+      {
+        "content": {
+          "id": 4962,
+          "type": "paragraph",
+          "raw_text": "图 2.3 图像全景成像示意",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_4961"
+        }
+      },
+      {
+        "content": {
+          "id": 5027,
+          "type": "paragraph",
+          "raw_text": "基于虚拟现实三维全景仿真方法",
+          "formatting": {
+            "font-size": "15pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_5026"
+        }
+      },
+      {
+        "content": {
+          "id": 5039,
+          "type": "paragraph",
+          "raw_text": "仿真内容主要包括三维全景图的采集与拼接融合，对全景图加工处理制作成材质球，通过脚本实现场景的全景浏览以及场景切换。计划通过如下四个步骤实现仿真：首先，通过将拍摄的场景图片拼接融合得到全景图并将全景图加工处理成相应的立方体纹理贴图；其次，利用立方体纹理贴图制作天空盒即所需的材质球；再次，利用脚本控制材质球切换来达到视觉切换的效果；最后，将制作完成的虚拟场景导出成应用程序。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5038"
+        }
+      },
+      {
+        "content": {
+          "id": 5110,
+          "type": "paragraph",
+          "raw_text": "图 3.1仿真步骤",
+          "formatting": {
+            "font-size": "10.5pt",
+            "font-family": "宋体",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_5109"
+        }
+      },
+      {
+        "content": {
+          "id": 5135,
+          "type": "paragraph",
+          "raw_text": "三维全景图的采集与生成",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_5134"
+        }
+      },
+      {
+        "content": {
+          "id": 5147,
+          "type": "paragraph",
+          "raw_text": "目前主要有三种方式获取全景图：第一种方式是利用电脑建立和绘制3D立体模型，并将其渲染成立体图像，这样获得的全景图像与实际情况存在一定的差异，仿真效果较差，制作时间较长；第二种方式是将图片进行模型化，然后利用相应的软件对其进行合成，从而获得完整的全景图以及得到更加逼真的场景，而且采集的速度也很快；第三种方式是通过采用全景照相机直接进行拍摄，全景相机通常自带生成全景图的功能，通过这种方式得到的全景图真实还原度高且该方式简单、方便、快捷，但通常设备成本较高。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5146"
+        }
+      },
+      {
+        "content": {
+          "id": 5266,
+          "type": "paragraph",
+          "raw_text": "图 3. SEQ 图 \\* ARABIC \\s 1 2 设计流程图",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "10.5pt",
+            "font-family": "宋体",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_5265"
+        }
+      },
+      {
+        "content": {
+          "id": 5336,
+          "type": "paragraph",
+          "raw_text": "设计之初采用鱼眼镜头相机进行拍摄由于使用了鱼眼镜头，可以实现180°以上的角度，所以只要照少量的照片，就能实现360°的全方位观察。照相时，摄像机的仰角为5°，每一次转动60°，然后横向转动一周就可以了。在照相时，三脚架不可挪动。完成6张照片的拍摄后，取下相机补拍一张地面的图片，一个场景总共拍摄7张图片。拍摄期间需要注意保持设备的稳定。采用仰角5°拍摄的原因在于通过这种方式拍摄的图片可以直接将天空包含进去，不用单独拍摄天空的图片，减小了图片数量，降低了后续图片处理的工作量。利用相同的方式来完成2个场景的摄影。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_5335"
+        }
+      },
+      {
+        "content": {
+          "id": 5371,
+          "type": "paragraph",
+          "raw_text": "全景图的拼接 REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [23-25]要将多个角度存在不同交迭位置的影像组合为一个完整的全景图，其导出结果为两个输入影像的合并。在进行图象的拼凑时，图像的匹配和融合是两个重要环节。全景图的拼接需要以下步骤：",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_5370"
+        }
+      },
+      {
+        "content": {
+          "id": 5446,
+          "type": "paragraph",
+          "raw_text": "首先，采用 SIFT方法对图像开展特征抽取，并对其开展特征的匹配；然后，利用 RANSAC方法，通过比较两个图像得到的特征匹配的相似性，找到相应的特征点；然后，采用图象转换的结构进行图象的映射，即将各图象中的相应的点在空间方位对齐；最后，进行图像融合和调整。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5445"
+        }
+      },
+      {
+        "content": {
+          "id": 5514,
+          "type": "paragraph",
+          "raw_text": "在拼接时，利用 SIFT REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [26-28]（Scale-invariant feature transform，尺度不变特征转换）的局部描述算法来提取关键点和特征。SIFT是根据目标的某些关键点（例如角点、边缘点、暗点、明亮区域的黑点），因此它不受图像的尺寸和转动影响，也不受光线、噪声和尺度变化的影响，因此非常适用于图像的特点和关键点的探测。SIFT特点匹配主要有6个部分：二维图象的尺度空间、尺度空间的关键性、重点部位的精确定位、关键点的定位，求出32维的关键点描述子以及关键节点的匹配。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_5513"
+        }
+      },
+      {
+        "content": {
+          "id": 5634,
+          "type": "paragraph",
+          "raw_text": "图 3.3 SIFT算法实例",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_5633"
+        }
+      },
+      {
+        "content": {
+          "id": 5659,
+          "type": "paragraph",
+          "raw_text": "例如通过SIFT对图中的采样窗口进行处理，圆圈内的的范围需要进行高斯加权，对每个4x4的小方块计算统计其内部8个方向的梯度直方图信息，进而得到每个梯度方向的累加值，通过这些操作后可得到该4x4的小方块的一个种子点。一个关键点由4个种子点构成，每个种子点必须含有8个方向的向量信息，因此可以形成一个4×4×8=128维的描述子，生成的向量具有独特性且可以准确描述特征点。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5658"
+        }
+      },
+      {
+        "content": {
+          "id": 5683,
+          "type": "paragraph",
+          "raw_text": "匹配图片采用的方式是RANSAC REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [29]（RANdom SAmple Consensus, 随机抽样一致）。由于匹配点数多的情况下，会出现了许多的误差，利用该方法对特征点对进行二次配准，剔除了不满足多数几何转换的匹配，筛选后的特征点基本能够一一对应，极大的提高了匹配精确度。匹配步骤为：（其中内点是用来估计模型参数的有效数据）",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5682"
+        }
+      },
+      {
+        "content": {
+          "id": 5752,
+          "type": "paragraph",
+          "raw_text": "随机采样K个点，K是求解模型参数的最少点个数；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_5751"
+        }
+      },
+      {
+        "content": {
+          "id": 5764,
+          "type": "paragraph",
+          "raw_text": "使用K个点估计模型参数；",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5763"
+        }
+      },
+      {
+        "content": {
+          "id": 5782,
+          "type": "paragraph",
+          "raw_text": "计算剩余点到估计模型的距离，其中距离小于阈值则为内点，统计内点的数目；",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5781"
+        }
+      },
+      {
+        "content": {
+          "id": 5805,
+          "type": "paragraph",
+          "raw_text": "重复以上步骤M次并保留数目最多的内点；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_5804"
+        }
+      },
+      {
+        "content": {
+          "id": 5817,
+          "type": "paragraph",
+          "raw_text": "使用所有的内点重新估计模型。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5816"
+        }
+      },
+      {
+        "content": {
+          "id": 5829,
+          "type": "paragraph",
+          "raw_text": "完成匹配后，利用匹配的特征点来估计单应矩阵（homography matrix），也就是将其中一张图像通过关联性和另一张匹配。方法是将图像切割成无数多个小方块后对每个小方块进行单应性矩阵变换，通过单应矩阵对图像进行仿射变换。  ",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5828"
+        }
+      },
+      {
+        "content": {
+          "id": 5853,
+          "type": "paragraph",
+          "raw_text": "在进行图像拼接过程中使用最佳缝合线算法（Image Stitching），该算法是利用动态规划的思想在两幅图像的重叠区域，计算出一条拼接线从而将待处理的图像各自划分两部分，然后各取一部分进行融合，当选取的线比较合理时可以很好地解决鬼影现象。理想的缝合线上的像素点需要满足两个要求：颜色差异最小和几何结构最相似。根据公式",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_5852"
+        }
+      },
+      {
+        "content": {
+          "id": 5888,
+          "type": "paragraph",
+          "raw_text": "false  （3.1）",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_5887"
+        }
+      },
+      {
+        "content": {
+          "id": 5956,
+          "type": "paragraph",
+          "raw_text": "其中Ecolor为重叠点色彩差值，Estructure为重叠点构造差值。计算最佳缝合线的步骤如下：",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_5955"
+        }
+      },
+      {
+        "content": {
+          "id": 6010,
+          "type": "paragraph",
+          "raw_text": "将重叠区域第一行的所有像素点作为起始缝合线；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6009"
+        }
+      },
+      {
+        "content": {
+          "id": 6022,
+          "type": "paragraph",
+          "raw_text": "计算每一行缝合线强度值并向下扩展直至最后一行。扩展方法是：将当前 像素点下一行相邻的3个像素点的拼接线强度值进行比较，将得到的最小强度值的像素点作为下一行的扩展点，并将当前像素点更新为下一行的最新点进而向下扩展直至最后一行；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6021"
+        }
+      },
+      {
+        "content": {
+          "id": 6040,
+          "type": "paragraph",
+          "raw_text": "将所有选中的像素点连接起来作为最佳缝合线。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6039"
+        }
+      },
+      {
+        "content": {
+          "id": 6054,
+          "type": "paragraph",
+          "raw_text": "图像融合的目的在于消除拼缝，用Laplacian（拉普拉斯）金字塔，通过对相邻两层的高斯金字塔进行差分，将原图分解成不同尺度的子图，对每一个之图进行加权平均，得到每一层的融合结果，最后进行金字塔的反向重建，得到最终融合结果。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_6053"
+        }
+      },
+      {
+        "content": {
+          "id": 6078,
+          "type": "paragraph",
+          "raw_text": "图像调整的目的在于可以得到质量好、速率快的全景图像，需要根据要求对图像大小、亮度、对比度等进行统一处理。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_6077"
+        }
+      },
+      {
+        "content": {
+          "id": 6102,
+          "type": "paragraph",
+          "raw_text": "立方体纹理贴图",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6101"
+        }
+      },
+      {
+        "content": {
+          "id": 6114,
+          "type": "paragraph",
+          "raw_text": "纹理贴图是用来表达物体表面的显示细节，这些细节包括表面颜色，阴影，光照信息设置与显示无关的数据等。纹理采样是读取存储物体表面信息的过程，一般是通过纹理坐标读取纹理颜色值，但仅仅通过物体表面上的纹理坐标映射到纹理贴图上的颜色值是不够的，在某些情况下会有明显的锯齿即纹理走样，解决锯齿的方式是加大采样频率和使用过滤器。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_6113"
+        }
+      },
+      {
+        "content": {
+          "id": 6138,
+          "type": "paragraph",
+          "raw_text": "立方体纹理贴图（Cubemap）是一种以立方体结构组织的，使用多个纹理组合映射的，每个2D纹理组成立方体的一个面的纹理类型。因此，每一张立方体贴图都会包含前后左右上下六个从属2D纹理，每个2D纹理是一个立方体的一个面。立方体纹理贴图用三维向量（s，t，r）来检索纹理，表示在立方体内部，以原点为起点，沿着向量方向所看到的纹理，通过坐标映射的方式确定使用哪张贴图中的哪个颜色值。立方体纹理贴图通常被用来作为具有反射属性物体的反射源或者用来制作天空盒。        ",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_6137"
+        }
+      },
+      {
+        "content": {
+          "id": 6162,
+          "type": "paragraph",
+          "raw_text": "立方体贴图采样过程如下：判定一个点坐标中绝对值最大的轴向作为选择立方体纹理面的依据，如: 某点 |y| > |x| > |z|则选取与y轴对应的立方体贴图中上下两个面根据y的正负选择上/下面为采样的纹理，在用x,z坐标在此张纹理贴图中采样。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_6161"
+        }
+      },
+      {
+        "content": {
+          "id": 6186,
+          "type": "paragraph",
+          "raw_text": "有两种常见的环境图表示方法，立方体和球面图，后者也称为等距柱状投影。在立方体贴图中，虚拟摄像机被一个立方体包围，该立方体的6个面具有适当的纹理贴图。这些纹理贴图通常是通过使用六个90°视场摄像机对场景进行成像来创建的，这些摄像机可提供左、前、右、后、上和下纹理。在球面贴图中，照相机被一个球体包围，球体具有单个球形扭曲纹理。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_6185"
+        }
+      },
+      {
+        "content": {
+          "id": 6251,
+          "type": "paragraph",
+          "raw_text": "图 3.4 模型开发",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_6250"
+        }
+      },
+      {
+        "content": {
+          "id": 6336,
+          "type": "paragraph",
+          "raw_text": "图 3.5 投影方法",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "宋体",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_6335"
+        }
+      },
+      {
+        "content": {
+          "id": 6358,
+          "type": "paragraph",
+          "raw_text": "通过图3.4可以发现球形投影不是存储360°x180°投影的有效方法。该图像由立方体的面和各种测试图案组成的，需要注意的是：球体和圆环的距离都相同，即它们位于球体的表面上，网格都位于同一平面中。考虑到具有9个球体的面（一个在中心，四个朝向边缘，四个朝向角落），球体的大小（分配的像素数）向北极和南极增加。在极点的球体的极端情况下，代表该球体的“浪费”像素更多。图3.3立方体贴图比较之下更加适合用于存储360°x180°投影，两极的过度问题得到了解决，是对可用像素的更均匀的使用。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6357"
+        }
+      },
+      {
+        "content": {
+          "id": 6448,
+          "type": "paragraph",
+          "raw_text": "因此我们需要通过图像裁剪完成图3.4到图3.5的变换，同时在处理时需要将图像的白边剔除以及对映射像素进行插值处理以使图像更加平滑。通过使用MATLAB完成相关操作后，可以得到相应的前后左右上下六张图。例如图3.5到图3.6的变换。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_6447"
+        }
+      },
+      {
+        "content": {
+          "id": 6557,
+          "type": "paragraph",
+          "raw_text": "图  STYLEREF 1 \\s 3.6 教室建模",
+          "formatting": {
+            "font-size": "10.5pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_6556"
+        }
+      },
+      {
+        "content": {
+          "id": 6668,
+          "type": "paragraph",
+          "raw_text": "图  STYLEREF 1 \\s 3.7 教室三维示意图",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_6667"
+        }
+      },
+      {
+        "content": {
+          "id": 6733,
+          "type": "paragraph",
+          "raw_text": "在Unity3D中有两种方式可以实现立方体纹理贴图：将全景图切割成上下左右前后六张图后导入贴图至天空盒的六个面或者在Unity3D中导入全景图后将其转换成Cube形式应用至天空盒，之后即可以利用立方体纹理贴图制作材质球。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6732"
+        }
+      },
+      {
+        "content": {
+          "id": 6764,
+          "type": "paragraph",
+          "raw_text": "方法一：将全景图切割成前后左右上下六张图后导入贴图至天空盒的六个面来完成材质球的制作；",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_6763"
+        }
+      },
+      {
+        "content": {
+          "id": 6795,
+          "type": "paragraph",
+          "raw_text": "方法二：在Unity3D中导入全景图后将其转换成Cube形式应用至材质球。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_6794"
+        }
+      },
+      {
+        "content": {
+          "id": 6831,
+          "type": "paragraph",
+          "raw_text": "实验方法与实现结果",
+          "formatting": {
+            "font-size": "15pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6830"
+        }
+      },
+      {
+        "content": {
+          "id": 6846,
+          "type": "paragraph",
+          "raw_text": "Unity3D软件介绍",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5",
+            "font-family": "黑体"
+          },
+          "xml_path": "document.xml#offset_6845"
+        }
+      },
+      {
+        "content": {
+          "id": 6860,
+          "type": "paragraph",
+          "raw_text": "Unity3D REF _Ref71534245 \\r \\h  \\* MERGEFORMAT [30]是 Unity Technologies公司研发的一款多平台集成游戏开发软件，可以让开发者很容易地制作三维动画游戏，实现建筑可视化，实时三维动画等操作。Unity3D提供了可视化编辑，详细的属性编辑和动态的游戏预览等功能，实现交互感受，提高设计的交互性。另外Unity3D软件还具有自动输入资源的能力，支持3DMax等各种主流三维格式，并且能够兼容大多数的软件，开发者可以在多个平台上进行开发。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6859"
+        }
+      },
+      {
+        "content": {
+          "id": 6968,
+          "type": "paragraph",
+          "raw_text": "材质球制作",
+          "formatting": {
+            "font-size": "14pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_6967"
+        }
+      },
+      {
+        "content": {
+          "id": 6983,
+          "type": "paragraph",
+          "raw_text": "根据上文所述的两种理论方法进行实际操作并通过比较得出效果更佳的制作方法。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_6982"
+        }
+      },
+      {
+        "content": {
+          "id": 7009,
+          "type": "paragraph",
+          "raw_text": "方法一：将全景图切割成前后左右上下六张图后导入贴图至天空盒的六个面来完成材质球的制作",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7008"
+        }
+      },
+      {
+        "content": {
+          "id": 7033,
+          "type": "paragraph",
+          "raw_text": "将六张图导入创建好的Unity项目中，创建材质球，将材质球的shader标签进行修改，改为Skybox->6 Sided",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7032"
+        }
+      },
+      {
+        "content": {
+          "id": 7118,
+          "type": "paragraph",
+          "raw_text": "图 4.1 材质球建立图示",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "font-family": "宋体",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_7117"
+        }
+      },
+      {
+        "content": {
+          "id": 7159,
+          "type": "paragraph",
+          "raw_text": "将导入的图片添加到相应的位置，即可得到相应的天空盒即材质球",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_7158"
+        }
+      },
+      {
+        "content": {
+          "id": 7241,
+          "type": "paragraph",
+          "raw_text": "图 4.2 天空盒制作",
+          "formatting": {
+            "font-size": "10.5pt",
+            "first-line-indent": "21pt",
+            "font-family": "宋体",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7240"
+        }
+      },
+      {
+        "content": {
+          "id": 7287,
+          "type": "paragraph",
+          "raw_text": "在Environment下面的Skybox Material 将刚刚做好的材质球放进去，即可在Scene或者Game窗口看见",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7286"
+        }
+      },
+      {
+        "content": {
+          "id": 7343,
+          "type": "paragraph",
+          "raw_text": "图 4.3 切割图",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_7342"
+        }
+      },
+      {
+        "content": {
+          "id": 7389,
+          "type": "paragraph",
+          "raw_text": "方法二：在Unity3D中导入全景图后将其转换成Cube形式应用至材质球",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7388"
+        }
+      },
+      {
+        "content": {
+          "id": 7415,
+          "type": "paragraph",
+          "raw_text": "将全景图导入Unity项目中，在Inspector中将图片的Texture shape选择为Cube即可将全景图转换成相应的立方体贴图形式",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_7414"
+        }
+      },
+      {
+        "content": {
+          "id": 7473,
+          "type": "paragraph",
+          "raw_text": "图 4.4 立体贴图",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_7472"
+        }
+      },
+      {
+        "content": {
+          "id": 7519,
+          "type": "paragraph",
+          "raw_text": "创建材质球，将材质球的shader标签进行修改，改为Skybox->Cubemap即完成了材质球的制作",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7518"
+        }
+      },
+      {
+        "content": {
+          "id": 7605,
+          "type": "paragraph",
+          "raw_text": "图 4.5 材质球其他制作方法",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "10.5pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_7604"
+        }
+      },
+      {
+        "content": {
+          "id": 7651,
+          "type": "paragraph",
+          "raw_text": "在Environment下面的Skybox Material 将刚刚做好的材质球放进去，即可在Scene或者Game窗口看见",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7650"
+        }
+      },
+      {
+        "content": {
+          "id": 7677,
+          "type": "paragraph",
+          "raw_text": "通过对比两种方式制作的材质球，可以发现方法二的材质球清晰度更好、存在的失真情况较少。通过方法一制作的材质球由于经过MATLAB的图像处理后再导入导致了图像清晰度下降，且由于图像处理过程中可能存在着边缘处理偏差、噪声等因素的影响导致了图像有所失真，在贴图至立方体六个面后清晰度下降、存在着一定的失真且盒图拼接处存在着位置上的些许偏差。因此最终决定采用方法二进行设计。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7676"
+        }
+      },
+      {
+        "content": {
+          "id": 7703,
+          "type": "paragraph",
+          "raw_text": "在材质球制作完成后，需要对其进行法线反转处理。一个曲面是有两个面的，一个正面一个反面，通常面向法线的面会被显示，背向法线的面则没有任何光线信息。通过法线反转处理后，把现有的三维模型的面全部反转过来，产生的效果相当于把摄像机放入模型内部进行观察，因此只能看到模型内部的面，这样操作更有利于观察。在进行后续贴全景图操作时也是对球体模型内部的面进行贴图。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_7702"
+        }
+      },
+      {
+        "content": {
+          "id": 7769,
+          "type": "paragraph",
+          "raw_text": "图 4.6 制作完成的材质球",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "10.5pt",
+            "font-family": "宋体"
+          },
+          "xml_path": "document.xml#offset_7768"
+        }
+      },
+      {
+        "content": {
+          "id": 7810,
+          "type": "paragraph",
+          "raw_text": "仿真控制脚本及编码",
+          "formatting": {
+            "font-family": "黑体",
+            "font-size": "14pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7809"
+        }
+      },
+      {
+        "content": {
+          "id": 7824,
+          "type": "paragraph",
+          "raw_text": "由因为一个虚拟场景中会包含多张全景图，所以在生成虚拟场景时需要将每一张全景图作为一个独立的节点，并按照现实场景中的位置关系重新排列这些全景图。同时需要在全景图与全景图之间添加过渡图像，最终生成完整的虚拟场景。在进行虚拟现实场景漫游时，能够在任意一个全景图中实360°环视，并且可以通过鼠标控制来改变所在节点的位置,达到在虚拟场景中前进的效果，给使用者身临其境的感觉。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7823"
+        }
+      },
+      {
+        "content": {
+          "id": 7851,
+          "type": "paragraph",
+          "raw_text": "设计时通过使用脚本控制鼠标控制材质球的切换，控制相机的Field of View视角来达到前进、后退的效果。",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7850"
+        }
+      },
+      {
+        "content": {
+          "id": 7875,
+          "type": "paragraph",
+          "raw_text": "在设计时采用了DOTween插件，DOTween是一种针对Unity的快速、高效、类型安全的、面向目标的补间式动画组件，其基本原则就是通过对二者之间的直接差异进行不同的处理，完成各类平滑挪移，并在下层使用 Unity的 Lerp功能，不过相比 Unity本身的 Lerp功能更加灵活，功能也更加强大，稳定性和易用性都要好。DOTween可在Unity3D 资源商店里下载得到。本次设计主要是使用了DOTween插件对Camera拓展用法中的改变相机FOV的值 camera.DOFieldOfView();",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7874"
+        }
+      },
+      {
+        "content": {
+          "id": 7910,
+          "type": "paragraph",
+          "raw_text": "具体代码如下：",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_7909"
+        }
+      },
+      {
+        "content": {
+          "id": 7934,
+          "type": "paragraph",
+          "raw_text": "using System.Collections;",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7933"
+        }
+      },
+      {
+        "content": {
+          "id": 7944,
+          "type": "paragraph",
+          "raw_text": "using System.Collections.Generic;",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7943"
+        }
+      },
+      {
+        "content": {
+          "id": 7954,
+          "type": "paragraph",
+          "raw_text": "using UnityEngine;",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_7953"
+        }
+      },
+      {
+        "content": {
+          "id": 7964,
+          "type": "paragraph",
+          "raw_text": "using DG.Tweening;#调用DOTween插件",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_7963"
+        }
+      },
+      {
+        "content": {
+          "id": 7974,
+          "type": "paragraph",
+          "raw_text": "using UnityEngine.UI;",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_7973"
+        }
+      },
+      {
+        "content": {
+          "id": 7984,
+          "type": "paragraph",
+          "raw_text": "/// <summary>",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_7983"
+        }
+      },
+      {
+        "content": {
+          "id": 7994,
+          "type": "paragraph",
+          "raw_text": "/// 相机动画",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_7993"
+        }
+      },
+      {
+        "content": {
+          "id": 8004,
+          "type": "paragraph",
+          "raw_text": "/// </summary>",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8003"
+        }
+      },
+      {
+        "content": {
+          "id": 8014,
+          "type": "paragraph",
+          "raw_text": "public class CameraControllor : MonoBehaviour",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8013"
+        }
+      },
+      {
+        "content": {
+          "id": 8024,
+          "type": "paragraph",
+          "raw_text": "{",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8023"
+        }
+      },
+      {
+        "content": {
+          "id": 8034,
+          "type": "paragraph",
+          "raw_text": "    /// <summary>",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8033"
+        }
+      },
+      {
+        "content": {
+          "id": 8044,
+          "type": "paragraph",
+          "raw_text": "    /// 相机的",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8043"
+        }
+      },
+      {
+        "content": {
+          "id": 8054,
+          "type": "paragraph",
+          "raw_text": "    /// </summary>",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8053"
+        }
+      },
+      {
+        "content": {
+          "id": 8064,
+          "type": "paragraph",
+          "raw_text": "    public Camera CameraObject;#相机",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8063"
+        }
+      },
+      {
+        "content": {
+          "id": 8074,
+          "type": "paragraph",
+          "raw_text": "    public GameObject SphereMat;#存放材质球的地方",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8073"
+        }
+      },
+      {
+        "content": {
+          "id": 8084,
+          "type": "paragraph",
+          "raw_text": "    public int Count=0;",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8083"
+        }
+      },
+      {
+        "content": {
+          "id": 8094,
+          "type": "paragraph",
+          "raw_text": "    public Material[] mat;#全景图赋值给材质球",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8093"
+        }
+      },
+      {
+        "content": {
+          "id": 8104,
+          "type": "paragraph",
+          "raw_text": "    public Button NextScene;",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8103"
+        }
+      },
+      {
+        "content": {
+          "id": 8114,
+          "type": "paragraph",
+          "raw_text": "    public int FOVCount = 2;",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8113"
+        }
+      },
+      {
+        "content": {
+          "id": 8124,
+          "type": "paragraph",
+          "raw_text": "    private int num=60;",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8123"
+        }
+      },
+      {
+        "content": {
+          "id": 8134,
+          "type": "paragraph",
+          "raw_text": "    void Start()",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8133"
+        }
+      },
+      {
+        "content": {
+          "id": 8144,
+          "type": "paragraph",
+          "raw_text": "    {",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8143"
+        }
+      },
+      {
+        "content": {
+          "id": 8154,
+          "type": "paragraph",
+          "raw_text": "        NextScene.onClick.AddListener( ( ) =>",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8153"
+        }
+      },
+      {
+        "content": {
+          "id": 8164,
+          "type": "paragraph",
+          "raw_text": "         {",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8163"
+        }
+      },
+      {
+        "content": {
+          "id": 8174,
+          "type": "paragraph",
+          "raw_text": "             Count++;",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8173"
+        }
+      },
+      {
+        "content": {
+          "id": 8184,
+          "type": "paragraph",
+          "raw_text": "             Debug.Log( mat[Count].name );",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8183"
+        }
+      },
+      {
+        "content": {
+          "id": 8194,
+          "type": "paragraph",
+          "raw_text": "             num -= FOVCount;",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8193"
+        }
+      },
+      {
+        "content": {
+          "id": 8204,
+          "type": "paragraph",
+          "raw_text": "             SphereMat.GetComponent<MeshRenderer>().material.CopyPropertiesFromMaterial( mat[Count] );#材质球的切换",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8203"
+        }
+      },
+      {
+        "content": {
+          "id": 8214,
+          "type": "paragraph",
+          "raw_text": "             CameraObject.DOFieldOfView( num, 1);#改变Field of View的角度",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8213"
+        }
+      },
+      {
+        "content": {
+          "id": 8224,
+          "type": "paragraph",
+          "raw_text": "         } );",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8223"
+        }
+      },
+      {
+        "content": {
+          "id": 8234,
+          "type": "paragraph",
+          "raw_text": "    }",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8233"
+        }
+      },
+      {
+        "content": {
+          "id": 8244,
+          "type": "paragraph",
+          "raw_text": "    void Update()",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8243"
+        }
+      },
+      {
+        "content": {
+          "id": 8254,
+          "type": "paragraph",
+          "raw_text": "    {",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8253"
+        }
+      },
+      {
+        "content": {
+          "id": 8264,
+          "type": "paragraph",
+          "raw_text": "          if (Input.GetMouseButtonDown(1))",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8263"
+        }
+      },
+      {
+        "content": {
+          "id": 8274,
+          "type": "paragraph",
+          "raw_text": "        {",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8273"
+        }
+      },
+      {
+        "content": {
+          "id": 8284,
+          "type": "paragraph",
+          "raw_text": "            Count++;",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8283"
+        }
+      },
+      {
+        "content": {
+          "id": 8294,
+          "type": "paragraph",
+          "raw_text": "            Debug.Log(mat[Count].name);",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8293"
+        }
+      },
+      {
+        "content": {
+          "id": 8304,
+          "type": "paragraph",
+          "raw_text": "            num -= FOVCount;",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8303"
+        }
+      },
+      {
+        "content": {
+          "id": 8314,
+          "type": "paragraph",
+          "raw_text": "            SphereMat.GetComponent<MeshRenderer>().material.CopyPropertiesFromMaterial(mat[Count]);",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8313"
+        }
+      },
+      {
+        "content": {
+          "id": 8324,
+          "type": "paragraph",
+          "raw_text": "            CameraObject.DOFieldOfView(num, 1);#切换材质球的速度，1代表切换材质球需要1秒的时间",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8323"
+        }
+      },
+      {
+        "content": {
+          "id": 8334,
+          "type": "paragraph",
+          "raw_text": "        }",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8333"
+        }
+      },
+      {
+        "content": {
+          "id": 8344,
+          "type": "paragraph",
+          "raw_text": "    }",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8343"
+        }
+      },
+      {
+        "content": {
+          "id": 8354,
+          "type": "paragraph",
+          "raw_text": "    public void CameraAnimationMin( )",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8353"
+        }
+      },
+      {
+        "content": {
+          "id": 8364,
+          "type": "paragraph",
+          "raw_text": "    {",
+          "formatting": {
+            "first-line-indent": "21pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8363"
+        }
+      },
+      {
+        "content": {
+          "id": 8374,
+          "type": "paragraph",
+          "raw_text": "    }",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8373"
+        }
+      },
+      {
+        "content": {
+          "id": 8384,
+          "type": "paragraph",
+          "raw_text": "    public void CameraAnimationMax( )",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8383"
+        }
+      },
+      {
+        "content": {
+          "id": 8394,
+          "type": "paragraph",
+          "raw_text": "    {",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8393"
+        }
+      },
+      {
+        "content": {
+          "id": 8404,
+          "type": "paragraph",
+          "raw_text": "       // CameraObject.DOFieldOfView( 60, 3 );",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8403"
+        }
+      },
+      {
+        "content": {
+          "id": 8414,
+          "type": "paragraph",
+          "raw_text": "    }",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8413"
+        }
+      },
+      {
+        "content": {
+          "id": 8424,
+          "type": "paragraph",
+          "raw_text": "    public void OnClickToMove( int count ) ",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8423"
+        }
+      },
+      {
+        "content": {
+          "id": 8434,
+          "type": "paragraph",
+          "raw_text": "    {",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "21pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8433"
+        }
+      },
+      {
+        "content": {
+          "id": 8444,
+          "type": "paragraph",
+          "raw_text": "    }",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8443"
+        }
+      },
+      {
+        "content": {
+          "id": 8454,
+          "type": "paragraph",
+          "raw_text": "}",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8453"
+        }
+      },
+      {
+        "content": {
+          "id": 8505,
+          "type": "paragraph",
+          "raw_text": "图 4.7摄像机数据",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8504"
+        }
+      },
+      {
+        "content": {
+          "id": 8532,
+          "type": "paragraph",
+          "raw_text": "仿真效果及其实现",
+          "formatting": {
+            "font-family": "黑体",
+            "line-spacing": "1.5",
+            "font-size": "14pt"
+          },
+          "xml_path": "document.xml#offset_8531"
+        }
+      },
+      {
+        "content": {
+          "id": 8546,
+          "type": "paragraph",
+          "raw_text": "将制作完成的虚拟场景导出成应用程序",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8545"
+        }
+      },
+      {
+        "content": {
+          "id": 8570,
+          "type": "paragraph",
+          "raw_text": "在Build Settings选择要导出的系统：PC，在右边选择x86_64（操作系统是64位的）",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8569"
+        }
+      },
+      {
+        "content": {
+          "id": 8629,
+          "type": "paragraph",
+          "raw_text": "图 4.8 文件导出",
+          "formatting": {
+            "font-family": "宋体",
+            "font-size": "10.5pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "21pt"
+          },
+          "xml_path": "document.xml#offset_8628"
+        }
+      },
+      {
+        "content": {
+          "id": 8670,
+          "type": "paragraph",
+          "raw_text": "点击build，将build出来的东西存放至之前新建的文件夹中，需要注意：build出来的东西必须放在同一个文件夹里。在此之后即可完成exe文件的建立。如果想要实现在windows上不安装unity环境也可以执行unity文件即在没有安装unity3d软件的电脑上执行这个可执行的exe文件，必须把之前生成的文件夹整个复制过去而不是只复制.exe文件，否则会报错。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8669"
+        }
+      },
+      {
+        "content": {
+          "id": 8694,
+          "type": "paragraph",
+          "raw_text": "通过实验设计并实现基于虚拟现实三维全景仿真算法，实验完成了对2个以上的场景实现的真实感三维重建并且程序运行时间均在在1分钟以内。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8693"
+        }
+      },
+      {
+        "content": {
+          "id": 8786,
+          "type": "paragraph",
+          "raw_text": "总结与展望",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "15pt"
+          },
+          "xml_path": "document.xml#offset_8785"
+        }
+      },
+      {
+        "content": {
+          "id": 8797,
+          "type": "paragraph",
+          "raw_text": "本次设计采用三维全景像的方式对校园内的两个场景进行了虚拟建模，相较于传统的根据遥感影像、地形图、相关建筑物设计图等创建大量三维模型的方式来构建虚拟场景的方法，本次设计采用的方法产生的真实感较强、数据量较少、成本较低且生产周期更短、更容易普及实现。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8796"
+        }
+      },
+      {
+        "content": {
+          "id": 8821,
+          "type": "paragraph",
+          "raw_text": "本次设计主要的内容有：首先，通过比较现有的多种虚拟现实的实现方式，分析各种方式的优缺点，选择了最为适合的根据三维全景图技术实现虚拟现实的方式进行设计。其次，通过学习了常用的全景模型，通过比较选择采用结构与人眼的视觉特征最相似、可以从任意的角度去观察场景、能够更自然的描述视点空间的球形全景模型来合成全景图。再次，通过比较现有的全景图采集方式，选择使用鱼眼镜头以仰角5°的方式360°旋转摄像机的方式采集图像，并对采集得到的图像进行拼接、融合、调整处理得到水平360°垂直180°全视角的全景图。最后，通过学习使用Unity3D软件来完成虚拟场景的构建以及虚拟漫游的实现，主要包括：立方体纹理图贴图，利用立方体纹理贴图制作材质球，脚本控制材质球切换，将制作完成的虚拟场景导出成应用程序4个步骤。部分实现了人机交互的功能，包含了全景与漫游模式，体验者可以通过鼠标控制实现场景切换以及360°旋转观察周围环境。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8820"
+        }
+      },
+      {
+        "content": {
+          "id": 8867,
+          "type": "paragraph",
+          "raw_text": "设计虽然初步实现了既定目标，但由于缺乏经验在以下几个方面仍有不足以及可以改善之处，希望能够在今后的学习研究开发中能够得到完善。",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt"
+          },
+          "xml_path": "document.xml#offset_8866"
+        }
+      },
+      {
+        "content": {
+          "id": 8891,
+          "type": "paragraph",
+          "raw_text": "首先是对于拍摄时的参照物考虑不够细致，导致了部分场景存在遮挡、不清晰的情况，降低了虚拟场景的真实性。由于设计的拍摄路线不合理且相邻场景之间的拍摄步长不统一，导致了场景切换时存在视觉上大小不一致的情况。针对这种问题，在今后的设计中可以通过事先考察实际场景，选择适合的拍摄路线并确定统一好合适的步长，拍摄时尽量避免遮挡参照物的情况。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "first-line-indent": "24pt",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_8890"
+        }
+      },
+      {
+        "content": {
+          "id": 8921,
+          "type": "paragraph",
+          "raw_text": "其次由于缺乏设计经验的问题，相邻场景的全景图衔接不是很平滑。虚拟场景漫游设计时考虑尝试加入移动标识，但由于过渡平滑性不佳加入移动标识反而大大降低了美观性，最后不得不放弃。针对这种问题，建议在今后的设计中两个场景的全景图中间添加一些过渡的场景图片来提高平滑过渡性。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8920"
+        }
+      },
+      {
+        "content": {
+          "id": 8951,
+          "type": "paragraph",
+          "raw_text": "第三是图像拼接质量仍有待提高，拼接时出现了较为严重的重影现象。对图像进行拼接、融合、调整处理后出现了图像掉帧的情况。最后制作得到的材质球清晰度有多下降。针对这种问题，今后设计时建议尝试多种拼接融合的方式处理图像，通过比较选取效果最好的全景图。",
+          "formatting": {
+            "font-size": "12pt",
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8950"
+        }
+      },
+      {
+        "content": {
+          "id": 8981,
+          "type": "paragraph",
+          "raw_text": "最后是在设计时考虑不充分，没有考虑到漫游时返回的情况。针对这种问题，在今后的设计时可以加入相应的程序来实现漫游返回的功能。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_8980"
+        }
+      },
+      {
+        "content": {
+          "id": 9011,
+          "type": "paragraph",
+          "raw_text": "经过一个多学期的学习，本人对虚拟现实技术、三维全景技术的研究才刚刚开始，仍有很多地方需要通过更深入的学习研究来提高完善。例如：对于拼接融合全景图的多种方法需要通过更多实际操作来比较得出更好的方式进行处理；对于Unity3D软件的操作不是很熟练，软件的很多功能尚未涉足；提高场景切换的平滑过渡性的方法等。希望将来有机会能够更加深入地去学习研究，弥补这次设计的不足之处。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_9010"
+        }
+      },
+      {
+        "content": {
+          "id": 9035,
+          "type": "paragraph",
+          "raw_text": "总的来说，本文对日后研究虚拟现实三维全景仿真技术具有一定的参考价值。本次设计只是对校园中的两个场景进行了虚拟仿真，日后可以对校园中更多的场景进行虚拟仿真最终实现对整个校园的虚拟漫游。目前虚拟现实三维全景仿真技术正在不断的发展进步，通过使用全景图实现虚拟漫这项技术具有光明的发展前景。",
+          "formatting": {
+            "first-line-indent": "24pt",
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_9034"
+        }
+      },
+      {
+        "content": {
+          "id": 9090,
+          "type": "paragraph",
+          "raw_text": "参考文献",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-family": "黑体",
+            "font-size": "15pt"
+          },
+          "xml_path": "document.xml#offset_9089"
+        }
+      },
+      {
+        "content": {
+          "id": 9106,
+          "type": "paragraph",
+          "raw_text": "董蔼莹. 基于VR技术的园区全景漫游系统设计与实现[D]. 广东:华南农业大学,2019.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9105"
+        }
+      },
+      {
+        "content": {
+          "id": 9123,
+          "type": "paragraph",
+          "raw_text": "刘乾坤. 基于多张全景图的虚拟视点合成系统[D]. 天津:天津大学,2017.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9122"
+        }
+      },
+      {
+        "content": {
+          "id": 9141,
+          "type": "paragraph",
+          "raw_text": "秦国防. 基于虚拟现实的数字三维全景技术的研究与实现[D]. 四川:电子科技大学,2011. DOI:10.7666/d.D813218.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9140"
+        }
+      },
+      {
+        "content": {
+          "id": 9159,
+          "type": "paragraph",
+          "raw_text": "刘雨航,金一,竺长安. 基于SIFT特征提取和最佳缝合线的图像拼接技术[J]. 机械与电子,2017,35(6):18-21,25. DOI:10.3969/j.issn.1001-2257.2017.06.004.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9158"
+        }
+      },
+      {
+        "content": {
+          "id": 9177,
+          "type": "paragraph",
+          "raw_text": "HU CHUILI. Research on Application of Virtual Reality Technology Based on Data Visualization in Visualization of Engineering Design[C]. //2019 4th International Industrial Informatics and Computer Engineering Conference (IIICEC 2019)2019年第四届国际工业信息学和计算机工程会议(IIICEC 2019)论文集. 2019:312-317.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9176"
+        }
+      },
+      {
+        "content": {
+          "id": 9195,
+          "type": "paragraph",
+          "raw_text": "Application of Virtual Reality Technology in Aerospace[J]. 中国航天（英文版）,2017,18(3):43-47. DOI:10.3969/j.issn.1671-0940.2017.03.006.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9194"
+        }
+      },
+      {
+        "content": {
+          "id": 9213,
+          "type": "paragraph",
+          "raw_text": "YANG LING. Feature Enhancement Strategy for Computer Three-Dimensional Bionic Images Based on Virtual Reality Technology[C]. //2019年第二届智能系统研究与机电工程国际会议(ISRME 2019) 2019 2nd International Conference on Intelligent Systems Research and Mechatronics Engineering论文集. 2019:494-497.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9212"
+        }
+      },
+      {
+        "content": {
+          "id": 9231,
+          "type": "paragraph",
+          "raw_text": "WANG BIN, ZHAO QING, ZHAO PENG FEI. Application of Virtual Reality Technology in Laser Processing Training[C]. //The 12th International Conference on Modern Industrial Training(第十二届现代工业培训国际学术会议)论文集. 2019:77-79.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9230"
+        }
+      },
+      {
+        "content": {
+          "id": 9249,
+          "type": "paragraph",
+          "raw_text": "WENLI HUANG. The Application of Virtual Reality Technology in Industrial Design[C]. //The 8th International Conference on Mechatronics, Computer and Education Informationization(第八届机电一体化、计算机与教育信息化国际会议)(MCEI2018) 论文集. 2018:324-327.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9248"
+        }
+      },
+      {
+        "content": {
+          "id": 9267,
+          "type": "paragraph",
+          "raw_text": "XIANWEN XIU, HEPING WANG, JIAYING WANG, et al. Implementation of Multi-layer Switching and Loading Technology for 3D Panorama Platform[C]. //2018 3rd International Conference on Materials Science, Machinery and Energy Engineering (MSMEE 2018) 2018第三届材料科学、机械与能源工程国际会议(MSMEE 2018) 论文集. 2018:253-257.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9266"
+        }
+      },
+      {
+        "content": {
+          "id": 9285,
+          "type": "paragraph",
+          "raw_text": "JIANPING WU, JIEHUA WANG, QIHUI GONG, et al. Panorama Photographs Based 3D Virtual Street Scene Construction and Integration with GIS[C]. //2011 International Conference on Opto-Electronics Engineering and Information Science(2011光电电子工程与信息科学国际会议 ICOEIS 2011)论文集. 2011:603-607.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9284"
+        }
+      },
+      {
+        "content": {
+          "id": 9303,
+          "type": "paragraph",
+          "raw_text": "Virtual Reality: A State-of-the-Art Survey[J]. 国际自动化与计算杂志（英文版）,2009,6(4):319-325. DOI:10.1007/s11633-009-0319-9.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9302"
+        }
+      },
+      {
+        "content": {
+          "id": 9321,
+          "type": "paragraph",
+          "raw_text": "LU YAN. When Virtual Faces Reality[J]. 北京周报（英文版）,2022,65(5):40-41. DOI:10.3969/j.issn.1000-9140.2022.05.015.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9320"
+        }
+      },
+      {
+        "content": {
+          "id": 9339,
+          "type": "paragraph",
+          "raw_text": "SHUGUO GAO, WEI LIU, JIN PAN, et al. Research and Application of 3D panoramic technology on equipment visualization[C]. //2012 International Conference on Computer Science and Electronic Engineering(2012 IEEE计算机科学与电子工程国际会议 ICCSEE 2012)论文集. 2012:562-565.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9338"
+        }
+      },
+      {
+        "content": {
+          "id": 9357,
+          "type": "paragraph",
+          "raw_text": "ENJI SUN, CUIPING LI, CONG SHI. Hazards Detection System Based on 3D Panorama for Tailings Dam in Mining[C]. //The 29th SOMP Annual Meeting and Conference on Mines of the Future(SOMP2018)第29届国际矿业教授学会学术年会暨未来矿山国际论坛论文集. 2018:120-126.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9356"
+        }
+      },
+      {
+        "content": {
+          "id": 9375,
+          "type": "paragraph",
+          "raw_text": "YANG LING, CHENG YONG, CHENG YUN. The Key Technology of Virtual Reality System Based on Panoramic View[C]. //2011 3nd International Conference on Mechanical and Electronics Engineering(2011年第三届机械与电子工程国际会议 ICMEE2011)论文集. 2011:3123-3127.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9374"
+        }
+      },
+      {
+        "content": {
+          "id": 9393,
+          "type": "paragraph",
+          "raw_text": " QIAN CHEN, DAI LUO. Creation and Research of VR Panorama Video in Jiu Feng Park[C]. //2019 2nd International Conference on Mechanical Engineering, Industrial Materials and Industrial Electronics (MEIMIE 2019)2019年第二届机械工程、工业材料和工业电子国际会议(Meimie 2019)论文集. 2019:253-258.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9392"
+        }
+      },
+      {
+        "content": {
+          "id": 9411,
+          "type": "paragraph",
+          "raw_text": "Software Testing Applications Based on a Virtual Reality System[J]. 中国电子科技（英文版）,2007,5(2):120-124.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9410"
+        }
+      },
+      {
+        "content": {
+          "id": 9428,
+          "type": "paragraph",
+          "raw_text": "武刚,余武. 虚拟校园三维全景漫游系统探究与实现[J]. 现代教育技术,2013,23(5):122-126. DOI:10.3969/j.issn.1009-8097.2013.05.025.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9427"
+        }
+      },
+      {
+        "content": {
+          "id": 9446,
+          "type": "paragraph",
+          "raw_text": "冯新玲. 三维虚拟校园交互漫游系统的设计与实现[D]. 江苏:南京理工大学,2018.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9445"
+        }
+      },
+      {
+        "content": {
+          "id": 9464,
+          "type": "paragraph",
+          "raw_text": "赵强.面向虚拟浏览的全景图像处理[D]. 天津:天津大学,2015. DOI:10.7666/d.D01157413.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9463"
+        }
+      },
+      {
+        "content": {
+          "id": 9482,
+          "type": "paragraph",
+          "raw_text": "黄显兵. 基于全景技术的景观在线漫游的设计与实现[D]. 上海:上海交通大学,2012.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9481"
+        }
+      },
+      {
+        "content": {
+          "id": 9500,
+          "type": "paragraph",
+          "raw_text": "杨笛航. 基于多全景相机拼接的虚拟现实和实景交互系统[D]. 浙江:浙江大学,2017.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9499"
+        }
+      },
+      {
+        "content": {
+          "id": 9518,
+          "type": "paragraph",
+          "raw_text": "彭凤婷. 全景视频图像融合与拼接算法研究[D]. 四川:电子科技大学,2017.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9517"
+        }
+      },
+      {
+        "content": {
+          "id": 9536,
+          "type": "paragraph",
+          "raw_text": "张少坤. 全景图像拼接关键技术研究[D]. 陕西:西安建筑科技大学,2018. DOI:10.7666/d.D01575242.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9535"
+        }
+      },
+      {
+        "content": {
+          "id": 9554,
+          "type": "paragraph",
+          "raw_text": "郑昊. 基于改进SIFT算法的图像匹配研究[D]. 安徽:安徽理工大学,2020.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9553"
+        }
+      },
+      {
+        "content": {
+          "id": 9572,
+          "type": "paragraph",
+          "raw_text": "卢奇. 基于改进SIFT的图像拼接算法研究及其评价[D]. 上海:上海海洋大学,2019.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9571"
+        }
+      },
+      {
+        "content": {
+          "id": 9590,
+          "type": "paragraph",
+          "raw_text": "沈鹏. 基于SIFT特征图像拼接的全景显示技术研究[D]. 四川:电子科技大学,2018.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9589"
+        }
+      },
+      {
+        "content": {
+          "id": 9608,
+          "type": "paragraph",
+          "raw_text": "勾会杰,王树根,王治邺,等. 一种引入 RANSAC 算法的匹配点云规则化方法[J]. 测绘与空间地理信息,2015(8):34-36,40. DOI:10.3969/j.issn.1672-5867.2015.08.012.",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9607"
+        }
+      },
+      {
+        "content": {
+          "id": 9626,
+          "type": "paragraph",
+          "raw_text": "韦杨. 基于Unity的虚拟校园系统的设计与实现[D]. 广西:广西大学,2020.",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9625"
+        }
+      },
+      {
+        "content": {
+          "id": 9646,
+          "type": "paragraph",
+          "raw_text": "作者简介",
+          "formatting": {
+            "font-size": "15pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9645"
+        }
+      },
+      {
+        "content": {
+          "id": 9660,
+          "type": "paragraph",
+          "raw_text": "姓名：李良循；性别：女；出生年月：2000年9月",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9659"
+        }
+      },
+      {
+        "content": {
+          "id": 9710,
+          "type": "paragraph",
+          "raw_text": "教育经历：",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_9709"
+        }
+      },
+      {
+        "content": {
+          "id": 9714,
+          "type": "paragraph",
+          "raw_text": "2006年9月-2012年6月 就读于仪征市实验小学；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9713"
+        }
+      },
+      {
+        "content": {
+          "id": 9745,
+          "type": "paragraph",
+          "raw_text": "2012年9月-2015年6月 就读于仪征市实验中学；",
+          "formatting": {
+            "font-size": "12pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9744"
+        }
+      },
+      {
+        "content": {
+          "id": 9776,
+          "type": "paragraph",
+          "raw_text": "2015年9月-2018年6月 就读于江苏省仪征中学；",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_9775"
+        }
+      },
+      {
+        "content": {
+          "id": 9807,
+          "type": "paragraph",
+          "raw_text": "2018年9月-至今 就读于中国计量大学。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_9806"
+        }
+      },
+      {
+        "content": {
+          "id": 9841,
+          "type": "paragraph",
+          "raw_text": "学位论文数据集",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "15pt"
+          },
+          "xml_path": "document.xml#offset_9840"
+        }
+      },
+      {
+        "content": {
+          "id": 9856,
+          "type": "table",
+          "raw_text": "关键词*密级*中图分类号*UDC虚拟现实；图像拼接融合；Unity3D；全景图技术公开TP37论文赞助*无学位授予单位*学位授予单位代码*学位类别*学位级别*中国计量大学10356工学学士论文题名*虚拟现实三维全景仿真技术研究论文语种*并列题名*Research on Virtual Reality 3D Panoramic Simulation Technology简体中文作者姓名*李良循学号*1800301208培养单位名称*培养单位代码*培养单位地址*邮编*中国计量大学10356浙江省杭州下沙高教园区学源街310018学科专业*研究方向*学制*学位授予年*通信工程虚拟现实四年2022年论文提交日期*2021年5月26日导师姓名*杨力职称*副教授评阅人*汪晓峰答辩委员会主席*单良答辩委员会成员*米红妹、肖丙刚、金小萍、汪晓锋、章乐电子版论文提交格式     文本（√ ）图像（ ）视频（ ）音频（ ）多媒体（ ）其他（ ）推荐格式：application/msword；application/pdf电子版论文出版（发布者）电子版论文出版（发布）地权限声明论文总页数*32注：共33项，其中带“*”为必填数据。",
+          "formatting": {
+            "font-size": "12pt"
+          },
+          "xml_path": "document.xml#offset_9855"
+        }
+      },
+      {
+        "content": {
+          "id": 9912,
+          "type": "paragraph",
+          "raw_text": "关键词*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9911"
+        }
+      },
+      {
+        "content": {
+          "id": 9928,
+          "type": "paragraph",
+          "raw_text": "密级*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9927"
+        }
+      },
+      {
+        "content": {
+          "id": 9943,
+          "type": "paragraph",
+          "raw_text": "中图分类号*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9942"
+        }
+      },
+      {
+        "content": {
+          "id": 9957,
+          "type": "paragraph",
+          "raw_text": "UDC",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_9956"
+        }
+      },
+      {
+        "content": {
+          "id": 9989,
+          "type": "paragraph",
+          "raw_text": "虚拟现实；图像拼接融合；Unity3D；全景图技术",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_9988"
+        }
+      },
+      {
+        "content": {
+          "id": 10006,
+          "type": "paragraph",
+          "raw_text": "公开",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10005"
+        }
+      },
+      {
+        "content": {
+          "id": 10021,
+          "type": "paragraph",
+          "raw_text": "TP37",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10020"
+        }
+      },
+      {
+        "content": {
+          "id": 10063,
+          "type": "paragraph",
+          "raw_text": "论文赞助*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10062"
+        }
+      },
+      {
+        "content": {
+          "id": 10078,
+          "type": "paragraph",
+          "raw_text": "无",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10077"
+        }
+      },
+      {
+        "content": {
+          "id": 10110,
+          "type": "paragraph",
+          "raw_text": "学位授予单位*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10109"
+        }
+      },
+      {
+        "content": {
+          "id": 10126,
+          "type": "paragraph",
+          "raw_text": "学位授予单位代码*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10125"
+        }
+      },
+      {
+        "content": {
+          "id": 10141,
+          "type": "paragraph",
+          "raw_text": "学位类别*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10140"
+        }
+      },
+      {
+        "content": {
+          "id": 10157,
+          "type": "paragraph",
+          "raw_text": "学位级别*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10156"
+        }
+      },
+      {
+        "content": {
+          "id": 10189,
+          "type": "paragraph",
+          "raw_text": "中国计量大学",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10188"
+        }
+      },
+      {
+        "content": {
+          "id": 10205,
+          "type": "paragraph",
+          "raw_text": "10356",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10204"
+        }
+      },
+      {
+        "content": {
+          "id": 10221,
+          "type": "paragraph",
+          "raw_text": "工学",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10220"
+        }
+      },
+      {
+        "content": {
+          "id": 10238,
+          "type": "paragraph",
+          "raw_text": "学士",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10237"
+        }
+      },
+      {
+        "content": {
+          "id": 10270,
+          "type": "paragraph",
+          "raw_text": "论文题名*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10269"
+        }
+      },
+      {
+        "content": {
+          "id": 10285,
+          "type": "paragraph",
+          "raw_text": "虚拟现实三维全景仿真技术研究",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10284"
+        }
+      },
+      {
+        "content": {
+          "id": 10304,
+          "type": "paragraph",
+          "raw_text": "论文语种*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10303"
+        }
+      },
+      {
+        "content": {
+          "id": 10335,
+          "type": "paragraph",
+          "raw_text": "并列题名*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10334"
+        }
+      },
+      {
+        "content": {
+          "id": 10350,
+          "type": "paragraph",
+          "raw_text": "Research on Virtual Reality 3D Panoramic Simulation Technology",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10349"
+        }
+      },
+      {
+        "content": {
+          "id": 10367,
+          "type": "paragraph",
+          "raw_text": "简体中文",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10366"
+        }
+      },
+      {
+        "content": {
+          "id": 10398,
+          "type": "paragraph",
+          "raw_text": "作者姓名*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10397"
+        }
+      },
+      {
+        "content": {
+          "id": 10413,
+          "type": "paragraph",
+          "raw_text": "李良循",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10412"
+        }
+      },
+      {
+        "content": {
+          "id": 10433,
+          "type": "paragraph",
+          "raw_text": "学号*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10432"
+        }
+      },
+      {
+        "content": {
+          "id": 10448,
+          "type": "paragraph",
+          "raw_text": "1800301208",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10447"
+        }
+      },
+      {
+        "content": {
+          "id": 10484,
+          "type": "paragraph",
+          "raw_text": "培养单位名称*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10483"
+        }
+      },
+      {
+        "content": {
+          "id": 10499,
+          "type": "paragraph",
+          "raw_text": "培养单位代码*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10498"
+        }
+      },
+      {
+        "content": {
+          "id": 10514,
+          "type": "paragraph",
+          "raw_text": "培养单位地址*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10513"
+        }
+      },
+      {
+        "content": {
+          "id": 10529,
+          "type": "paragraph",
+          "raw_text": "邮编*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10528"
+        }
+      },
+      {
+        "content": {
+          "id": 10561,
+          "type": "paragraph",
+          "raw_text": "中国计量大学",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10560"
+        }
+      },
+      {
+        "content": {
+          "id": 10576,
+          "type": "paragraph",
+          "raw_text": "10356",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10575"
+        }
+      },
+      {
+        "content": {
+          "id": 10592,
+          "type": "paragraph",
+          "raw_text": "浙江省杭州下沙高教园区学源街",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10591"
+        }
+      },
+      {
+        "content": {
+          "id": 10607,
+          "type": "paragraph",
+          "raw_text": "310018",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10606"
+        }
+      },
+      {
+        "content": {
+          "id": 10638,
+          "type": "paragraph",
+          "raw_text": "学科专业*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10637"
+        }
+      },
+      {
+        "content": {
+          "id": 10653,
+          "type": "paragraph",
+          "raw_text": "研究方向*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10652"
+        }
+      },
+      {
+        "content": {
+          "id": 10668,
+          "type": "paragraph",
+          "raw_text": "学制*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10667"
+        }
+      },
+      {
+        "content": {
+          "id": 10683,
+          "type": "paragraph",
+          "raw_text": "学位授予年*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10682"
+        }
+      },
+      {
+        "content": {
+          "id": 10714,
+          "type": "paragraph",
+          "raw_text": "通信工程",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10713"
+        }
+      },
+      {
+        "content": {
+          "id": 10733,
+          "type": "paragraph",
+          "raw_text": "虚拟现实",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10732"
+        }
+      },
+      {
+        "content": {
+          "id": 10752,
+          "type": "paragraph",
+          "raw_text": "四年",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10751"
+        }
+      },
+      {
+        "content": {
+          "id": 10768,
+          "type": "paragraph",
+          "raw_text": "2022年",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10767"
+        }
+      },
+      {
+        "content": {
+          "id": 10821,
+          "type": "paragraph",
+          "raw_text": "论文提交日期*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10820"
+        }
+      },
+      {
+        "content": {
+          "id": 10836,
+          "type": "paragraph",
+          "raw_text": "2021年5月26日",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10835"
+        }
+      },
+      {
+        "content": {
+          "id": 10894,
+          "type": "paragraph",
+          "raw_text": "导师姓名*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10893"
+        }
+      },
+      {
+        "content": {
+          "id": 10909,
+          "type": "paragraph",
+          "raw_text": "杨力",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10908"
+        }
+      },
+      {
+        "content": {
+          "id": 10928,
+          "type": "paragraph",
+          "raw_text": "职称*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10927"
+        }
+      },
+      {
+        "content": {
+          "id": 10943,
+          "type": "paragraph",
+          "raw_text": "副教授",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10942"
+        }
+      },
+      {
+        "content": {
+          "id": 10978,
+          "type": "paragraph",
+          "raw_text": "评阅人*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_10977"
+        }
+      },
+      {
+        "content": {
+          "id": 10993,
+          "type": "paragraph",
+          "raw_text": "汪晓峰",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_10992"
+        }
+      },
+      {
+        "content": {
+          "id": 11012,
+          "type": "paragraph",
+          "raw_text": "答辩委员会主席*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_11011"
+        }
+      },
+      {
+        "content": {
+          "id": 11027,
+          "type": "paragraph",
+          "raw_text": "单良",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11026"
+        }
+      },
+      {
+        "content": {
+          "id": 11062,
+          "type": "paragraph",
+          "raw_text": "答辩委员会成员*",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11061"
+        }
+      },
+      {
+        "content": {
+          "id": 11077,
+          "type": "paragraph",
+          "raw_text": "米红妹、肖丙刚、金小萍、汪晓锋、章乐",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11076"
+        }
+      },
+      {
+        "content": {
+          "id": 11110,
+          "type": "paragraph",
+          "raw_text": "电子版论文提交格式     文本（√ ）图像（ ）视频（ ）音频（ ）多媒体（ ）其他（ ）",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11109"
+        }
+      },
+      {
+        "content": {
+          "id": 11121,
+          "type": "paragraph",
+          "raw_text": "推荐格式：application/msword；application/pdf",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_11120"
+        }
+      },
+      {
+        "content": {
+          "id": 11152,
+          "type": "paragraph",
+          "raw_text": "电子版论文出版（发布者）",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11151"
+        }
+      },
+      {
+        "content": {
+          "id": 11167,
+          "type": "paragraph",
+          "raw_text": "电子版论文出版（发布）地",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_11166"
+        }
+      },
+      {
+        "content": {
+          "id": 11182,
+          "type": "paragraph",
+          "raw_text": "权限声明",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11181"
+        }
+      },
+      {
+        "content": {
+          "id": 11256,
+          "type": "paragraph",
+          "raw_text": "论文总页数*",
+          "formatting": {
+            "font-size": "10.5pt",
+            "line-spacing": "1.5"
+          },
+          "xml_path": "document.xml#offset_11255"
+        }
+      },
+      {
+        "content": {
+          "id": 11271,
+          "type": "paragraph",
+          "raw_text": "32",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11270"
+        }
+      },
+      {
+        "content": {
+          "id": 11306,
+          "type": "paragraph",
+          "raw_text": "注：共33项，其中带“*”为必填数据。",
+          "formatting": {
+            "line-spacing": "1.5",
+            "font-size": "10.5pt"
+          },
+          "xml_path": "document.xml#offset_11305"
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "total_elements": 342,
+    "heading_count": 0,
+    "table_count": 1
+  }
+}
