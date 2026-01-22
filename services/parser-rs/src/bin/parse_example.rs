@@ -1,4 +1,4 @@
-use parser_rs::parser::{DocxParser, Parser};
+use parser_rs::core::parser::{DocxParser, Parser};
 use std::path::Path;
 
 fn main() -> anyhow::Result<()> {

@@ -15,9 +15,15 @@ rayon = "1.7"
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 log = "0.4"
+env_logger = "0.10"
 anyhow = "1.0"
 tokio = { version = "1", features = ["full"] }
 zip = "0.6"
+lopdf = "0.34"
+tempfile = "3.0"
+walkdir = "2.3"
+chrono = { version = "0.4", features = ["serde"] }
+html-escape = "0.2.13"
 
 [workspace]
 
