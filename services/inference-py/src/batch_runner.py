@@ -1,48 +1,28 @@
+"""Offline/batch runner that pulls parsed data from parser-rs via gRPC
+and writes inference results to data/output. Only processes files whose
+name ends with "毕业论文.docx" under data/input.
+"""
+from __future__ import annotations
+
 import argparse
 import json
 import logging
 import os
 import re
 from pathlib import Path
-from typing import Tuple
+from typing import List
 
 import grpc
 
-from src import grpc_server
 from src.grpc_server import DocumentAuditorServicer
 from src.protos import auditor_pb2, auditor_pb2_grpc
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_INPUT_ROOT = REPO_ROOT / "data" / "input"
-DEFAULT_OUTPUT_ROOT = REPO_ROOT / "data" / "output"
+# Only run inference on thesis documents, ignore everything else.
 TARGET_PATTERN = re.compile(r"毕业论文\.docx$", re.IGNORECASE)
 
 
-def _parse_addr_env(env_value: str) -> Tuple[str, int]:
-    """解析类似 'inference-py:8123' 或 '0.0.0.0:8123' 或 '8123' 的地址，返回 (host, port).
-    如果只给端口，host 保持默认 '127.0.0.1'.
-    """
-    default_host = "127.0.0.1"
-    if not env_value:
-        return default_host, 0
-    parts = env_value.rsplit(":", 1)
-    if len(parts) == 1:
-        # 只有一个部分，可能是端口或名称
-        try:
-            port = int(parts[0])
-            return default_host, port
-        except ValueError:
-            return parts[0], 0
-    host_part, port_part = parts[0], parts[1]
-    try:
-        port = int(port_part)
-    except ValueError:
-        port = 0
-    # 如果 host_part 看起来像容器名（例如 inference-py），仍然把它作为 host 字符串使用
-    return host_part or default_host, port
-
-
 def _issue_to_dict(issue: auditor_pb2.Issue) -> dict:
+    """Convert Issue proto into a JSON-serializable dict."""
     severity_name = auditor_pb2.Severity.Name(issue.severity)
     return {
         "code": issue.code,
@@ -90,7 +70,8 @@ def _write_output(
     logging.info("wrote %s (issues=%d)", out_path, len(resp.issues))
 
 
-def _discover_targets(input_root: Path):
+def _discover_targets(input_root: Path) -> List[Path]:
+    """Find .docx files whose filename ends with '毕业论文.docx'."""
     return sorted(
         p for p in input_root.rglob("*.docx") if p.is_file() and TARGET_PATTERN.search(p.name)
     )
@@ -136,42 +117,29 @@ def run_batch(parser_addr: str, input_root: Path, output_root: Path) -> None:
     logging.info("batch run complete; results in %s", output_root)
 
 
-def main():
+__all__ = ["run_batch"]
+
+
+def _default_paths():
+    # __file__ = services/inference-py/src/batch_runner.py -> parents[3] == repo root
+    repo_root = Path(__file__).resolve().parents[3]
+    return repo_root / "data" / "input", repo_root / "data" / "output"
+
+
+def _cli():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="127.0.0.1", help="gRPC bind host")
-    parser.add_argument("--port", type=int, default=50051, help="gRPC bind port")
-    parser.add_argument("--serve", action="store_true", help="Start gRPC server instead of batch run")
-    parser.add_argument("--parser-addr", default=os.environ.get("PARSER_GRPC_ADDR"), help="parser-rs gRPC address host:port")
-    parser.add_argument("--input-root", default=None, help="Override input root (defaults to repo data/input)")
-    parser.add_argument("--output-root", default=None, help="Override output root (defaults to repo data/output)")
+    parser.add_argument("--parser-addr", default=os.environ.get("PARSER_GRPC_ADDR") or "127.0.0.1:52051")
+    parser.add_argument("--input-root", default=None, help="Override input root (default repo data/input)")
+    parser.add_argument("--output-root", default=None, help="Override output root (default repo data/output)")
     args = parser.parse_args()
 
+    input_root_default, output_root_default = _default_paths()
+    input_root = Path(args.input_root) if args.input_root else input_root_default
+    output_root = Path(args.output_root) if args.output_root else output_root_default
+
     logging.basicConfig(level=logging.INFO)
-
-    # 默认执行批处理：扫描 data/input 中仅以 “毕业论文.docx” 结尾的文件，通过 parser-rs 解析后运行审查
-    if not args.serve:
-        parser_addr = args.parser_addr or os.environ.get("RUST_GRPC_ADDR") or "127.0.0.1:52051"
-        input_root = Path(args.input_root) if args.input_root else DEFAULT_INPUT_ROOT
-        output_root = Path(args.output_root) if args.output_root else DEFAULT_OUTPUT_ROOT
-        logging.info(
-            "Running batch mode: parser=%s input=%s output=%s",
-            parser_addr,
-            input_root,
-            output_root,
-        )
-        run_batch(parser_addr=parser_addr, input_root=input_root, output_root=output_root)
-        return
-
-    # 优先读取环境变量 `PY_INFERENCE_ADDR`（格式示例: inference-py:8123 或 127.0.0.1:8123 或 8123）
-    env_addr = os.environ.get("PY_INFERENCE_ADDR")
-    env_host, env_port = _parse_addr_env(env_addr) if env_addr else (None, 0)
-
-    host = env_host if env_host and env_host != "inference-py" else args.host
-    port = env_port if env_port and env_port > 0 else args.port
-
-    logging.info("Starting inference-py gRPC server on %s:%s", host, port)
-    grpc_server.serve(host=host, port=port)
+    run_batch(parser_addr=args.parser_addr, input_root=input_root, output_root=output_root)
 
 
 if __name__ == "__main__":
-    main()
+    _cli()
