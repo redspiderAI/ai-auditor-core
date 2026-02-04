@@ -1,28 +1,11 @@
-// src/parser.rs
+use crate::{DocumentSection, ElementType};
+use anyhow::Result;
+use roxmltree::Document;
 use std::collections::HashMap;
-use serde::Serialize;
-
-#[derive(Debug, Clone, Serialize)]
-pub struct DocumentSection {
-    pub id: i32,
-    #[serde(rename = "type")]
-    pub element_type: ElementType,
-    pub raw_text: String,
-    pub formatting: HashMap<String, String>,
-    pub xml_path: String,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub enum ElementType {
-    #[serde(rename = "heading")]
-    Heading(u8),
-    #[serde(rename = "paragraph")]
-    Paragraph,
-    #[serde(rename = "table")]
-    Table,
-    #[serde(rename = "equation")]
-    Equation,
-}
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
+use zip::ZipArchive;
 
 pub trait Parser {
     /// Parse a document (path to .docx or stream) and return a DocumentTree
@@ -45,9 +28,16 @@ impl Parser for DocxParser {
         let doc = Document::parse(&doc_xml)?;
 
         let mut sections = Vec::new();
-        for (i, node) in doc.descendants().filter(|n| n.is_element() && n.tag_name().name() == "p").enumerate() {
+        for (i, node) in doc
+            .descendants()
+            .filter(|n| n.is_element() && n.tag_name().name() == "p")
+            .enumerate()
+        {
             let mut text_parts = Vec::new();
-            for t in node.descendants().filter(|n| n.is_element() && n.tag_name().name() == "t") {
+            for t in node
+                .descendants()
+                .filter(|n| n.is_element() && n.tag_name().name() == "t")
+            {
                 if let Some(txt) = t.text() {
                     text_parts.push(txt);
                 }
