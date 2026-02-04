@@ -36,6 +36,22 @@ uv add torch fastapi langgraph
 
 说明：`milvus` 在 Windows 上可能没有可用 wheel，安装可能会因平台不匹配失败；遇到错误可参考下文说明。
 
+批处理模式（默认行为，依赖 parser-rs gRPC）
+
+- 仅处理 data/input 目录下文件名以 “毕业论文.docx” 结尾的文档，并将审查结果输出到 data/output，保持原有子目录结构。
+- 先确保 parser-rs 已在 52051 端口（或自定义端口）运行 gRPC 服务：`cargo run --bin parser_rs --features with-proto`（需要已安装 `protoc`）。
+- 一键运行批处理（默认模式）：
+
+```powershell
+uv run main.py --parser-addr 127.0.0.1:52051 --input-root ../../data/input --output-root ../../data/output
+```
+
+- 如需启动 gRPC 服务而非批处理，使用 `--serve`：
+
+```powershell
+uv run main.py --serve --host 0.0.0.0 --port 50051
+```
+
 ## 配置说明
 
 本项目使用 `.env` 文件管理配置。请复制 `.env.example` 文件并重命名为 `.env`，然后填入您的配置信息：

@@ -1,23 +1,46 @@
-// build.rs
-use std::path::Path;
+use std::path::PathBuf;
 
-fn main() {
-    let proto_file = "proto/document.proto";
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")?;
 
-    // 验证 proto 文件存在
-    if !Path::new(proto_file).exists() {
-        panic!("Proto file not found: {}", proto_file);
+    // proto path relative to services/parser-rs -> ../../shared/protos/auditor.proto
+    let proto: PathBuf = PathBuf::from(&manifest_dir)
+        .join("..")
+        .join("..")
+        .join("shared")
+        .join("protos")
+        .join("auditor.proto");
+
+    let includes: PathBuf = PathBuf::from(&manifest_dir)
+        .join("..")
+        .join("..")
+        .join("shared")
+        .join("protos");
+
+    println!("cargo:rerun-if-changed={}", proto.display());
+
+    // If the optional feature `with-proto` is not enabled, skip proto generation.
+    if std::env::var("CARGO_FEATURE_WITH_PROTO").is_err() {
+        return Ok(());
     }
 
-    println!("cargo:rerun-if-changed={}", proto_file);
-
-    // 配置 prost-build
-    let mut config = prost_build::Config::new();
-    config.out_dir("src");
-
-    // Try to compile protos, but don't panic if protoc isn't available
-    if let Err(e) = config.compile_protos(&["proto/document.proto"], &["proto/"]) {
-        eprintln!("Warning: Failed to compile protos: {}. Using pre-generated file.", e);
-        // If protoc isn't available, we'll use the pre-generated file
+    // Ensure `protoc` is available. Honor PROTOC env override on Windows/other platforms.
+    let protoc_bin = std::env::var("PROTOC").unwrap_or_else(|_| "protoc".to_string());
+    if std::process::Command::new(&protoc_bin)
+        .arg("--version")
+        .output()
+        .is_err()
+    {
+        eprintln!(
+            "protoc not found (checked {:?}). Install protoc and ensure it's on PATH or set PROTOC env to the protoc binary.\nDownload: https://github.com/protocolbuffers/protobuf/releases",
+            protoc_bin
+        );
+        std::process::exit(1);
     }
+
+    tonic_build::configure()
+        .build_server(true)
+        .compile(&[proto], &[includes])?;
+
+    Ok(())
 }
