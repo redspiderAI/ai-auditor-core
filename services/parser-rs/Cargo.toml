@@ -1,0 +1,28 @@
+[package]
+name = "parser_rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["成员A <dev@example.com>"]
+description = "高性能文档解析与坐标定位引擎（Rust 模块）"
+build = "build.rs"
+
+[dependencies]
+tonic = { version = "0.9", features = ["transport"] }
+prost = "0.11"
+quick-xml = "0.39"
+roxmltree = "0.20"
+rayon = "1.7"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+log = "0.4"
+anyhow = "1.0"
+tokio = { version = "1", features = ["full"] }
+zip = "0.6"
+
+[workspace]
+
+[build-dependencies]
+tonic-build = "0.9"
+
+[features]
+with-proto = []
