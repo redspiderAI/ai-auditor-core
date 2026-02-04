@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/circuit"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/grpcclient"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
 	"google.golang.org/grpc"
 )
@@ -28,17 +29,27 @@ type Orchestrator struct {
 	timeout         time.Duration
 	retryAttempts   int
 	inferenceCB     *circuit.CircuitBreaker  // Python推理服务的熔断器
+	parserClient    *grpcclient.DocumentAuditorClient
+	engineClient    *grpcclient.DocumentAuditorClient
+	inferenceClient *grpcclient.DocumentAuditorClient
 }
 
 // NewOrchestrator 创建新的编排器实例
 func NewOrchestrator(parserAddr, engineAddr, inferenceAddr string) *Orchestrator {
+	parserClient, _ := grpcclient.NewClient(parserAddr, 60*time.Second)
+	engineClient, _ := grpcclient.NewClient(engineAddr, 60*time.Second)
+	inferenceClient, _ := grpcclient.NewClient(inferenceAddr, 60*time.Second)
+
 	return &Orchestrator{
-		parserAddr:    parserAddr,
-		engineAddr:    engineAddr,
-		inferenceAddr: inferenceAddr,
-		timeout:       60 * time.Second,
-		retryAttempts: 3,
-		inferenceCB:   circuit.NewCircuitBreaker(3, 30*time.Second), // 最大3次失败，30秒后重置
+		parserAddr:      parserAddr,
+		engineAddr:      engineAddr,
+		inferenceAddr:   inferenceAddr,
+		timeout:         60 * time.Second,
+		retryAttempts:   3,
+		inferenceCB:     circuit.NewCircuitBreaker(3, 30*time.Second), // 最大3次失败，30秒后重置
+		parserClient:    parserClient,
+		engineClient:    engineClient,
+		inferenceClient: inferenceClient,
 	}
 }
 
