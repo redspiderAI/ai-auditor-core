@@ -35,14 +35,27 @@ impl document_parser_server::DocumentParser for DocumentParserService {
             let parser = crate::docx_parser::DocxParser::new();
             match parser.parse(&file_path) {
                 Ok(sections) => {
-                    let document_tree = crate::layout_modeler::LayoutModeler::build_tree(sections);
+                    // 使用新的转换器将Rust结构转换为protobuf ParsedData
+                    let doc_id = std::path::Path::new(&file_path)
+                        .file_stem()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string();
+
+                    let title = doc_id.clone(); // 使用文件名作为标题
+                    let page_count = 10; // 估算页面数，实际需要从文档中提取
+
+                    let parsed_data = crate::parsed_data_converter::ParsedDataConverter::convert_from_rust_sections(
+                        doc_id,
+                        sections,
+                        title,
+                        page_count,
+                    );
 
                     let response = ParseDocumentResponse {
                         success: true,
                         error_message: "".to_string(),
-                        parsed_data: Some(ParsedData {
-                            document_tree: Some(document_tree.into()),
-                        }),
+                        parsed_data: Some(parsed_data),
                     };
 
                     Ok(Response::new(response))
