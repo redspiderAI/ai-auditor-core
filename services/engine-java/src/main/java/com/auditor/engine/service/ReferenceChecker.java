@@ -1,18 +1,5 @@
 package com.auditor.engine.service;
 
-<<<<<<< HEAD
-import com.auditor.grpc.ParsedData;
-import com.auditor.grpc.AuditResponse;
-
-public class ReferenceChecker {
-
-    // 占位：执行引用闭环一致性检查，返回 AuditResponse（暂为空实现）
-    public AuditResponse checkReferences(ParsedData data) {
-        // TODO: 实现引用匹配与一致性检查
-        return AuditResponse.newBuilder().setScoreImpact(0.0f).build();
-    }
-}
-=======
 import com.auditor.grpc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,4 +86,3 @@ public class ReferenceChecker {
                 .build();
     }
 }
->>>>>>> main

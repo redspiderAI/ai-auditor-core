@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"os"
 	"sync"
-<<<<<<< HEAD
 	"time"
 )
 
@@ -19,13 +18,10 @@ const (
 	Generating  TaskStatus = "Generating"
 	Completed   TaskStatus = "Completed"
 	Error       TaskStatus = "Error"
-=======
->>>>>>> main
 )
 
 // Task represents a processing job state.
 type Task struct {
-<<<<<<< HEAD
 	ID            string     `json:"id"`
 	Status        TaskStatus `json:"status"`
 	Progress      int        `json:"progress"`
@@ -35,14 +31,6 @@ type Task struct {
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 	ErrorMsg      string     `json:"error_msg,omitempty"`
-=======
-	ID            string `json:"id"`
-	Status        string `json:"status"`
-	Progress      int    `json:"progress"`
-	SourcePath    string `json:"source_path"`
-	AnnotatedPath string `json:"annotated_path"`
-	ReportPath    string `json:"report_path"`
->>>>>>> main
 }
 
 // Store keeps tasks in memory with simple locking.
@@ -60,11 +48,8 @@ func NewStore() *Store {
 func (s *Store) AddTask(t *Task) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-<<<<<<< HEAD
 	t.CreatedAt = time.Now()
 	t.UpdatedAt = time.Now()
-=======
->>>>>>> main
 	s.tasks[t.ID] = t
 }
 
@@ -85,10 +70,7 @@ func (s *Store) UpdateTask(id string, fn func(*Task)) bool {
 		return false
 	}
 	fn(t)
-<<<<<<< HEAD
 	t.UpdatedAt = time.Now()
-=======
->>>>>>> main
 	return true
 }
 
@@ -102,8 +84,4 @@ func WriteReport(path string, data any) error {
 	enc := json.NewEncoder(f)
 	enc.SetIndent("", "  ")
 	return enc.Encode(data)
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main

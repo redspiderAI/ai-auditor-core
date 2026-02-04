@@ -1,5 +1,4 @@
 import argparse
-<<<<<<< HEAD
 import json
 import logging
 import os
@@ -17,13 +16,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT_ROOT = REPO_ROOT / "data" / "input"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "data" / "output"
 TARGET_PATTERN = re.compile(r"毕业论文\.docx$", re.IGNORECASE)
-=======
-import logging
-import os
-from typing import Tuple
-
-from src import grpc_server
->>>>>>> main
 
 
 def _parse_addr_env(env_value: str) -> Tuple[str, int]:
@@ -50,7 +42,6 @@ def _parse_addr_env(env_value: str) -> Tuple[str, int]:
     return host_part or default_host, port
 
 
-<<<<<<< HEAD
 def _issue_to_dict(issue: auditor_pb2.Issue) -> dict:
     severity_name = auditor_pb2.Severity.Name(issue.severity)
     return {
@@ -145,13 +136,10 @@ def run_batch(parser_addr: str, input_root: Path, output_root: Path) -> None:
     logging.info("batch run complete; results in %s", output_root)
 
 
-=======
->>>>>>> main
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1", help="gRPC bind host")
     parser.add_argument("--port", type=int, default=50051, help="gRPC bind port")
-<<<<<<< HEAD
     parser.add_argument("--serve", action="store_true", help="Start gRPC server instead of batch run")
     parser.add_argument("--parser-addr", default=os.environ.get("PARSER_GRPC_ADDR"), help="parser-rs gRPC address host:port")
     parser.add_argument("--input-root", default=None, help="Override input root (defaults to repo data/input)")
@@ -174,10 +162,6 @@ def main():
         run_batch(parser_addr=parser_addr, input_root=input_root, output_root=output_root)
         return
 
-=======
-    args = parser.parse_args()
-
->>>>>>> main
     # 优先读取环境变量 `PY_INFERENCE_ADDR`（格式示例: inference-py:8123 或 127.0.0.1:8123 或 8123）
     env_addr = os.environ.get("PY_INFERENCE_ADDR")
     env_host, env_port = _parse_addr_env(env_addr) if env_addr else (None, 0)
@@ -185,10 +169,6 @@ def main():
     host = env_host if env_host and env_host != "inference-py" else args.host
     port = env_port if env_port and env_port > 0 else args.port
 
-<<<<<<< HEAD
-=======
-    logging.basicConfig(level=logging.INFO)
->>>>>>> main
     logging.info("Starting inference-py gRPC server on %s:%s", host, port)
     grpc_server.serve(host=host, port=port)
 

@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-=======
 
 <!--项目基本信息-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
->>>>>>> main
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.auditor</groupId>
@@ -19,27 +13,17 @@
     <name>engine-java</name>
     <description>Rule engine for academic auditor (Spring Boot + Drools)</description>
 
-<<<<<<< HEAD
-    <properties>
-        <java.version>17</java.version>
-        <spring.boot.version>3.2.0</spring.boot.version>
-        <kie.version>8.59.0.Final</kie.version>
-=======
     <!-- 属性配置-->
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>3.2.0</spring.boot.version>
         <kie.version>8.44.0.Final</kie.version>
->>>>>>> main
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-<<<<<<< HEAD
-=======
     <!-- 依赖管理-->
->>>>>>> main
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -50,15 +34,9 @@
                 <scope>import</scope>
             </dependency>
             <!-- Drools/KIE BOM disabled temporarily: some kie-bom versions are not available
-<<<<<<< HEAD
-                 in configured repositories for this environment. To enable Drools, replace
-                 this block with a concrete BOM version known to exist in your repo, or add
-                 the appropriate KIE repository. -->
-=======
                 in configured repositories for this environment. To enable Drools, replace
                 this block with a concrete BOM version known to exist in your repo, or add
                 the appropriate KIE repository. -->
->>>>>>> main
             <!--
             <dependency>
                 <groupId>org.kie</groupId>
@@ -71,10 +49,7 @@
         </dependencies>
     </dependencyManagement>
 
-<<<<<<< HEAD
-=======
     <!-- 仓库配置-->
->>>>>>> main
     <repositories>
         <repository>
             <id>jboss-public-repository-group</id>
@@ -88,14 +63,9 @@
         </repository>
     </repositories>
 
-<<<<<<< HEAD
-    <dependencies>
-        <!-- Spring Boot basics -->
-=======
     <!-- 核心依赖-->
     <dependencies>
         <!-- Spring Boot basics     Spring Boot 基础-->
->>>>>>> main
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -105,16 +75,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-<<<<<<< HEAD
-        <!-- Drools / KIE (rules engine)
-             Temporarily commented out because the BOM/imported versions are not resolvable
-             in the current environment. To enable, either:
-             1) Uncomment and set `${kie.version}` to a released version available in your
-                Maven repos; or
-             2) Add a specific Drools dependency versions that exist in Maven Central.
-        -->
-        <!--
-=======
         <!-- Drools / KIE (rules engine)            Drools 规则引擎注释中
             Temporarily commented out because the BOM/imported versions are not resolvable
             in the current environment. To enable, either:
@@ -123,7 +83,6 @@
             2) Add a specific Drools dependency versions that exist in Maven Central.
         -->
 
->>>>>>> main
         <dependency>
             <groupId>org.kie</groupId>
             <artifactId>kie-ci</artifactId>
@@ -139,12 +98,6 @@
             <artifactId>drools-core</artifactId>
             <version>${kie.version}</version>
         </dependency>
-<<<<<<< HEAD
-        -->
-
-        <!-- Protobuf runtime (use version compatible with protoc used in build)
-             If you need protobuf-java 4.x, add the appropriate repo or update version. -->
-=======
         <!-- 添加 drools-compiler -->
         <dependency>
             <groupId>org.drools</groupId>
@@ -155,39 +108,28 @@
 
         <!-- Protobuf runtime (use version compatible with protoc used in build)
             If you need protobuf-java 4.x, add the appropriate repo or update version. -->
->>>>>>> main
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>3.21.12</version>
         </dependency>
 
-<<<<<<< HEAD
-        <!-- gRPC runtime (optional, for later integration) -->
-=======
         <!-- gRPC runtime (optional, for later integration) gRPC 通讯-->
 
         <!-- 冲突的依赖,待处理-->
->>>>>>> main
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty-shaded</artifactId>
             <version>1.56.0</version>
         </dependency>
-<<<<<<< HEAD
-=======
 
->>>>>>> main
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
             <version>1.56.0</version>
         </dependency>
-<<<<<<< HEAD
-=======
 
 
->>>>>>> main
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
@@ -196,14 +138,6 @@
     </dependencies>
 
     <build>
-<<<<<<< HEAD
-        <plugins>
-            <!-- Spring Boot plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
-=======
         <!-- 构建插件-->
         <plugins>
             <!-- Spring Boot plugin -->
@@ -221,7 +155,6 @@
                         </goals>
                     </execution>
                 </executions>
->>>>>>> main
             </plugin>
 
             <!-- Java compiler -->
@@ -240,10 +173,7 @@
     </build>
 
     <profiles>
-<<<<<<< HEAD
-=======
         <!-- Protobuf 代码生成 Profile 控制-->
->>>>>>> main
         <profile>
             <id>generate-protobuf</id>
             <!-- Only activate generation when generated sources are NOT checked into src/main/java -->
@@ -287,17 +217,11 @@
                                 </goals>
                                 <configuration>
                                     <target>
-<<<<<<< HEAD
-                                        <mkdir dir="${project.basedir}/src/main/protobuf"/>
-                                        <copy todir="${project.basedir}/src/main/protobuf" overwrite="true">
-                                            <fileset dir="${project.basedir}/../../shared/protos" includes="**/*.proto"/>
-=======
                                         <mkdir dir="${project.basedir}/src/main/protobuf" />
                                         <copy todir="${project.basedir}/src/main/protobuf"
                                             overwrite="true">
                                             <fileset dir="${project.basedir}/../../shared/protos"
                                                 includes="**/*.proto" />
->>>>>>> main
                                         </copy>
                                     </target>
                                 </configuration>
@@ -319,12 +243,8 @@
                                 </goals>
                                 <configuration>
                                     <sources>
-<<<<<<< HEAD
-                                        <source>${project.build.directory}/generated-sources/protobuf/java</source>
-=======
                                         <source>
                                             ${project.build.directory}/generated-sources/protobuf/java</source>
->>>>>>> main
                                     </sources>
                                 </configuration>
                             </execution>
@@ -335,8 +255,4 @@
         </profile>
     </profiles>
 
-<<<<<<< HEAD
 </project>
-=======
-</project>
->>>>>>> main

@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 //go:build !grpc
 // +build !grpc
 
-=======
->>>>>>> main
 package worker
 
 import (
@@ -13,7 +10,6 @@ import (
 	"time"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
-<<<<<<< HEAD
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
@@ -25,21 +21,11 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		// Update task status to parsing
 		if ok := s.UpdateTask(id, func(t *store.Task) {
 			t.Status = store.Parsing
-=======
-)
-
-// Worker simulates processing (parse -> audit -> report -> annotate).
-func Worker(tasks <-chan string, s *store.Store) {
-	for id := range tasks {
-		if ok := s.UpdateTask(id, func(t *store.Task) {
-			t.Status = "Parsing"
->>>>>>> main
 			t.Progress = 10
 		}); !ok {
 			continue
 		}
 
-<<<<<<< HEAD
 		// Send notification about status update
 		if notificationSvc != nil {
 			notificationSvc.NotifyTaskUpdate(id, store.Parsing, 10, "Starting document parsing")
@@ -93,32 +79,10 @@ func Worker(tasks <-chan string, s *store.Store) {
 		allIssues := append(ruleIssues, semanticIssues...)
 
 		// Generate detailed report according to protocol
-=======
-		time.Sleep(1 * time.Second) // simulate parse
-
-		_ = s.UpdateTask(id, func(t *store.Task) {
-			t.Status = "Auditing"
-			t.Progress = 40
-		})
-
-		for p := 50; p <= 90; p += 10 {
-			time.Sleep(800 * time.Millisecond)
-			_ = s.UpdateTask(id, func(t *store.Task) { t.Progress = p })
-		}
-
-		annotated := filepath.Join("..", "temp_docs", id+"-annotated.docx")
-		report := filepath.Join("..", "temp_docs", id+"-report.json")
-
-		if t, ok := s.GetTask(id); ok {
-			_ = copyFile(t.SourcePath, annotated)
-		}
-
->>>>>>> main
 		_ = store.WriteReport(report, map[string]any{
 			"task_id":      id,
 			"status":       "completed",
 			"generated_at": time.Now().Format(time.RFC3339),
-<<<<<<< HEAD
 			"document_info": map[string]any{
 				"title":      parsedData.Metadata.Title,
 				"page_count": parsedData.Metadata.PageCount,
@@ -128,15 +92,11 @@ func Worker(tasks <-chan string, s *store.Store) {
 			"issue_summary": generateIssueSummary(allIssues),
 			"compliance_rate": calculateComplianceRate(allIssues),
 			"total_score":     calculateTotalScore(allIssues),
-=======
-			"issues":       []any{},
->>>>>>> main
 		})
 
 		_ = s.UpdateTask(id, func(t *store.Task) {
 			t.AnnotatedPath = annotated
 			t.ReportPath = report
-<<<<<<< HEAD
 			t.Status = store.Completed
 			t.Progress = 100
 		})
@@ -386,11 +346,6 @@ func severityToString(severity auditor.Severity) string {
 		return "critical"
 	default:
 		return "unknown"
-=======
-			t.Status = "Completed"
-			t.Progress = 100
-		})
->>>>>>> main
 	}
 }
 
@@ -407,8 +362,4 @@ func copyFile(src, dst string) error {
 	defer out.Close()
 	_, err = io.Copy(out, in)
 	return err
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main
