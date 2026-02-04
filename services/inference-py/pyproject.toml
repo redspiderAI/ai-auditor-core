@@ -3,7 +3,11 @@ name = "inference-py"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
+<<<<<<< HEAD
 requires-python = ">=3.11"
+=======
+requires-python = ">=3.14"
+>>>>>>> main
 dependencies = [
     "fastapi>=0.128.0",
     "grpcio-tools>=1.76.0",

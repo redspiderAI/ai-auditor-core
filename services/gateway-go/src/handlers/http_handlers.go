@@ -1,25 +1,39 @@
 package handlers
 
 import (
+<<<<<<< HEAD
 	"archive/zip"
 	"bytes"
 	"encoding/json"
 	"fmt"
+=======
+	"encoding/json"
+>>>>>>> main
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+<<<<<<< HEAD
 	"time"
+=======
+>>>>>>> main
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
+<<<<<<< HEAD
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
 )
 
 // UploadHandler handles file uploads and enqueues tasks.
 func UploadHandler(s *store.Store, tasks chan<- string, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+=======
+)
+
+// UploadHandler handles file uploads and enqueues tasks.
+func UploadHandler(s *store.Store, tasks chan<- string) echo.HandlerFunc {
+>>>>>>> main
 	return func(c echo.Context) error {
 		f, err := c.FormFile("file")
 		if err != nil {
@@ -33,7 +47,11 @@ func UploadHandler(s *store.Store, tasks chan<- string, tempManager *tempmanager
 		defer src.Close()
 
 		id := uuid.New().String()
+<<<<<<< HEAD
 		tmpDir := tempManager.TempDir
+=======
+		tmpDir := filepath.Join("..", "temp_docs")
+>>>>>>> main
 		_ = os.MkdirAll(tmpDir, 0o755)
 		dstPath := filepath.Join(tmpDir, id+".docx")
 		dst, err := os.Create(dstPath)
@@ -46,16 +64,24 @@ func UploadHandler(s *store.Store, tasks chan<- string, tempManager *tempmanager
 			return err
 		}
 
+<<<<<<< HEAD
 		// Track the uploaded file
 		tempManager.TrackFile(dstPath)
 
 		s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath})
+=======
+		s.AddTask(&store.Task{ID: id, Status: "Pending", Progress: 0, SourcePath: dstPath})
+>>>>>>> main
 
 		select {
 		case tasks <- id:
 		default:
 			// queue full: mark queued and enqueue asynchronously
+<<<<<<< HEAD
 			_ = s.UpdateTask(id, func(t *store.Task) { t.Status = store.Queued })
+=======
+			_ = s.UpdateTask(id, func(t *store.Task) { t.Status = "Queued" })
+>>>>>>> main
 			go func() { tasks <- id }()
 		}
 
@@ -83,8 +109,13 @@ func ReportHandler(s *store.Store) echo.HandlerFunc {
 		if !ok {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "task not found"})
 		}
+<<<<<<< HEAD
 		if t.Status != store.Completed {
 			return c.JSON(http.StatusAccepted, map[string]string{"status": string(t.Status)})
+=======
+		if t.Status != "Completed" {
+			return c.JSON(http.StatusAccepted, map[string]string{"status": t.Status})
+>>>>>>> main
 		}
 		if t.ReportPath == "" {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "report missing"})
@@ -102,14 +133,20 @@ func ReportHandler(s *store.Store) echo.HandlerFunc {
 	}
 }
 
+<<<<<<< HEAD
 // DownloadHandler serves a ZIP archive containing the annotated docx and report.
 func DownloadHandler(s *store.Store, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+=======
+// DownloadHandler serves the annotated docx or report.
+func DownloadHandler(s *store.Store) echo.HandlerFunc {
+>>>>>>> main
 	return func(c echo.Context) error {
 		id := c.Param("id")
 		t, ok := s.GetTask(id)
 		if !ok {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "task not found"})
 		}
+<<<<<<< HEAD
 		if t.Status != store.Completed {
 			return c.NoContent(http.StatusAccepted)
 		}
@@ -252,3 +289,17 @@ func BatchUploadHandler(s *store.Store, tasks chan<- string, tempManager *tempma
 		return c.JSON(http.StatusAccepted, response)
 	}
 }
+=======
+		if t.Status != "Completed" {
+			return c.NoContent(http.StatusAccepted)
+		}
+		if t.AnnotatedPath != "" {
+			return c.File(t.AnnotatedPath)
+		}
+		if t.ReportPath != "" {
+			return c.File(t.ReportPath)
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "nothing to download"})
+	}
+}
+>>>>>>> main

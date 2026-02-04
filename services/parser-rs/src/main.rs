@@ -1,4 +1,5 @@
 use anyhow::Result;
+<<<<<<< HEAD
 use std::fs::File;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
@@ -15,6 +16,42 @@ async fn main() -> Result<()> {
         eprintln!("batch parse failed: {}", e);
     }
 
+=======
+use std::net::SocketAddr;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    // Check if we're running in document processing mode or server mode
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() > 1 && args[1] == "process" {
+        // Run document processing mode
+        run_document_processing().await
+    } else {
+        // Run server mode (default)
+        run_server_mode().await
+    }
+}
+
+async fn run_document_processing() -> Result<()> {
+    println!("Starting document processing mode...");
+
+    // Process documents from input directory
+    match parser_rs::utils::document_processor::run_document_processing() {
+        Ok(_) => {
+            println!("Document processing completed successfully!");
+        },
+        Err(e) => {
+            eprintln!("Failed to process documents: {}", e);
+            return Err(e);
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_server_mode() -> Result<()> {
+>>>>>>> main
     // Ports can be overridden by env vars to match docker-compose expectations
     let grpc_port = std::env::var("RUST_GRPC_PORT").unwrap_or_else(|_| "52051".into());
     let health_port = std::env::var("RUST_HEALTH_PORT").unwrap_or_else(|_| "50051".into());
@@ -27,7 +64,11 @@ async fn main() -> Result<()> {
     // Start gRPC server (tonic) when compiled with `with-proto` feature; otherwise keep a dummy listener.
     #[cfg(feature = "with-proto")]
     let grpc_server = tokio::spawn(async move {
+<<<<<<< HEAD
         let svc = grpc_server::make_server();
+=======
+        let svc = crate::grpc_server::make_server();
+>>>>>>> main
         let addr = grpc_addr;
         println!("starting tonic gRPC on {}", addr);
         if let Err(e) = tonic::transport::Server::builder().add_service(svc).serve(addr).await {
@@ -39,6 +80,7 @@ async fn main() -> Result<()> {
     let grpc_server = tokio::spawn(async move {
         // fallback: keep a plain TCP listener to satisfy healthchecks and port mapping
         match tokio::net::TcpListener::bind(grpc_addr).await {
+<<<<<<< HEAD
             Ok(listener) => loop {
                 match listener.accept().await {
                     Ok((_socket, _peer)) => {}
@@ -50,11 +92,23 @@ async fn main() -> Result<()> {
             Err(e) => {
                 eprintln!("failed to bind grpc listener: {}", e);
             }
+=======
+            Ok(listener) => {
+                loop {
+                    match listener.accept().await {
+                        Ok((_socket, _peer)) => {}
+                        Err(e) => { eprintln!("grpc accept error: {}", e); }
+                    }
+                }
+            }
+            Err(e) => { eprintln!("failed to bind grpc listener: {}", e); }
+>>>>>>> main
         }
     });
 
     let health_server = tokio::spawn(async move {
         match tokio::net::TcpListener::bind(health_addr).await {
+<<<<<<< HEAD
             Ok(listener) => loop {
                 match listener.accept().await {
                     Ok((_socket, _peer)) => {
@@ -65,6 +119,20 @@ async fn main() -> Result<()> {
                     }
                 }
             },
+=======
+            Ok(listener) => {
+                loop {
+                    match listener.accept().await {
+                        Ok((_socket, _peer)) => {
+                            // accept and drop
+                        }
+                        Err(e) => {
+                            eprintln!("health accept error: {}", e);
+                        }
+                    }
+                }
+            }
+>>>>>>> main
             Err(e) => {
                 eprintln!("failed to bind health listener: {}", e);
             }
@@ -73,6 +141,7 @@ async fn main() -> Result<()> {
 
     // Wait on both tasks (they run forever). If any errors, bubble up.
     let (g, h) = tokio::join!(grpc_server, health_server);
+<<<<<<< HEAD
     if let Err(e) = g {
         eprintln!("grpc server task ended: {:?}", e);
     }
@@ -152,6 +221,10 @@ fn run_batch_once() -> Result<()> {
             }
         }
     }
+=======
+    if let Err(e) = g { eprintln!("grpc server task ended: {:?}", e); }
+    if let Err(e) = h { eprintln!("health server task ended: {:?}", e); }
+>>>>>>> main
 
     Ok(())
 }

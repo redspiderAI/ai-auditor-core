@@ -1,5 +1,6 @@
 # parser-rs
 
+<<<<<<< HEAD
 高性能文档解析与坐标定位引擎（成员A 模块）。将Word文档转换为标准化结构，供成员B（规则引擎）和成员C（语义分析）使用。
 
 ## 功能特性
@@ -81,3 +82,22 @@ set PROTOC=C:\tools\protoc\bin\protoc.exe
 注意：build.rs 会优先读取 PROTOC 环境变量，否则调用系统 PATH 中的 `protoc`。
 
 后续：实现 `parser::Parser`、`layout::DocumentTree`、`writer::Writer`，并补全 gRPC 服务逻辑。
+=======
+高性能文档解析与坐标定位引擎（成员A 模块）骨架。包含基本模块：`parser` / `layout` / `writer` / `grpc`。
+
+快速开始：
+
+1. 进入目录：
+
+```
+cd services/parser-rs
+```
+
+1. 构建：
+
+```
+cargo build
+```
+
+后续：实现 `parser::Parser`、`layout::DocumentTree`、`writer::Writer`，并用 `tonic` 实现 gRPC 服务。
+>>>>>>> main

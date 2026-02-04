@@ -5,7 +5,10 @@ Thumbs.db
 # --- Rust (Member A) ---
 /services/parser-rs/target/
 /services/parser-rs/Cargo.lock
+<<<<<<< HEAD
 /services/parser-rs/tests
+=======
+>>>>>>> main
 
 # --- Java (Member B) ---
 /services/engine-java/target/

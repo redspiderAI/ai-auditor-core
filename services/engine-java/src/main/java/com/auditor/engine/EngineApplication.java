@@ -5,7 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class EngineApplication {
+<<<<<<< HEAD
     public static void main(String[] args) {
+=======
+    public static void main(String[] args) {  //  Java 应用的入口点
+        //HTTP 端口动态配置
+>>>>>>> main
         // Allow dynamic port from environment variable `JAVA_ENGINE_ADDR`.
         // Expected formats: "host:port", "port", or "hostname:port".
         String addr = System.getenv("JAVA_ENGINE_ADDR");
@@ -24,6 +29,10 @@ public class EngineApplication {
         }
 
         // Determine gRPC port: prefer explicit env `JAVA_GRPC_PORT`, else use httpPort+1, else default 9192
+<<<<<<< HEAD
+=======
+        // gRPC 端口智能推导
+>>>>>>> main
         int grpcPort = 9192;
         String grpcEnv = System.getenv("JAVA_GRPC_PORT");
         if (grpcEnv != null && !grpcEnv.isBlank()) {
@@ -39,7 +48,13 @@ public class EngineApplication {
             } catch (Exception ignored) {}
             if (httpPort > 0) grpcPort = httpPort + 1;
         }
+<<<<<<< HEAD
 
+=======
+        
+        
+        // 反射启动 gRPC 服务
+>>>>>>> main
         try {
             // Try to load EmbeddedGrpcServer reflectively to avoid a compile-time dependency
             Class<?> cls = Class.forName("com.auditor.engine.grpc.EmbeddedGrpcServer");
@@ -56,6 +71,10 @@ public class EngineApplication {
             System.err.println("Failed to start embedded gRPC server: " + e.getMessage());
         }
 
+<<<<<<< HEAD
+=======
+        //启动 Spring Boot 应用
+>>>>>>> main
         SpringApplication.run(EngineApplication.class, args);
         System.out.println("Engine-Java started (placeholder)");
     }
