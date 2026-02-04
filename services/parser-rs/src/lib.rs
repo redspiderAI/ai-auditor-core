@@ -2,6 +2,7 @@ pub mod parser;
 pub mod layout;
 pub mod writer;
 pub mod grpc;
+pub mod grpc_server;
 
 use serde::{Deserialize, Serialize};
 

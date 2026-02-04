@@ -13,6 +13,7 @@ pub trait Parser {
 }
 
 /// DocxParser: implementation that extracts paragraph texts from `word/document.xml` using roxmltree.
+#[derive(Debug, Clone)]
 pub struct DocxParser;
 
 impl Parser for DocxParser {

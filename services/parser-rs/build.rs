@@ -19,9 +19,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    // Ensure `protoc` is available or provide clear instructions.
-    if std::process::Command::new("protoc").arg("--version").output().is_err() {
-        eprintln!("protoc not found: please install protoc and ensure it's on PATH.\nYou can download from https://github.com/protocolbuffers/protobuf/releases or set the PROTOC env var to the protoc binary path.");
+    // Ensure `protoc` is available. Honor PROTOC env override on Windows/other platforms.
+    let protoc_bin = std::env::var("PROTOC").unwrap_or_else(|_| "protoc".to_string());
+    if std::process::Command::new(&protoc_bin).arg("--version").output().is_err() {
+        eprintln!("protoc not found (checked {:?}). Install protoc and ensure it's on PATH or set PROTOC env to the protoc binary.\nDownload: https://github.com/protocolbuffers/protobuf/releases", protoc_bin);
         std::process::exit(1);
     }
 

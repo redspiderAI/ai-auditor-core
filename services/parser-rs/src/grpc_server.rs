@@ -10,13 +10,16 @@ use tonic::{Request, Response, Status};
 use proto::document_auditor_server::{DocumentAuditor, DocumentAuditorServer};
 
 #[cfg(feature = "with-proto")]
-use proto::{ParseRequest, ParsedData, DocumentMetadata, Section as ProtoSection, Reference as ProtoReference, AuditResponse};
+use proto::{ParseRequest, ParsedData, DocumentMetadata, Section as ProtoSection, AuditResponse};
 
 #[cfg(feature = "with-proto")]
 use crate::parser::DocxParser;
 
 #[cfg(feature = "with-proto")]
 use crate::layout::DocumentTree;
+
+#[cfg(feature = "with-proto")]
+use crate::parser::Parser;
 
 #[cfg(feature = "with-proto")]
 #[derive(Debug, Clone)]

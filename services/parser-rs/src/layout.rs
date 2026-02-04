@@ -1,7 +1,8 @@
 use crate::DocumentSection;
+use serde::Serialize;
 
 /// In-memory document tree used for downstream processing and for mapping back to XML offsets.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct DocumentTree {
     pub sections: Vec<DocumentSection>,
 }
