@@ -1,11 +1,28 @@
-use crate::{DocumentSection, ElementType};
-use anyhow::Result;
-use roxmltree::Document;
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
+// src/parser.rs
 use std::collections::HashMap;
-use zip::ZipArchive;
+use serde::Serialize;
+
+#[derive(Debug, Clone, Serialize)]
+pub struct DocumentSection {
+    pub id: i32,
+    #[serde(rename = "type")]
+    pub element_type: ElementType,
+    pub raw_text: String,
+    pub formatting: HashMap<String, String>,
+    pub xml_path: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum ElementType {
+    #[serde(rename = "heading")]
+    Heading(u8),
+    #[serde(rename = "paragraph")]
+    Paragraph,
+    #[serde(rename = "table")]
+    Table,
+    #[serde(rename = "equation")]
+    Equation,
+}
 
 pub trait Parser {
     /// Parse a document (path to .docx or stream) and return a DocumentTree

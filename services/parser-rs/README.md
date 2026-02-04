@@ -1,8 +1,51 @@
 # parser-rs
 
-高性能文档解析与坐标定位引擎（成员A 模块）骨架。包含基本模块：`parser` / `layout` / `writer` / `grpc`。
+高性能文档解析与坐标定位引擎（成员A 模块）。将Word文档转换为标准化结构，供成员B（规则引擎）和成员C（语义分析）使用。
 
-快速开始：
+## 功能特性
+
+- 解析Word文档（.docx）结构
+- 提取文档内容（标题、段落、表格等）
+- 识别格式属性（字体、大小、间距等）
+- 提取引用信息
+- 转换为标准化JSON结构
+- 通过gRPC提供服务
+
+## 输出结构
+
+解析器将Word文档转换为以下结构，供其他服务使用：
+
+```json
+{
+  "doc_id": "document_identifier",
+  "metadata": {
+    "title": "文档标题",
+    "total_pages": 10,
+    "global_style": { "font": "SimSun", "line_spacing": 1.5 }
+  },
+  "sections": [
+    {
+      "section_id": 1,
+      "type": "heading",
+      "level": 1,
+      "text": "标题文本",
+      "properties": { "font_size": 16, "bold": true }
+    },
+    {
+      "section_id": 2,
+      "type": "paragraph",
+      "text": "段落文本",
+      "citations": ["[1]"],
+      "properties": { "first_line_indent": 2.0 }
+    }
+  ],
+  "references": [
+    { "ref_id": "[1]", "raw_text": "完整引用文本" }
+  ]
+}
+```
+
+## 快速开始
 
 1) 进入目录并构建/运行（当前默认启动占位 TCP 监听，不依赖 proto 生成）：
 

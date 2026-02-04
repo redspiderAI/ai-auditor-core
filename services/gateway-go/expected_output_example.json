@@ -1,0 +1,51 @@
+{
+  "task_id": "test_task_123",
+  "status": "completed",
+  "generated_at": "2026-02-01T19:25:00+08:00",
+  "issues": [
+    {
+      "module": "structural",
+      "issue_type": "font_mismatch",
+      "location": {
+        "section_id": 1
+      },
+      "description": "一级标题字体应为黑体，当前为宋体。",
+      "suggestion": "请修改为黑体三号",
+      "severity": "medium"
+    },
+    {
+      "module": "relational",
+      "issue_type": "missing_citation",
+      "location": {
+        "section_id": 2
+      },
+      "description": "正文引用了[1]，但参考文献列表中未找到对应项。",
+      "suggestion": "请补充条目[1]或修改引用编号",
+      "severity": "high"
+    },
+    {
+      "module": "semantic",
+      "issue_type": "typo",
+      "location": {
+        "section_id": 2,
+        "offset": 5
+      },
+      "description": "检测到疑似错别字：'份' -> '分'。",
+      "suggestion": "成分",
+      "severity": "high"
+    }
+  ],
+  "summary": {
+    "total_issues": 3,
+    "by_severity": {
+      "high": 2,
+      "medium": 1,
+      "low": 0
+    },
+    "by_module": {
+      "structural": 1,
+      "relational": 1,
+      "semantic": 1
+    }
+  }
+}

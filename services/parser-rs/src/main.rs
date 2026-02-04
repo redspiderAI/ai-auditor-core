@@ -20,10 +20,13 @@ async fn main() -> Result<()> {
     let grpc_port = std::env::var("RUST_GRPC_PORT").unwrap_or_else(|_| "52051".into());
     let health_port = std::env::var("RUST_HEALTH_PORT").unwrap_or_else(|_| "50051".into());
 
-    let grpc_addr: SocketAddr = format!("0.0.0.0:{}", grpc_port).parse()?;
-    let health_addr: SocketAddr = format!("0.0.0.0:{}", health_port).parse()?;
+fn main() -> anyhow::Result<()> {
+    // Run in CLI mode (default)
+    let test_file = "tests/sample.docx";
 
-    println!("parser-rs starting: grpc={} health={}", grpc_addr, health_addr);
+    let parser = DocxParser::new();
+    let sections = parser.parse(test_file)?;
+    let document_tree = LayoutModeler::build_tree(sections);
 
     // Start gRPC server (tonic) when compiled with `with-proto` feature; otherwise keep a dummy listener.
     #[cfg(feature = "with-proto")]
@@ -34,48 +37,21 @@ async fn main() -> Result<()> {
         if let Err(e) = tonic::transport::Server::builder().add_service(svc).serve(addr).await {
             eprintln!("gRPC server error: {}", e);
         }
-    });
+    ];
 
-    #[cfg(not(feature = "with-proto"))]
-    let grpc_server = tokio::spawn(async move {
-        // fallback: keep a plain TCP listener to satisfy healthchecks and port mapping
-        match tokio::net::TcpListener::bind(grpc_addr).await {
-            Ok(listener) => {
-                loop {
-                    match listener.accept().await {
-                        Ok((_socket, _peer)) => {}
-                        Err(e) => { eprintln!("grpc accept error: {}", e); }
-                    }
-                }
-            }
-            Err(e) => { eprintln!("failed to bind grpc listener: {}", e); }
+    if std::path::Path::new(test_file).exists() {
+        match crate::core::comment_writer::inject_comments(
+            test_file,
+            error_items,
+            "output_with_comments.docx",
+            "AI Auditor".to_string(),
+        ) {
+            Ok(_) => println!("✅ Comments injected successfully"),
+            Err(e) => eprintln!("⚠️  Failed to inject comments: {}", e),
         }
-    });
-
-    let health_server = tokio::spawn(async move {
-        match tokio::net::TcpListener::bind(health_addr).await {
-            Ok(listener) => {
-                loop {
-                    match listener.accept().await {
-                        Ok((_socket, _peer)) => {
-                            // accept and drop
-                        }
-                        Err(e) => {
-                            eprintln!("health accept error: {}", e);
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                eprintln!("failed to bind health listener: {}", e);
-            }
-        }
-    });
-
-    // Wait on both tasks (they run forever). If any errors, bubble up.
-    let (g, h) = tokio::join!(grpc_server, health_server);
-    if let Err(e) = g { eprintln!("grpc server task ended: {:?}", e); }
-    if let Err(e) = h { eprintln!("health server task ended: {:?}", e); }
+    } else {
+        println!("⚠️  Test file not found, skipping comment injection test");
+    }
 
     Ok(())
 }

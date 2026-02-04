@@ -14,6 +14,7 @@ import (
     "github.com/labstack/echo/v4"
 
     "github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
+    "github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
 )
 
 func TestUploadAndStatusHandlers(t *testing.T) {
@@ -45,11 +46,14 @@ func TestUploadAndStatusHandlers(t *testing.T) {
     }
     writer.Close()
 
+    // Create a temporary file manager for testing
+    tempManager := tempmanager.NewTempFileManager(workDir)
+
     req := httptest.NewRequest(http.MethodPost, "/api/v1/upload", &body)
     req.Header.Set(echo.HeaderContentType, writer.FormDataContentType())
     rec := httptest.NewRecorder()
 
-    if err := UploadHandler(s, tasks)(e.NewContext(req, rec)); err != nil {
+    if err := UploadHandler(s, tasks, tempManager)(e.NewContext(req, rec)); err != nil {
         t.Fatalf("upload handler error: %v", err)
     }
     if rec.Code != http.StatusAccepted {

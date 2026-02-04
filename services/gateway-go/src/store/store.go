@@ -4,16 +4,33 @@ import (
 	"encoding/json"
 	"os"
 	"sync"
+	"time"
+)
+
+// TaskStatus represents the possible states of a task
+type TaskStatus string
+
+const (
+	Pending     TaskStatus = "Pending"
+	Queued      TaskStatus = "Queued"
+	Parsing     TaskStatus = "Parsing"
+	Auditing    TaskStatus = "Auditing"
+	Generating  TaskStatus = "Generating"
+	Completed   TaskStatus = "Completed"
+	Error       TaskStatus = "Error"
 )
 
 // Task represents a processing job state.
 type Task struct {
-	ID            string `json:"id"`
-	Status        string `json:"status"`
-	Progress      int    `json:"progress"`
-	SourcePath    string `json:"source_path"`
-	AnnotatedPath string `json:"annotated_path"`
-	ReportPath    string `json:"report_path"`
+	ID            string     `json:"id"`
+	Status        TaskStatus `json:"status"`
+	Progress      int        `json:"progress"`
+	SourcePath    string     `json:"source_path"`
+	AnnotatedPath string     `json:"annotated_path"`
+	ReportPath    string     `json:"report_path"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	ErrorMsg      string     `json:"error_msg,omitempty"`
 }
 
 // Store keeps tasks in memory with simple locking.
@@ -31,6 +48,8 @@ func NewStore() *Store {
 func (s *Store) AddTask(t *Task) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	t.CreatedAt = time.Now()
+	t.UpdatedAt = time.Now()
 	s.tasks[t.ID] = t
 }
 
@@ -51,6 +70,7 @@ func (s *Store) UpdateTask(id string, fn func(*Task)) bool {
 		return false
 	}
 	fn(t)
+	t.UpdatedAt = time.Now()
 	return true
 }
 

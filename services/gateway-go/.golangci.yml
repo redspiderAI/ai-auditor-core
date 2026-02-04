@@ -1,0 +1,8 @@
+# Go工具配置
+# 用于配置Go工具在处理构建标签时的行为
+
+# 编译标志
+export GOFLAGS="-tags=grpc"
+
+# 或者在Windows上使用
+# set GOFLAGS=-tags=grpc

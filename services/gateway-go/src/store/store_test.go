@@ -1,27 +1,87 @@
 package store
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestStoreAddGetUpdate(t *testing.T) {
+func TestStoreOperations(t *testing.T) {
 	s := NewStore()
-	task := &Task{ID: "t1", Status: "Pending", Progress: 0}
+
+	// Test adding a task
+	task := &Task{
+		ID:       "test-id",
+		Status:   Pending,
+		Progress: 0,
+	}
 	s.AddTask(task)
 
-	if got, ok := s.GetTask("t1"); !ok {
-		t.Fatalf("task not found")
-	} else if got.Status != "Pending" {
-		t.Fatalf("unexpected status: %s", got.Status)
+	// Test getting a task
+	retrievedTask, exists := s.GetTask("test-id")
+	if !exists {
+		t.Fatal("Task should exist")
+	}
+	if retrievedTask.ID != "test-id" {
+		t.Errorf("Expected ID 'test-id', got '%s'", retrievedTask.ID)
 	}
 
-	updated := s.UpdateTask("t1", func(t *Task) {
-		t.Status = "Running"
-		t.Progress = 50
+	// Test updating a task
+	updated := s.UpdateTask("test-id", func(t *Task) {
+		t.Status = Completed
+		t.Progress = 100
 	})
 	if !updated {
-		t.Fatalf("expected update to succeed")
+		t.Error("Task should have been updated")
 	}
 
-	if got, ok := s.GetTask("t1"); !ok || got.Status != "Running" || got.Progress != 50 {
-		t.Fatalf("task not updated, got: %+v", got)
+	updatedTask, _ := s.GetTask("test-id")
+	if updatedTask.Status != Completed {
+		t.Errorf("Expected status 'Completed', got '%s'", updatedTask.Status)
+	}
+	if updatedTask.Progress != 100 {
+		t.Errorf("Expected progress 100, got %d", updatedTask.Progress)
+	}
+
+	// Test updating non-existent task
+	nonExistent := s.UpdateTask("non-existent", func(t *Task) {
+		t.Status = Completed
+	})
+	if nonExistent {
+		t.Error("Should not be able to update non-existent task")
+	}
+}
+
+func TestTaskTimestamps(t *testing.T) {
+	s := NewStore()
+
+	task := &Task{
+		ID:       "timestamp-test",
+		Status:   Pending,
+		Progress: 0,
+	}
+	beforeAdd := time.Now()
+	s.AddTask(task)
+	afterAdd := time.Now()
+
+	retrievedTask, _ := s.GetTask("timestamp-test")
+
+	if retrievedTask.CreatedAt.Before(beforeAdd) || retrievedTask.CreatedAt.After(afterAdd) {
+		t.Error("CreatedAt timestamp is not accurate")
+	}
+
+	if retrievedTask.UpdatedAt.Before(beforeAdd) || retrievedTask.UpdatedAt.After(afterAdd) {
+		t.Error("UpdatedAt timestamp is not accurate after creation")
+	}
+
+	// Test UpdatedAt after update
+	beforeUpdate := time.Now()
+	s.UpdateTask("timestamp-test", func(t *Task) {
+		t.Progress = 50
+	})
+	afterUpdate := time.Now()
+
+	updatedTask, _ := s.GetTask("timestamp-test")
+	if updatedTask.UpdatedAt.Before(beforeUpdate) || updatedTask.UpdatedAt.After(afterUpdate) {
+		t.Error("UpdatedAt timestamp is not accurate after update")
 	}
 }

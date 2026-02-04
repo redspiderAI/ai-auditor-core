@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package document;
+
+// 元素类型枚举
+enum ElementType {
+  PARAGRAPH = 0;
+  HEADING = 1;
+  TABLE = 2;
+  EQUATION = 3;
+}
+
+// 文档段落/元素
+message DocumentSection {
+  int32 id = 1;
+  ElementType type = 2;
+  string raw_text = 3;
+  map<string, string> formatting = 4;
+  string xml_path = 5;
+}
+
+// 文档元数据
+message DocumentMetadata {
+  int32 total_elements = 1;
+  int32 heading_count = 2;
+  int32 table_count = 3;
+}
+
+// 文档树节点
+message SectionNode {
+  int32 id = 1;
+  string title = 2;
+  uint32 level = 3;
+  string xml_path = 4;
+  repeated SectionItem children = 5;
+}
+
+// 节点项（子节或内容）
+message SectionItem {
+  oneof item {
+    SectionNode subsection = 1;
+    DocumentSection content = 2;
+  }
+}
+
+// 完整文档树
+message DocumentTree {
+  SectionNode root = 1;
+  DocumentMetadata metadata = 2;
+}
+
+// 解析结果（主输出）
+message ParsedData {
+  DocumentTree document_tree = 1;
+}
+
+// 评论消息
+message Comment {
+  string text = 1;
+  int32 paragraph_index = 2;
+}
+
+// 解析文档请求
+message ParseDocumentRequest {
+  string file_path = 1;
+}
+
+// 解析文档响应
+message ParseDocumentResponse {
+  bool success = 1;
+  string error_message = 2;
+  ParsedData parsed_data = 3;
+}
+
+// 注入评论请求
+message InjectCommentsRequest {
+  string input_file_path = 1;
+  string output_file_path = 2;
+  repeated Comment comments = 3;
+  string author = 4;
+}
+
+// 注入评论响应
+message InjectCommentsResponse {
+  bool success = 1;
+  string error_message = 2;
+  string output_file_path = 3;
+}
+
+// 主要的服务定义
+service DocumentParser {
+  rpc ParseDocument(ParseDocumentRequest) returns (ParseDocumentResponse);
+  rpc InjectComments(InjectCommentsRequest) returns (InjectCommentsResponse);
+}
