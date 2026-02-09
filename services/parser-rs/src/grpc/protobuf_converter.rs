@@ -1,8 +1,7 @@
-// src/protobuf_converter.rs
-use crate::layout::{DocumentTree as RustDocumentTree, SectionNode as RustSectionNode, SectionItem as RustSectionItem};
-use crate::parser::DocumentSection as RustDocumentSection;
-use crate::parser::ElementType as RustElementType;
-use crate::document::*; // 自动生成的 Protobuf 模块
+use crate::core::layout::{DocumentTree as RustDocumentTree, SectionNode as RustSectionNode, SectionItem as RustSectionItem};
+use crate::DocumentSection as RustDocumentSection;
+use crate::ElementType as RustElementType;
+use crate::grpc::document::*;
 
 impl From<RustElementType> for ElementType {
     fn from(rust_type: RustElementType) -> Self {
@@ -41,8 +40,8 @@ impl From<RustDocumentTree> for DocumentTree {
     }
 }
 
-impl From<crate::layout::DocumentMetadata> for DocumentMetadata {
-    fn from(rust_meta: crate::layout::DocumentMetadata) -> Self {
+impl From<crate::core::layout::DocumentMetadata> for DocumentMetadata {
+    fn from(rust_meta: crate::core::layout::DocumentMetadata) -> Self {
         DocumentMetadata {
             total_elements: rust_meta.total_elements as i32,
             heading_count: rust_meta.heading_count as i32,

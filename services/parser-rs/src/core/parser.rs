@@ -1,11 +1,13 @@
 use crate::{DocumentSection, ElementType, core::pdf_parser::PdfParser};
 use anyhow::Result;
 use roxmltree::Document;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use std::collections::HashMap;
 use zip::ZipArchive;
+
+const W_NS: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 pub trait Parser {
     /// Parse a document (path to .docx or stream) and return a DocumentTree
@@ -48,54 +50,118 @@ impl DocxParser {
     fn extract_formatting(&self, p_node: roxmltree::Node, _doc: &Document) -> HashMap<String, String> {
         let mut formatting = HashMap::new();
 
-        // Look for paragraph properties (pPr)
-        if let Some(p_pr) = p_node.children()
-            .find(|child| child.is_element() && child.tag_name().name() == "pPr") {
+        fn format_pt(value: f32) -> String {
+            if (value.fract()).abs() < f32::EPSILON {
+                format!("{:.0}pt", value)
+            } else {
+                format!("{:.1}pt", value)
+            }
+        }
 
-            // Extract indentation
-            if let Some(ind) = p_pr.children()
-                .find(|child| child.is_element() && child.tag_name().name() == "ind") {
-                if let Some(left) = ind.attribute("w:left") {
-                    formatting.insert("indent-left".to_string(), left.to_string());
+        // Paragraph properties (pPr)
+        if let Some(p_pr) = p_node
+            .children()
+            .find(|child| child.is_element() && child.tag_name().name() == "pPr")
+        {
+            // Indentation
+            if let Some(ind) = p_pr
+                .children()
+                .find(|child| child.is_element() && child.tag_name().name() == "ind")
+            {
+                if let Some(left) = ind.attribute((W_NS, "left")) {
+                    if let Ok(val) = left.parse::<f32>() {
+                        formatting.insert("indent-left".to_string(), format_pt(val / 20.0));
+                    } else {
+                        formatting.insert("indent-left".to_string(), left.to_string());
+                    }
+                }
+                if let Some(first_line) = ind.attribute((W_NS, "firstLine")) {
+                    if let Ok(val) = first_line.parse::<f32>() {
+                        formatting.insert("first-line-indent".to_string(), format_pt(val / 20.0));
+                    } else {
+                        formatting.insert("first-line-indent".to_string(), first_line.to_string());
+                    }
                 }
             }
 
-            // Extract spacing
-            if let Some(spacing) = p_pr.children()
-                .find(|child| child.is_element() && child.tag_name().name() == "spacing") {
-                if let Some(line_spacing) = spacing.attribute("w:line") {
-                    formatting.insert("line-spacing".to_string(), line_spacing.to_string());
+            // Line spacing
+            if let Some(spacing) = p_pr
+                .children()
+                .find(|child| child.is_element() && child.tag_name().name() == "spacing")
+            {
+                if let Some(line_spacing) = spacing.attribute((W_NS, "line")) {
+                    if let Ok(val) = line_spacing.parse::<f32>() {
+                        let normalized = val / 240.0;
+                        let formatted = if (normalized.fract()).abs() < f32::EPSILON {
+                            format!("{:.0}", normalized)
+                        } else {
+                            let mut s = format!("{:.2}", normalized);
+                            while s.contains('.') && s.ends_with('0') {
+                                s.pop();
+                            }
+                            if s.ends_with('.') {
+                                s.pop();
+                            }
+                            s
+                        };
+                        formatting.insert("line-spacing".to_string(), formatted);
+                    } else {
+                        formatting.insert("line-spacing".to_string(), line_spacing.to_string());
+                    }
                 }
             }
 
-            // Extract outline level (for headings)
-            if let Some(outline_lvl) = p_pr.children()
-                .find(|child| child.is_element() && child.tag_name().name() == "outlineLvl") {
-                if let Some(lvl) = outline_lvl.attribute("w:val") {
+            // Outline level (heading level)
+            if let Some(outline_lvl) = p_pr
+                .children()
+                .find(|child| child.is_element() && child.tag_name().name() == "outlineLvl")
+            {
+                if let Some(lvl) = outline_lvl.attribute((W_NS, "val")) {
                     formatting.insert("outline-level".to_string(), lvl.to_string());
+                }
+            }
+
+            // Paragraph style id
+            if let Some(p_style) = p_pr
+                .children()
+                .find(|child| child.is_element() && child.tag_name().name() == "pStyle")
+            {
+                if let Some(style_id) = p_style.attribute((W_NS, "val")) {
+                    formatting.insert("style".to_string(), style_id.to_string());
                 }
             }
         }
 
-        // Look for run properties (rPr) in the first run of the paragraph
-        if let Some(run) = p_node.descendants()
-            .find(|n| n.is_element() && n.tag_name().name() == "r") {
-            if let Some(r_pr) = run.children()
-                .find(|child| child.is_element() && child.tag_name().name() == "rPr") {
-
-                // Extract font size
-                if let Some(sz) = r_pr.children()
-                    .find(|child| child.is_element() && child.tag_name().name() == "sz") {
-                    if let Some(val) = sz.attribute("w:val") {
-                        formatting.insert("font-size".to_string(), val.to_string());
+        // Run properties (rPr) from the first run
+        if let Some(run) = p_node
+            .descendants()
+            .find(|n| n.is_element() && n.tag_name().name() == "r")
+        {
+            if let Some(r_pr) = run
+                .children()
+                .find(|child| child.is_element() && child.tag_name().name() == "rPr")
+            {
+                if let Some(sz) = r_pr
+                    .children()
+                    .find(|child| child.is_element() && child.tag_name().name() == "sz")
+                {
+                    if let Some(val) = sz.attribute((W_NS, "val")) {
+                        if let Ok(sz_val) = val.parse::<f32>() {
+                            formatting.insert("font-size".to_string(), format_pt(sz_val / 2.0));
+                        } else {
+                            formatting.insert("font-size".to_string(), val.to_string());
+                        }
                     }
                 }
 
-                // Extract font family
-                if let Some(r_fonts) = r_pr.children()
-                    .find(|child| child.is_element() && child.tag_name().name() == "rFonts") {
-                    if let Some(font_ascii) = r_fonts.attribute("w:ascii") {
+                if let Some(r_fonts) = r_pr
+                    .children()
+                    .find(|child| child.is_element() && child.tag_name().name() == "rFonts")
+                {
+                    if let Some(font_ascii) = r_fonts.attribute((W_NS, "ascii")) {
                         formatting.insert("font-family".to_string(), font_ascii.to_string());
+                    } else if let Some(font_east_asia) = r_fonts.attribute((W_NS, "eastAsia")) {
+                        formatting.insert("font-family".to_string(), font_east_asia.to_string());
                     }
                 }
             }
@@ -112,7 +178,7 @@ impl DocxParser {
 
             if let Some(outline_lvl) = p_pr.children()
                 .find(|child| child.is_element() && child.tag_name().name() == "outlineLvl") {
-                if let Some(lvl_str) = outline_lvl.attribute("w:val") {
+                if let Some(lvl_str) = outline_lvl.attribute((W_NS, "val")) {
                     if let Ok(level) = lvl_str.parse::<u8>() {
                         return ElementType::Heading(level);
                     }
@@ -174,9 +240,13 @@ impl Parser for DocxParser {
 
         let mut sections = Vec::new();
         let mut section_id = 1;
+        let mut para_index = 1;
 
         // Process paragraphs
-        for p_node in doc.descendants().filter(|n| n.is_element() && n.tag_name().name() == "p") {
+        for p_node in doc
+            .descendants()
+            .filter(|n| n.is_element() && n.tag_name().name() == "p")
+        {
             let text = self.extract_text_from_paragraph(p_node);
             let formatting = self.extract_formatting(p_node, &doc);
             let element_type = self.determine_element_type(p_node, &doc);
@@ -186,15 +256,23 @@ impl Parser for DocxParser {
                 element_type,
                 raw_text: text,
                 formatting,
-                xml_path: format!("word/document.xml#/w:document/w:body/w:p[{}]", section_id),
+                xml_path: format!(
+                    "word/document.xml#/w:document/w:body/w:p[{}]",
+                    para_index
+                ),
             };
 
             sections.push(section);
             section_id += 1;
+            para_index += 1;
         }
 
         // Process tables separately
-        for tbl_node in doc.descendants().filter(|n| n.is_element() && n.tag_name().name() == "tbl") {
+        let mut table_index = 1;
+        for tbl_node in doc
+            .descendants()
+            .filter(|n| n.is_element() && n.tag_name().name() == "tbl")
+        {
             let text = self.extract_table_text(tbl_node);
             let formatting = self.extract_formatting_for_table(tbl_node, &doc);
 
@@ -203,11 +281,15 @@ impl Parser for DocxParser {
                 element_type: ElementType::Table,
                 raw_text: text,
                 formatting,
-                xml_path: format!("word/document.xml#/w:document/w:body/w:tbl[{}]", section_id),
+                xml_path: format!(
+                    "word/document.xml#/w:document/w:body/w:tbl[{}]",
+                    table_index
+                ),
             };
 
             sections.push(section);
             section_id += 1;
+            table_index += 1;
         }
 
         // Create a new DocumentTree with all required fields
@@ -251,4 +333,57 @@ impl DocxParser {
         formatting.insert("element-type".to_string(), "table".to_string());
         formatting
     }
+}
+
+#[cfg(test)]
+mod tests {
+        use super::*;
+
+        #[test]
+        fn extracts_namespaced_formatting_fields() {
+                let xml = format!(
+                        r#"
+                        <w:document xmlns:w="{ns}">
+                            <w:body>
+                                <w:p>
+                                    <w:pPr>
+                                        <w:ind w:left="720" w:firstLine="360" />
+                                        <w:spacing w:line="480" />
+                                        <w:outlineLvl w:val="1" />
+                                        <w:pStyle w:val="Heading1" />
+                                    </w:pPr>
+                                    <w:r>
+                                        <w:rPr>
+                                            <w:sz w:val="24" />
+                                            <w:rFonts w:ascii="Arial" w:eastAsia="宋体" />
+                                        </w:rPr>
+                                        <w:t>Test</w:t>
+                                    </w:r>
+                                </w:p>
+                            </w:body>
+                        </w:document>
+                        "#,
+                        ns = W_NS
+                );
+
+                let doc = Document::parse(&xml).unwrap();
+                let p_node = doc
+                        .descendants()
+                        .find(|n| n.is_element() && n.tag_name().name() == "p")
+                        .unwrap();
+
+                let parser = DocxParser;
+                let formatting = parser.extract_formatting(p_node, &doc);
+
+                assert_eq!(formatting.get("indent-left").map(String::as_str), Some("36pt"));
+                assert_eq!(formatting.get("first-line-indent").map(String::as_str), Some("18pt"));
+                assert_eq!(formatting.get("line-spacing").map(String::as_str), Some("2"));
+                assert_eq!(formatting.get("outline-level").map(String::as_str), Some("1"));
+                assert_eq!(formatting.get("style").map(String::as_str), Some("Heading1"));
+                assert_eq!(formatting.get("font-size").map(String::as_str), Some("12pt"));
+                assert_eq!(formatting.get("font-family").map(String::as_str), Some("Arial"));
+
+                let element_type = parser.determine_element_type(p_node, &doc);
+                assert!(matches!(element_type, ElementType::Heading(1)));
+        }
 }

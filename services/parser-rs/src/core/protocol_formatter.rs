@@ -1,4 +1,4 @@
-use crate::docx_parser::ParsedParagraph;
+use crate::core::docx_parser::ParsedParagraph;
 use regex::Regex;
 use serde::Serialize;
 
@@ -63,7 +63,6 @@ pub fn convert_to_protocol(
 
     let citation_pattern = Regex::new(r"\[\d+(?:[-,]\d+)*\]").unwrap();
 
-    // 找参考文献起始
     let total = paragraphs.len();
     let ref_start_index = paragraphs
         .iter()
@@ -109,10 +108,7 @@ pub fn convert_to_protocol(
                 if text.trim().chars().next().map_or(false, |c| c.is_alphabetic() || c == '[') {
                     let ref_id = format!("[{}]", references.len() + 1);
                     let raw_with_id = format!("{} {}", ref_id, text);
-                    references.push(Reference {
-                        ref_id,
-                        raw_text: raw_with_id,
-                    });
+                    references.push(Reference { ref_id, raw_text: raw_with_id });
                 }
             }
         } else {

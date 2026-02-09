@@ -4,7 +4,8 @@ use std::io::Read;
 use zip::ZipArchive;
 use roxmltree::{Document, Node};
 use rayon::prelude::*;
-use crate::parser::{DocumentSection, ElementType, Parser};
+use crate::{DocumentSection, ElementType};
+use crate::core::parser::Parser;
 use memmap2::Mmap;
 use std::fs::File;
 
@@ -161,20 +162,16 @@ impl DocxParser {
         let mut current_style_id = style_id;
         let mut visited_styles = Vec::new();
 
-        // Follow the inheritance chain to avoid circular references
         while let Some(style_def) = self.styles.get(current_style_id) {
             if visited_styles.contains(&current_style_id) {
-                // Circular reference detected, break the loop
                 break;
             }
 
             visited_styles.push(current_style_id);
 
-            // If this style doesn't inherit from another, return it
             if let Some(ref base_style_id) = style_def.based_on {
                 current_style_id = base_style_id;
             } else {
-                // Return a style with inherited properties applied
                 return Some(self.apply_inherited_properties(style_def, &visited_styles));
             }
         }
@@ -185,10 +182,8 @@ impl DocxParser {
     fn apply_inherited_properties(&self, style_def: &StyleDefinition, inheritance_chain: &[&str]) -> StyleDefinition {
         let mut final_style = style_def.clone();
 
-        // Process inheritance chain in reverse order (most base first)
         for &style_id in inheritance_chain.iter().rev() {
             if let Some(inherited_style) = self.styles.get(style_id) {
-                // Apply paragraph properties inheritance
                 if final_style.paragraph_props.style.is_none() && inherited_style.paragraph_props.style.is_some() {
                     final_style.paragraph_props.style = inherited_style.paragraph_props.style.clone();
                 }
@@ -201,7 +196,6 @@ impl DocxParser {
                     final_style.paragraph_props.ind = inherited_style.paragraph_props.ind.clone();
                 }
 
-                // Apply run properties inheritance
                 if final_style.run_props.sz.is_none() && inherited_style.run_props.sz.is_some() {
                     final_style.run_props.sz = inherited_style.run_props.sz;
                 }
@@ -216,20 +210,19 @@ impl DocxParser {
     }
 
     fn get_default_style(&self) -> StyleDefinition {
-        // Return a default style with common Word defaults
         StyleDefinition {
             name: "Default".to_string(),
             based_on: None,
             paragraph_props: ParagraphProperties {
                 style: Some("Normal".to_string()),
                 spacing: Some(Spacing {
-                    line: Some(240), // 1.15 line spacing in twips
+                    line: Some(240),
                     line_rule: Some("auto".to_string()),
                 }),
                 ind: None,
             },
             run_props: RunProperties {
-                sz: Some(24), // 12pt font size (24 half-points)
+                sz: Some(24),
                 rfonts: Some(RFonts {
                     ascii: Some("Times New Roman".to_string()),
                     east_asia: Some("宋体".to_string()),
@@ -256,7 +249,6 @@ impl DocxParser {
             return None;
         }
 
-        // Extract style ID early
         let style_id = para
             .children()
             .find(|n| n.tag_name().name() == "pPr")
@@ -267,13 +259,11 @@ impl DocxParser {
             })
             .unwrap_or("Normal");
 
-        // Pre-allocate formatting map
         let mut formatting = HashMap::with_capacity(4);
 
-        // Extract paragraph properties in a single pass
         let mut outline_level: Option<u32> = None;
         let mut first_line_indent = None;
-        let mut line_spacing = "1.15".to_string(); // Default line spacing
+        let mut line_spacing = "1.15".to_string();
 
         if let Some(ppr) = para.children().find(|n| n.tag_name().name() == "pPr") {
             for child in ppr.children() {
@@ -304,14 +294,11 @@ impl DocxParser {
             }
         }
 
-        // Extract run properties efficiently
         let mut font_size = 12.0;
-        let mut font_family = "Times New Roman".to_string(); // Default font
+        let mut font_family = "Times New Roman".to_string();
 
-        // Find the first run with font info to avoid processing all runs unnecessarily
         for run in para.descendants().filter(|n| n.tag_name().name() == "r") {
             if let Some(rpr) = run.children().find(|n| n.tag_name().name() == "rPr") {
-                // Look for font size
                 if font_size == 12.0 {
                     if let Some(sz) = rpr.children().find(|n| n.tag_name().name() == "sz") {
                         if let Some(val) = sz.attribute((W_NS, "val")).and_then(|v| v.parse::<i32>().ok()) {
@@ -320,7 +307,6 @@ impl DocxParser {
                     }
                 }
 
-                // Look for font family
                 if font_family == "Times New Roman" {
                     if let Some(rfonts) = rpr.children().find(|n| n.tag_name().name() == "rFonts") {
                         if let Some(ascii_font) = rfonts.attribute((W_NS, "ascii")) {
@@ -331,23 +317,19 @@ impl DocxParser {
                     }
                 }
 
-                // Early exit if we found both properties
                 if font_size != 12.0 && font_family != "Times New Roman" {
                     break;
                 }
             }
         }
 
-        // Resolve style with inheritance and apply defaults
         if let Some(resolved_style) = self.resolve_style(style_id) {
-            // Apply font size from style if not set in run
             if font_size == 12.0 {
                 if let Some(sz) = resolved_style.run_props.sz {
                     font_size = sz as f32 / 2.0;
                 }
             }
 
-            // Apply font family from style if not set in run
             if font_family == "Times New Roman" {
                 if let Some(ref fonts) = resolved_style.run_props.rfonts {
                     if let Some(ref ascii) = fonts.ascii {
@@ -358,7 +340,6 @@ impl DocxParser {
                 }
             }
 
-            // Apply line spacing from style if not set in paragraph
             if line_spacing == "1.15" {
                 if let Some(ref spacing) = resolved_style.paragraph_props.spacing {
                     if let Some(line_val) = spacing.line {
@@ -371,7 +352,6 @@ impl DocxParser {
                 }
             }
         } else {
-            // Apply default style if no matching style found
             let default_style = self.get_default_style();
             if font_size == 12.0 {
                 if let Some(sz) = default_style.run_props.sz {
@@ -399,7 +379,6 @@ impl DocxParser {
             }
         });
 
-        // Add formatting properties
         formatting.insert("font-size".to_string(), format!("{}pt", font_size));
         formatting.insert("line-spacing".to_string(), line_spacing);
         formatting.insert("font-family".to_string(), font_family);
@@ -412,7 +391,6 @@ impl DocxParser {
         } else if para.children().any(|n| n.tag_name().name() == "tbl") {
             ElementType::Table
         } else {
-            // 检查是否包含公式（简化）
             if text.contains("OMML") || text.contains("Math") || text.contains("math") {
                 ElementType::Equation
             } else {
@@ -446,22 +424,17 @@ impl DocxParser {
 
 impl Parser for DocxParser {
     fn parse(&self, file_path: &str) -> anyhow::Result<Vec<DocumentSection>> {
-        // Check file size to determine if we should use memory mapping
         let metadata = std::fs::metadata(file_path)?;
         let file_size = metadata.len();
 
-        // Use memory mapping for large files (> 10MB)
         if file_size > 10 * 1024 * 1024 {
-            // Open file with memory mapping for large files
             let file = File::open(file_path)?;
             let mmap = unsafe { Mmap::map(&file)? };
 
-            // Create ZipArchive from the memory-mapped data
             let cursor = std::io::Cursor::new(mmap.to_vec());
             self.parse_archive(cursor)
         } else {
-            // Use regular file access for smaller files
-            let file = std::fs::File::open(file_path)?;
+            let _file = std::fs::File::open(file_path)?;
             let cursor = std::io::Cursor::new(std::fs::read(file_path)?);
             self.parse_archive(cursor)
         }
@@ -473,7 +446,6 @@ impl DocxParser {
         let mut archive = ZipArchive::new(reader)?;
 
         let mut parser_with_styles = DocxParser::new();
-        // Load styles from the archive
         let mut styles_xml = String::new();
         if let Ok(mut file) = archive.by_name("word/styles.xml") {
             file.read_to_string(&mut styles_xml)?;

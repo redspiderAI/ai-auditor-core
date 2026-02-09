@@ -4,13 +4,15 @@ use std::future::Future;
 use std::pin::Pin;
 use std::boxed::Box;
 
-// Import the generated protobuf code
-// If protoc isn't available, we'll use the pre-generated document.rs
 pub mod document {
     include!("document.rs");
 }
 
 use document::*;
+
+use crate::core::parser::{DocxParser, Parser};
+use crate::core::layout_modeler::LayoutModeler;
+use crate::utils::comment_writer;
 
 type BoxFuture<T> = Pin<Box<dyn Future<Output = T> + Send + 'static>>;
 
@@ -30,12 +32,10 @@ impl document_parser_server::DocumentParser for DocumentParserService {
             let req = request.into_inner();
             let file_path = req.file_path;
 
-            // Use the existing DocxParser to parse the document
-            use crate::parser::Parser;
-            let parser = crate::docx_parser::DocxParser::new();
+            let parser = DocxParser;
             match parser.parse(&file_path) {
                 Ok(sections) => {
-                    let document_tree = crate::layout_modeler::LayoutModeler::build_tree(sections);
+                    let document_tree = LayoutModeler::build_tree(sections);
 
                     let response = ParseDocumentResponse {
                         success: true,
@@ -67,16 +67,15 @@ impl document_parser_server::DocumentParser for DocumentParserService {
         Box::pin(async move {
             let req = request.into_inner();
 
-            // Convert the request comments to ErrorItem format
-            let error_items: Vec<crate::comment_writer::ErrorItem> = req.comments.into_iter()
+            let error_items: Vec<comment_writer::ErrorItem> = req.comments.into_iter()
                 .enumerate()
-                .map(|(i, comment)| crate::comment_writer::ErrorItem {
+                .map(|(i, comment)| comment_writer::ErrorItem {
                     paragraph_index: i,
                     comment: comment.text,
                 })
                 .collect();
 
-            match crate::comment_writer::inject_comments(
+            match comment_writer::inject_comments(
                 &req.input_file_path,
                 error_items,
                 &req.output_file_path,
