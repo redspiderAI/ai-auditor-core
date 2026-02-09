@@ -1,33 +1,23 @@
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")?;
-    // proto path relative to services/parser-rs -> ../../shared/protos/auditor.proto
-    use std::path::PathBuf;
-    let proto: PathBuf = PathBuf::from(&manifest_dir)
-        .join("..")
-        .join("..")
-        .join("shared")
-        .join("protos")
-        .join("auditor.proto");
+// build.rs
+use std::path::Path;
 
-    let includes: PathBuf = PathBuf::from(&manifest_dir).join("..").join("..").join("shared").join("protos");
+fn main() {
+    let proto_file = "proto/document.proto";
 
-    println!("cargo:rerun-if-changed={}", proto.display());
-
-    // If the optional feature `with-proto` is not enabled, skip proto generation.
-    if std::env::var("CARGO_FEATURE_WITH_PROTO").is_err() {
-        // Feature not enabled: silently skip proto code generation to avoid noisy warnings.
-        return Ok(());
+    // 验证 proto 文件存在
+    if !Path::new(proto_file).exists() {
+        panic!("Proto file not found: {}", proto_file);
     }
 
-    // Ensure `protoc` is available or provide clear instructions.
-    if std::process::Command::new("protoc").arg("--version").output().is_err() {
-        eprintln!("protoc not found: please install protoc and ensure it's on PATH.\nYou can download from https://github.com/protocolbuffers/protobuf/releases or set the PROTOC env var to the protoc binary path.");
-        std::process::exit(1);
+    println!("cargo:rerun-if-changed={}", proto_file);
+
+    // 配置 prost-build
+    let mut config = prost_build::Config::new();
+    config.out_dir("src");
+
+    // Try to compile protos, but don't panic if protoc isn't available
+    if let Err(e) = config.compile_protos(&["proto/document.proto"], &["proto/"]) {
+        eprintln!("Warning: Failed to compile protos: {}. Using pre-generated file.", e);
+        // If protoc isn't available, we'll use the pre-generated file
     }
-
-    tonic_build::configure()
-        .build_server(true)
-        .compile(&[proto], &[includes])?;
-
-    Ok(())
 }

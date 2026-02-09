@@ -28,7 +28,7 @@ html-escape = "0.2.13"
 [workspace]
 
 [build-dependencies]
-tonic-build = "0.9"
+prost-build = "0.12"
 
 [features]
 with-proto = []
