@@ -10,7 +10,6 @@ pub mod utils {
 }
 
 pub mod grpc;
-
 use serde::{ser::Serializer, Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
