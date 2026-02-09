@@ -1,0 +1,27 @@
+# Go环境配置文件
+# 用于配置Go工具链的构建标签
+
+# Windows环境变量设置
+# 在PowerShell中使用:
+# $env:GOFLAGS = "-tags=grpc"
+
+# 在CMD中使用:
+# set GOFLAGS=-tags=grpc
+
+# Go工具配置
+build-tags: ["grpc"]
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0
+  gocyclo:
+    min-complexity: 10
+
+linters:
+  enable-all: true
+  disable:
+    - maligned
+    - prealloc
+    - gochecknoglobals
