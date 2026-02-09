@@ -1,8 +1,8 @@
 // src/layout_modeler.rs
-use crate::parser::DocumentSection;
-use crate::layout::{DocumentTree, DocumentMetadata, SectionNode, SectionItem};
+use crate::DocumentSection;
+use crate::core::layout::{DocumentTree, DocumentMetadata, SectionNode, SectionItem};
+use crate::ElementType;
 
-// 私有临时类型（必须在模块顶层定义）
 #[derive(Debug, Clone)]
 struct TempSectionNode {
     id: i32,
@@ -36,7 +36,7 @@ impl LayoutModeler {
 
         for element in &elements {
             match &element.element_type {
-                crate::parser::ElementType::Heading(level) => {
+                ElementType::Heading(level) => {
                     heading_count += 1;
                     let new_level = *level;
 
@@ -63,7 +63,7 @@ impl LayoutModeler {
                     sections[parent_idx].children.push(TempSectionItem::Subsection(new_idx));
                     stack.push(new_idx);
                 }
-                crate::parser::ElementType::Table => {
+                ElementType::Table => {
                     table_count += 1;
                     let content = element.clone();
                     if let Some(&parent_idx) = stack.last() {
@@ -86,10 +86,7 @@ impl LayoutModeler {
             table_count,
         };
 
-        DocumentTree {
-            root,
-            metadata,
-        }
+        DocumentTree { root, metadata }
     }
 
     fn convert_to_final(sections: &[TempSectionNode], idx: usize) -> SectionNode {
@@ -99,9 +96,7 @@ impl LayoutModeler {
         for item in &section.children {
             match item {
                 TempSectionItem::Subsection(child_idx) => {
-                    children.push(SectionItem::Subsection(
-                        Self::convert_to_final(sections, *child_idx)
-                    ));
+                    children.push(SectionItem::Subsection(Self::convert_to_final(sections, *child_idx)));
                 }
                 TempSectionItem::Content(content) => {
                     children.push(SectionItem::Content(content.clone()));
