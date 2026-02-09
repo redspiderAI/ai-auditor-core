@@ -1,4 +1,5 @@
-use crate::{DocumentSection, ElementType, core::pdf_parser::PdfParser};
+use crate::core::layout_modeler::LayoutModeler;
+use crate::{core::pdf_parser::PdfParser, DocumentSection, ElementType};
 use anyhow::Result;
 use roxmltree::Document;
 use std::collections::HashMap;
@@ -10,7 +11,7 @@ use zip::ZipArchive;
 const W_NS: &str = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 pub trait Parser {
-    /// Parse a document (path to .docx or stream) and return a DocumentTree
+    /// Parse a document (path to .docx or stream) and return a DocumentTree with basic layout metadata.
     fn parse<P: AsRef<Path>>(&self, path: P) -> Result<crate::core::layout::DocumentTree>;
 }
 
@@ -47,7 +48,11 @@ pub struct DocxParser;
 
 impl DocxParser {
     /// Extract formatting properties from a paragraph node
-    fn extract_formatting(&self, p_node: roxmltree::Node, _doc: &Document) -> HashMap<String, String> {
+    fn extract_formatting(
+        &self,
+        p_node: roxmltree::Node,
+        _doc: &Document,
+    ) -> HashMap<String, String> {
         let mut formatting = HashMap::new();
 
         fn format_pt(value: f32) -> String {
@@ -173,11 +178,14 @@ impl DocxParser {
     /// Determine element type based on paragraph properties
     fn determine_element_type(&self, p_node: roxmltree::Node, _doc: &Document) -> ElementType {
         // Check for heading styles based on outline level
-        if let Some(p_pr) = p_node.children()
-            .find(|child| child.is_element() && child.tag_name().name() == "pPr") {
-
-            if let Some(outline_lvl) = p_pr.children()
-                .find(|child| child.is_element() && child.tag_name().name() == "outlineLvl") {
+        if let Some(p_pr) = p_node
+            .children()
+            .find(|child| child.is_element() && child.tag_name().name() == "pPr")
+        {
+            if let Some(outline_lvl) = p_pr
+                .children()
+                .find(|child| child.is_element() && child.tag_name().name() == "outlineLvl")
+            {
                 if let Some(lvl_str) = outline_lvl.attribute((W_NS, "val")) {
                     if let Ok(level) = lvl_str.parse::<u8>() {
                         return ElementType::Heading(level);
@@ -187,12 +195,18 @@ impl DocxParser {
         }
 
         // Check for table elements
-        if p_node.children().any(|child| child.is_element() && child.tag_name().name() == "tbl") {
+        if p_node
+            .children()
+            .any(|child| child.is_element() && child.tag_name().name() == "tbl")
+        {
             return ElementType::Table;
         }
 
         // Check for equation elements
-        if p_node.children().any(|child| child.is_element() && child.tag_name().name() == "oMath") {
+        if p_node
+            .children()
+            .any(|child| child.is_element() && child.tag_name().name() == "oMath")
+        {
             return ElementType::Equation;
         }
 
@@ -203,19 +217,42 @@ impl DocxParser {
     /// Extract text from a paragraph node
     fn extract_text_from_paragraph(&self, p_node: roxmltree::Node) -> String {
         let mut text_parts = Vec::new();
+        let mut saw_whitespace_only = false;
 
-        // Look for text elements inside runs
-        for t in p_node.descendants().filter(|n| n.is_element() && n.tag_name().name() == "t") {
-            if let Some(txt) = t.text() {
-                // Trim whitespace and add to parts
-                let trimmed = txt.trim();
-                if !trimmed.is_empty() {
-                    text_parts.push(trimmed);
+        // Collect text-bearing nodes including tabs/breaks and preserved spaces.
+        for n in p_node.descendants().filter(|n| n.is_element()) {
+            match n.tag_name().name() {
+                "t" | "instrText" => {
+                    if let Some(txt) = n.text() {
+                        let preserve_space = n
+                            .attribute(("http://www.w3.org/XML/1998/namespace", "space"))
+                            == Some("preserve");
+                        let candidate = if preserve_space {
+                            txt.to_string()
+                        } else {
+                            txt.trim().to_string()
+                        };
+
+                        if candidate.is_empty() {
+                            saw_whitespace_only = true;
+                        } else {
+                            text_parts.push(candidate);
+                        }
+                    }
                 }
+                "tab" => text_parts.push("\t".to_string()),
+                "br" => text_parts.push("\n".to_string()),
+                _ => {}
             }
         }
 
-        text_parts.join(" ")
+        let joined = text_parts.join("");
+        if joined.is_empty() && saw_whitespace_only {
+            // Preserve a single space to avoid losing intentional blank text runs.
+            " ".to_string()
+        } else {
+            joined
+        }
     }
 }
 
@@ -256,10 +293,7 @@ impl Parser for DocxParser {
                 element_type,
                 raw_text: text,
                 formatting,
-                xml_path: format!(
-                    "word/document.xml#/w:document/w:body/w:p[{}]",
-                    para_index
-                ),
+                xml_path: format!("word/document.xml#/w:document/w:body/w:p[{}]", para_index),
             };
 
             sections.push(section);
@@ -292,18 +326,12 @@ impl Parser for DocxParser {
             table_index += 1;
         }
 
-        // Create a new DocumentTree with all required fields
-        Ok(crate::core::layout::DocumentTree {
-            sections,
-            positions: std::collections::HashMap::new(),
-            metadata: crate::core::layout::DocumentMetadata {
-                total_pages: 0, // Will be filled by the caller or from document properties
-                file_path: path.as_ref().to_string_lossy().to_string(),
-                file_size: std::fs::metadata(path.as_ref())?.len(),
-                creation_date: None,
-                modification_date: None,
-            }
-        })
+        let mut modeler = LayoutModeler::new();
+        let mut document_tree = modeler.build_tree(sections);
+        document_tree.metadata.file_path = Some(path.as_ref().to_string_lossy().to_string());
+        document_tree.metadata.file_size = Some(std::fs::metadata(path.as_ref())?.len());
+
+        Ok(document_tree)
     }
 }
 
@@ -313,9 +341,18 @@ impl DocxParser {
         let mut text_parts = Vec::new();
 
         // Iterate through table rows and cells
-        for tr_node in tbl_node.children().filter(|n| n.is_element() && n.tag_name().name() == "tr") {
-            for tc_node in tr_node.children().filter(|n| n.is_element() && n.tag_name().name() == "tc") {
-                for p_node in tc_node.children().filter(|n| n.is_element() && n.tag_name().name() == "p") {
+        for tr_node in tbl_node
+            .children()
+            .filter(|n| n.is_element() && n.tag_name().name() == "tr")
+        {
+            for tc_node in tr_node
+                .children()
+                .filter(|n| n.is_element() && n.tag_name().name() == "tc")
+            {
+                for p_node in tc_node
+                    .children()
+                    .filter(|n| n.is_element() && n.tag_name().name() == "p")
+                {
                     let cell_text = self.extract_text_from_paragraph(p_node);
                     if !cell_text.is_empty() {
                         text_parts.push(cell_text);
@@ -328,7 +365,11 @@ impl DocxParser {
     }
 
     /// Extract formatting for table elements
-    fn extract_formatting_for_table(&self, _tbl_node: roxmltree::Node, _doc: &Document) -> HashMap<String, String> {
+    fn extract_formatting_for_table(
+        &self,
+        _tbl_node: roxmltree::Node,
+        _doc: &Document,
+    ) -> HashMap<String, String> {
         let mut formatting = HashMap::new();
         formatting.insert("element-type".to_string(), "table".to_string());
         formatting
@@ -337,12 +378,12 @@ impl DocxParser {
 
 #[cfg(test)]
 mod tests {
-        use super::*;
+    use super::*;
 
-        #[test]
-        fn extracts_namespaced_formatting_fields() {
-                let xml = format!(
-                        r#"
+    #[test]
+    fn extracts_namespaced_formatting_fields() {
+        let xml = format!(
+            r#"
                         <w:document xmlns:w="{ns}">
                             <w:body>
                                 <w:p>
@@ -363,27 +404,48 @@ mod tests {
                             </w:body>
                         </w:document>
                         "#,
-                        ns = W_NS
-                );
+            ns = W_NS
+        );
 
-                let doc = Document::parse(&xml).unwrap();
-                let p_node = doc
-                        .descendants()
-                        .find(|n| n.is_element() && n.tag_name().name() == "p")
-                        .unwrap();
+        let doc = Document::parse(&xml).unwrap();
+        let p_node = doc
+            .descendants()
+            .find(|n| n.is_element() && n.tag_name().name() == "p")
+            .unwrap();
 
-                let parser = DocxParser;
-                let formatting = parser.extract_formatting(p_node, &doc);
+        let parser = DocxParser;
+        let formatting = parser.extract_formatting(p_node, &doc);
 
-                assert_eq!(formatting.get("indent-left").map(String::as_str), Some("36pt"));
-                assert_eq!(formatting.get("first-line-indent").map(String::as_str), Some("18pt"));
-                assert_eq!(formatting.get("line-spacing").map(String::as_str), Some("2"));
-                assert_eq!(formatting.get("outline-level").map(String::as_str), Some("1"));
-                assert_eq!(formatting.get("style").map(String::as_str), Some("Heading1"));
-                assert_eq!(formatting.get("font-size").map(String::as_str), Some("12pt"));
-                assert_eq!(formatting.get("font-family").map(String::as_str), Some("Arial"));
+        assert_eq!(
+            formatting.get("indent-left").map(String::as_str),
+            Some("36pt")
+        );
+        assert_eq!(
+            formatting.get("first-line-indent").map(String::as_str),
+            Some("18pt")
+        );
+        assert_eq!(
+            formatting.get("line-spacing").map(String::as_str),
+            Some("2")
+        );
+        assert_eq!(
+            formatting.get("outline-level").map(String::as_str),
+            Some("1")
+        );
+        assert_eq!(
+            formatting.get("style").map(String::as_str),
+            Some("Heading1")
+        );
+        assert_eq!(
+            formatting.get("font-size").map(String::as_str),
+            Some("12pt")
+        );
+        assert_eq!(
+            formatting.get("font-family").map(String::as_str),
+            Some("Arial")
+        );
 
-                let element_type = parser.determine_element_type(p_node, &doc);
-                assert!(matches!(element_type, ElementType::Heading(1)));
-        }
+        let element_type = parser.determine_element_type(p_node, &doc);
+        assert!(matches!(element_type, ElementType::Heading(1)));
+    }
 }

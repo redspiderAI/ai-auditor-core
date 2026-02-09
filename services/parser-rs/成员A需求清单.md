@@ -23,9 +23,19 @@
 * **需求描述：** 将 `.docx` 文件拆解为带有唯一 ID 的段落、标题、表格和公式。
 * **任务拆解：**
 * **样式提取：** 穿透解析 `word/styles.xml`，获取每个段落的继承样式（如：如果正文没设字体，需溯源至全局默认字体）。
-* **属性映射：** 提取缩进（ind）、行间距（lineSpacing）、字号（sz）等关键度量值。
+* **属性映射：**
+  * 版式度量：缩进（`ind`）、行间距（`lineSpacing`）、字号（`sz`）、字距/字符间距（`spacing`）、对齐（`jc`）、方向（`bidi`）。
+  * 字体特征：字体族（`rFonts`）、粗细（`b`/`bCs`）、斜体（`i`）、下划线（`u`）、颜色（`color`）、阴影/高亮（`highlight`）。
+  * 列表/编号：`numPr` 关联的 `numId`、`ilvl`，映射到自定义列表模板，输出逻辑序号。
+  * 表格属性：单元格宽度/高度、边框、合并（`gridSpan`/`vMerge`）、对齐、内边距；行/列索引用于后续坐标推导。
+  * 段落/运行级 XML 路径：记录到 `xml_path` 供回写与坐标建模使用。
 
-* **执行清单：** 编写 `Parser` Trait，实现对 Paragraph、Run、Table 等元素的递归解析。
+* **执行清单：**
+  * 定义 `Parser` Trait，提供 `parse_paragraph`, `parse_run`, `parse_table` 等方法，输出统一的 AST 节点。
+  * 样式继承链解析：`pPr`/`rPr` → 引用的 `styleId` → 基础样式 `basedOn` → 默认样式，合并为最终格式。
+  * 度量归一化：将 `twips`/`half-points`/`pct` 统一转换为 pt/px（指定 DPI，默认 96）。
+  * 列表逻辑序号生成：依据 `numId` + `ilvl` 计算显示编号（含多级大纲）。
+  * 产出 `ParsedData`（中间结构），包含文本、样式、表格结构与 XML 路径。
 
 #### 模块二：物理坐标与排版建模 (Layout Modeler)
 
@@ -34,7 +44,19 @@
 * **层级识别：** 识别 `w:outlineLvl`，为每个 Heading 分配正确的 Level。
 * **对象定位：** 标记每个 Section 在原 XML 中的偏移量（Offset），以便后续回写。
 
-* **执行清单：** 构建一个内存中的 `DocumentTree` 数据结构。
+* **补充任务：**
+  * 坐标推导：结合页面尺寸（`sectPr` 页边距、栏数）、字体度量、行距，估算 Paragraph/Run 的物理 bounding box（页号、x/y、宽/高）。
+  * 表格/图片定位：根据表格网格与单元格宽度、对齐方式计算单元格矩形；图片/对象读取 `drawing`/`inline`/`anchor` 坐标。
+  * 分栏与分页：处理多栏布局与分页符（`w:br` type="page"），维护块在页面序号上的归属。
+  * 坐标精度策略：提供可配置 DPI（默认 96，支持 144+），输出 float64，兼顾性能。
+  * 映射回写锚点：为每个节点保存 `xml_offset` 或 `xpath`，用于批注写回时的精确定位。
+
+* **执行清单：**
+  * 构建内存中的 `DocumentTree`，节点包含层级、逻辑序号、物理坐标、XML 路径。
+  * 封装 `LayoutModeler` 组件：输入 `ParsedData`，输出带坐标的 `DocumentLayout`。
+  * 实现字体度量缓存：预计算不同字号/字体的行高与字符宽度，减少重复计算。
+  * 针对大文档启用 `rayon` 并行：按 Section/页切片分段建模，合并结果。
+  * 暴露 gRPC 方法：`ComputeLayout(ParsedData) -> DocumentLayout`，供后续审查/批注模块消费。
 
 #### 模块三：双向回写与批注生成 (Annotation Injector)
 

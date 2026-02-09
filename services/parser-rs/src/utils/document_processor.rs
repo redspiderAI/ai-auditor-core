@@ -1,3 +1,4 @@
+use crate::core::layout::{DocumentTree, SectionItem, SectionNode};
 use crate::core::parser::UniversalParser;
 use anyhow::Result;
 use log::{debug, error, info, warn};
@@ -25,7 +26,10 @@ impl DocumentProcessor {
         let input_path = input_dir.as_ref();
         let output_path = output_dir.as_ref();
 
-        info!("Starting to process documents from: {}", input_path.display());
+        info!(
+            "Starting to process documents from: {}",
+            input_path.display()
+        );
 
         fs::create_dir_all(output_path)?;
         info!("Output directory prepared: {}", output_path.display());
@@ -34,16 +38,24 @@ impl DocumentProcessor {
             .map_err(|e| anyhow::anyhow!("Failed to read input directory: {}", e))?;
 
         for entry in entries {
-            let entry = entry.map_err(|e| anyhow::anyhow!("Failed to read directory entry: {}", e))?;
+            let entry =
+                entry.map_err(|e| anyhow::anyhow!("Failed to read directory entry: {}", e))?;
             let file_path = entry.path();
 
             if file_path.is_dir() {
                 info!("Processing directory: {:?}", file_path.file_name());
 
                 match self.process_student_directory(&file_path, &output_path) {
-                    Ok(_) => info!("Successfully processed directory: {:?}", file_path.file_name()),
+                    Ok(_) => info!(
+                        "Successfully processed directory: {:?}",
+                        file_path.file_name()
+                    ),
                     Err(e) => {
-                        error!("Failed to process directory {:?}: {}", file_path.file_name(), e);
+                        error!(
+                            "Failed to process directory {:?}: {}",
+                            file_path.file_name(),
+                            e
+                        );
                         continue;
                     }
                 }
@@ -97,10 +109,7 @@ impl DocumentProcessor {
                 continue;
             }
 
-            let file_name = file_path
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("");
+            let file_name = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
             if !docx_name_re.is_match(file_name) {
                 debug!("Skipping docx not matching target pattern: {}", file_name);
@@ -113,20 +122,25 @@ impl DocumentProcessor {
                 Ok(document_tree) => {
                     let parsed_output_path = student_output_dir.join(format!(
                         "{}_parsed.json",
-                        file_path
-                            .file_stem()
-                            .unwrap_or_default()
-                            .to_string_lossy()
+                        file_path.file_stem().unwrap_or_default().to_string_lossy()
                     ));
 
                     if let Err(e) = self.save_parsed_json(&document_tree, &parsed_output_path) {
-                        warn!("Failed to save parsed JSON for {:?}: {}", file_path.file_name(), e);
+                        warn!(
+                            "Failed to save parsed JSON for {:?}: {}",
+                            file_path.file_name(),
+                            e
+                        );
                     } else {
                         info!("Saved parsed JSON: {}", parsed_output_path.display());
                     }
                 }
                 Err(e) => {
-                    error!("Failed to parse document {:?}: {}", file_path.file_name(), e);
+                    error!(
+                        "Failed to parse document {:?}: {}",
+                        file_path.file_name(),
+                        e
+                    );
                 }
             }
         }
@@ -151,87 +165,18 @@ impl DocumentProcessor {
         Ok(())
     }
 
-    fn build_output_document(&self, document_tree: &crate::core::layout::DocumentTree) -> OutputDocument {
-        #[derive(Clone)]
-        struct TempNode {
-            id: i32,
-            title: String,
-            level: u32,
-            xml_path: String,
-            children: Vec<TempChild>,
-        }
-
-        #[derive(Clone)]
-        enum TempChild {
-            Subsection(usize),
-            Content(crate::DocumentSection),
-        }
-
-        let mut nodes: Vec<TempNode> = vec![TempNode {
-            id: 0,
-            title: "Root".to_string(),
-            level: 0,
-            xml_path: "document.xml#root".to_string(),
-            children: Vec::new(),
-        }];
-
-        let mut stack: Vec<usize> = vec![0];
-        let mut heading_count = 0usize;
-        let mut table_count = 0usize;
-
-        for section in &document_tree.sections {
-            match section.element_type {
-                crate::ElementType::Heading(level) => {
-                    heading_count += 1;
-                    let level_value = level as u32 + 1; // outline level 0 -> heading 1
-
-                    while stack.len() > 1 {
-                        let current_level = nodes[*stack.last().unwrap()].level;
-                        if current_level < level_value {
-                            break;
-                        }
-                        stack.pop();
-                    }
-
-                    let new_idx = nodes.len();
-                    nodes.push(TempNode {
-                        id: section.id,
-                        title: section.raw_text.clone(),
-                        level: level_value,
-                        xml_path: section.xml_path.clone(),
-                        children: Vec::new(),
-                    });
-
-                    let parent_idx = *stack.last().unwrap();
-                    nodes[parent_idx].children.push(TempChild::Subsection(new_idx));
-                    stack.push(new_idx);
-                }
-                crate::ElementType::Table => {
-                    table_count += 1;
-                    if let Some(&parent_idx) = stack.last() {
-                        nodes[parent_idx].children.push(TempChild::Content(section.clone()));
-                    }
-                }
-                _ => {
-                    if let Some(&parent_idx) = stack.last() {
-                        nodes[parent_idx].children.push(TempChild::Content(section.clone()));
-                    }
-                }
-            }
-        }
-
-        fn convert(idx: usize, nodes: &[TempNode]) -> OutputSectionNode {
-            let node = &nodes[idx];
+    fn build_output_document(&self, document_tree: &DocumentTree) -> OutputDocument {
+        fn convert(node: &SectionNode) -> OutputSectionNode {
             let mut children = Vec::new();
 
             for child in &node.children {
                 match child {
-                    TempChild::Subsection(child_idx) => {
+                    SectionItem::Subsection(sub) => {
                         children.push(OutputSectionItem::Subsection {
-                            subsection: convert(*child_idx, nodes),
+                            subsection: convert(sub),
                         });
                     }
-                    TempChild::Content(content) => {
+                    SectionItem::Content(content) => {
                         children.push(OutputSectionItem::Content {
                             content: content.clone(),
                         });
@@ -242,24 +187,22 @@ impl DocumentProcessor {
             OutputSectionNode {
                 id: node.id,
                 title: node.title.clone(),
-                level: node.level,
+                level: node.level as u32,
                 xml_path: node.xml_path.clone(),
                 children,
             }
         }
 
         OutputDocument {
-            root: convert(0, &nodes),
+            root: convert(&document_tree.root),
             metadata: OutputMetadata {
-                total_elements: document_tree.sections.len(),
-                heading_count,
-                table_count,
+                total_elements: document_tree.metadata.total_elements,
+                heading_count: document_tree.metadata.heading_count,
+                table_count: document_tree.metadata.table_count,
             },
         }
     }
-
 }
-
 
 #[derive(Serialize)]
 struct OutputDocument {

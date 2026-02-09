@@ -1,6 +1,7 @@
 use crate::DocumentSection;
+use std::collections::HashMap;
 
-/// Represents physical coordinates and positioning information for document elements
+/// Physical coordinates for a parsed element (pt units, page-based).
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct PositionInfo {
     pub x: f64,
@@ -10,53 +11,69 @@ pub struct PositionInfo {
     pub page_number: Option<u32>,
 }
 
-/// In-memory document tree used for downstream processing and for mapping back to XML offsets.
-#[derive(Debug, Clone, Default)]
-pub struct DocumentTree {
-    pub sections: Vec<DocumentSection>,
-    pub positions: std::collections::HashMap<i32, PositionInfo>, // Maps section ID to position info
-    pub metadata: DocumentMetadata,
+/// Section tree node; headings become nodes, other elements become `Content` children.
+#[derive(Debug, Clone)]
+pub struct SectionNode {
+    pub id: i32,
+    pub title: String,
+    pub level: u8,
+    pub xml_path: String,
+    pub children: Vec<SectionItem>,
 }
 
-/// Additional metadata about the parsed document
+impl Default for SectionNode {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            title: "Root".to_string(),
+            level: 0,
+            xml_path: "document.xml#root".to_string(),
+            children: Vec::new(),
+        }
+    }
+}
+
+/// Tree item: either a nested heading or a piece of content (paragraph/table/equation).
+#[derive(Debug, Clone)]
+pub enum SectionItem {
+    Subsection(SectionNode),
+    Content(DocumentSection),
+}
+
+/// Aggregated document metadata (counts + optional file info).
 #[derive(Debug, Clone, Default)]
 pub struct DocumentMetadata {
-    pub total_pages: u32,
-    pub file_path: String,
-    pub file_size: u64,
-    pub creation_date: Option<String>,
-    pub modification_date: Option<String>,
+    pub total_elements: usize,
+    pub heading_count: usize,
+    pub table_count: usize,
+    pub total_pages: Option<u32>,
+    pub file_path: Option<String>,
+    pub file_size: Option<u64>,
+}
+
+/// Complete in-memory representation including layout positions.
+#[derive(Debug, Clone)]
+pub struct DocumentTree {
+    pub root: SectionNode,
+    pub metadata: DocumentMetadata,
+    pub positions: HashMap<i32, PositionInfo>, // Maps section ID to position info
 }
 
 impl DocumentTree {
-    pub fn new() -> Self {
+    pub fn new(root: SectionNode, metadata: DocumentMetadata) -> Self {
         Self {
-            sections: Vec::new(),
-            positions: std::collections::HashMap::new(),
-            metadata: DocumentMetadata::default(),
+            root,
+            metadata,
+            positions: HashMap::new(),
         }
     }
 
-    /// Add a section with its position information
-    pub fn add_section_with_position(&mut self, section: DocumentSection, position: PositionInfo) {
-        self.sections.push(section.clone());
-        self.positions.insert(section.id, position);
+    pub fn with_positions(mut self, positions: HashMap<i32, PositionInfo>) -> Self {
+        self.positions = positions;
+        self
     }
 
-    /// Get a section by its ID
-    pub fn get_section_by_id(&self, id: i32) -> Option<&DocumentSection> {
-        self.sections.iter().find(|section| section.id == id)
-    }
-
-    /// Get position information for a section by its ID
     pub fn get_position_by_id(&self, id: i32) -> Option<&PositionInfo> {
         self.positions.get(&id)
-    }
-
-    /// Update a section's content
-    pub fn update_section(&mut self, id: i32, new_content: String) {
-        if let Some(section) = self.sections.iter_mut().find(|s| s.id == id) {
-            section.raw_text = new_content;
-        }
     }
 }

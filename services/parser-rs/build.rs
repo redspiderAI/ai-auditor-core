@@ -17,7 +17,10 @@ fn main() {
 
     // Try to compile protos, but don't panic if protoc isn't available
     if let Err(e) = config.compile_protos(&["proto/document.proto"], &["proto/"]) {
-        eprintln!("Warning: Failed to compile protos: {}. Using pre-generated file.", e);
+        eprintln!(
+            "Warning: Failed to compile protos: {}. Using pre-generated file.",
+            e
+        );
         // If protoc isn't available, we'll use the pre-generated file
     }
 }

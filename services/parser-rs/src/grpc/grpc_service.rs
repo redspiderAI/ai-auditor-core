@@ -11,7 +11,6 @@ pub mod document {
 use document::*;
 
 use crate::core::parser::{DocxParser, Parser};
-use crate::core::layout_modeler::LayoutModeler;
 use crate::utils::comment_writer;
 
 type BoxFuture<T> = Pin<Box<dyn Future<Output = T> + Send + 'static>>;
@@ -34,9 +33,7 @@ impl document_parser_server::DocumentParser for DocumentParserService {
 
             let parser = DocxParser;
             match parser.parse(&file_path) {
-                Ok(sections) => {
-                    let document_tree = LayoutModeler::build_tree(sections);
-
+                Ok(document_tree) => {
                     let response = ParseDocumentResponse {
                         success: true,
                         error_message: "".to_string(),

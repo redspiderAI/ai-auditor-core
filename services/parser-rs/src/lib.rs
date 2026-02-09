@@ -1,7 +1,8 @@
 pub mod core {
+    pub mod layout;
+    pub mod layout_modeler;
     pub mod parser;
     pub mod pdf_parser;
-    pub mod layout;
     pub mod writer;
 }
 

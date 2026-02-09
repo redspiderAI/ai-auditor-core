@@ -1,11 +1,11 @@
 use anyhow::Result;
 use std::collections::HashMap;
+use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::sync::atomic::{AtomicI32, Ordering};
-use zip::{ZipArchive, write::FileOptions};
-use std::fs;
+use zip::{write::FileOptions, ZipArchive};
 
 static COMMENT_ID_COUNTER: AtomicI32 = AtomicI32::new(1);
 
@@ -83,7 +83,11 @@ impl Writer for DocxWriter {
 
 impl DocxWriter {
     /// Updates document.xml with comment references
-    fn update_document_xml_with_comments(&self, extracted_dir: &Path, issues: &[crate::grpc::Issue]) -> Result<()> {
+    fn update_document_xml_with_comments(
+        &self,
+        extracted_dir: &Path,
+        issues: &[crate::grpc::Issue],
+    ) -> Result<()> {
         use roxmltree::Document;
 
         let doc_xml_path = extracted_dir.join("word").join("document.xml");
@@ -94,10 +98,10 @@ impl DocxWriter {
         // Read the document.xml
         let mut doc_content = String::new();
         File::open(&doc_xml_path)?.read_to_string(&mut doc_content)?;
-        
+
         // Parse the XML
         let _doc = Document::parse(&doc_content)?;
-        
+
         // Create a map of section_id to issues for quick lookup
         let mut issues_map: HashMap<i32, Vec<&crate::grpc::Issue>> = HashMap::new();
         for issue in issues {
@@ -107,14 +111,17 @@ impl DocxWriter {
         // For now, we'll just append comments to the end of the document
         // A more sophisticated implementation would insert comments at specific locations
         let mut modified_content = doc_content.clone();
-        
+
         // Add a simple comment reference at the end of the document body
         if !issues.is_empty() {
-            let comment_refs: Vec<String> = issues.iter().map(|_issue| {
-                let comment_id = COMMENT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
-                format!(r#"<w:commentReference w:id="{}"/>"#, comment_id)
-            }).collect();
-            
+            let comment_refs: Vec<String> = issues
+                .iter()
+                .map(|_issue| {
+                    let comment_id = COMMENT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
+                    format!(r#"<w:commentReference w:id="{}"/>"#, comment_id)
+                })
+                .collect();
+
             // Find the closing body tag and insert comment references before it
             if let Some(pos) = modified_content.rfind("</w:body>") {
                 let insertion_point = pos;
@@ -130,8 +137,11 @@ impl DocxWriter {
     }
 
     /// Updates comments.xml with actual comment content
-    fn update_comments_xml(&self, extracted_dir: &Path, issues: &[crate::grpc::Issue]) -> Result<()> {
-
+    fn update_comments_xml(
+        &self,
+        extracted_dir: &Path,
+        issues: &[crate::grpc::Issue],
+    ) -> Result<()> {
         let word_dir = extracted_dir.join("word");
         let comments_path = word_dir.join("comments.xml");
 
@@ -144,12 +154,14 @@ impl DocxWriter {
             // Create a basic comments.xml structure
             r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-</w:comments>"#.to_string()
+</w:comments>"#
+                .to_string()
         };
 
         // Add comments to the XML
         for issue in issues {
-            let comment_id = COMMENT_ID_COUNTER.load(Ordering::SeqCst) - issues.iter().position(|i| i.id == issue.id).unwrap_or(0) as i32;
+            let comment_id = COMMENT_ID_COUNTER.load(Ordering::SeqCst)
+                - issues.iter().position(|i| i.id == issue.id).unwrap_or(0) as i32;
             let comment_xml = format!(
                 r#"
     <w:comment w:id="{}" w:author="AI Auditor" w:date="{}">
@@ -198,7 +210,8 @@ impl DocxWriter {
             // Create a basic relationships structure
             r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-</Relationships>"#.to_string()
+</Relationships>"#
+                .to_string()
         };
 
         // Check if comments relationship already exists
@@ -232,7 +245,8 @@ impl DocxWriter {
             let path = entry.path();
 
             if path.is_file() {
-                let relative_path = path.strip_prefix(base)?
+                let relative_path = path
+                    .strip_prefix(base)?
                     .to_str()
                     .ok_or_else(|| anyhow::anyhow!("Invalid path"))?;
 

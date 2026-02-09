@@ -1,3 +1,4 @@
+use crate::core::layout_modeler::LayoutModeler;
 use crate::{DocumentSection, ElementType};
 use anyhow::Result;
 use std::collections::HashMap;
@@ -50,18 +51,13 @@ impl PdfParser for LopdfParser {
             }
         }
 
-        // Create a new DocumentTree with all required fields
-        Ok(crate::core::layout::DocumentTree {
-            sections,
-            positions: std::collections::HashMap::new(),
-            metadata: crate::core::layout::DocumentMetadata {
-                total_pages: pages.len() as u32,
-                file_path: path.as_ref().to_string_lossy().to_string(),
-                file_size: std::fs::metadata(path.as_ref())?.len(),
-                creation_date: None,
-                modification_date: None,
-            }
-        })
+        let mut modeler = LayoutModeler::new();
+        let mut document_tree = modeler.build_tree(sections);
+        document_tree.metadata.total_pages = Some(pages.len() as u32);
+        document_tree.metadata.file_path = Some(path.as_ref().to_string_lossy().to_string());
+        document_tree.metadata.file_size = Some(std::fs::metadata(path.as_ref())?.len());
+
+        Ok(document_tree)
     }
 }
 
