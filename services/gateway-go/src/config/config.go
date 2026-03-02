@@ -7,23 +7,33 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	ServerPort     string
-	TempDir        string
-	MaxQueueSize   int
-	CleanupIntervalHours int
-	MaxFileAgeHours      int
-	LogLevel       string
+	ServerPort            string
+	TempDir               string
+	MaxQueueSize          int
+	CleanupIntervalHours  int
+	MaxFileAgeHours       int
+	LogLevel              string
+	RedisAddr             string
+	RedisStream           string
+	RedisGroup            string
+	RedisConsumer         string
+	WebhookTimeoutSeconds int
 }
 
 // LoadConfig loads configuration from environment variables or uses defaults
 func LoadConfig() *Config {
 	config := &Config{
-		ServerPort:           getEnvOrDefault("GATEWAY_PORT", "8080"),
-		TempDir:              getEnvOrDefault("TEMP_DIR", "./temp_docs"),
-		MaxQueueSize:         getIntEnvOrDefault("MAX_TASK_QUEUE_SIZE", 100),
-		CleanupIntervalHours: getIntEnvOrDefault("CLEANUP_INTERVAL_HOURS", 1),
-		MaxFileAgeHours:      getIntEnvOrDefault("MAX_FILE_AGE_HOURS", 24),
-		LogLevel:             getEnvOrDefault("LOG_LEVEL", "info"),
+		ServerPort:            getEnvOrDefault("GATEWAY_PORT", "8080"),
+		TempDir:               getEnvOrDefault("TEMP_DIR", "./temp_docs"),
+		MaxQueueSize:          getIntEnvOrDefault("MAX_TASK_QUEUE_SIZE", 100),
+		CleanupIntervalHours:  getIntEnvOrDefault("CLEANUP_INTERVAL_HOURS", 1),
+		MaxFileAgeHours:       getIntEnvOrDefault("MAX_FILE_AGE_HOURS", 24),
+		LogLevel:              getEnvOrDefault("LOG_LEVEL", "info"),
+		RedisAddr:             getEnvOrDefault("REDIS_ADDR", ""),
+		RedisStream:           getEnvOrDefault("REDIS_STREAM", "audit_tasks"),
+		RedisGroup:            getEnvOrDefault("REDIS_GROUP", "gateway_group"),
+		RedisConsumer:         getEnvOrDefault("REDIS_CONSUMER", "gateway_consumer"),
+		WebhookTimeoutSeconds: getIntEnvOrDefault("WEBHOOK_TIMEOUT_SECONDS", 5),
 	}
 
 	return config

@@ -14,20 +14,21 @@ import (
 
 // TaskResult 存储任务执行结果
 type TaskResult struct {
-	ParseResult   *auditor.ParsedData
-	AuditResult   *auditor.AuditResponse
+	ParseResult    *auditor.ParsedData
+	AuditResult    *auditor.AuditResponse
 	SemanticResult *auditor.AuditResponse
-	Error         error
+	AnnotatedPath  string
+	Error          error
 }
 
 // Orchestrator 分布式审查编排器
 type Orchestrator struct {
-	parserAddr      string
-	engineAddr      string
-	inferenceAddr   string
-	timeout         time.Duration
-	retryAttempts   int
-	inferenceCB     *circuit.CircuitBreaker  // Python推理服务的熔断器
+	parserAddr    string
+	engineAddr    string
+	inferenceAddr string
+	timeout       time.Duration
+	retryAttempts int
+	inferenceCB   *circuit.CircuitBreaker // Python推理服务的熔断器
 }
 
 // NewOrchestrator 创建新的编排器实例
@@ -143,7 +144,7 @@ func (o *Orchestrator) tryCallParser(ctx context.Context, filePath string) (*aud
 
 	client := auditor.NewDocumentAuditorClient(conn)
 	req := &auditor.ParseRequest{
-		FilePath:    filePath,
+		FilePath:     filePath,
 		TemplateType: "GB/T7714", // 默认模板类型
 	}
 
@@ -174,7 +175,7 @@ func (o *Orchestrator) tryCallEngine(ctx context.Context, parsedData *auditor.Pa
 
 	client := auditor.NewDocumentAuditorClient(conn)
 	req := &auditor.AuditRequest{
-		Data:        parsedData,
+		Data:          parsedData,
 		TargetRuleSet: "academic-standard-v1", // 默认规则集
 	}
 
@@ -228,13 +229,13 @@ func (o *Orchestrator) tryCallInference(ctx context.Context, parsedData *auditor
 func (o *Orchestrator) AggregateResults(auditResult *auditor.AuditResponse, semanticResult *auditor.AuditResponse) *auditor.AuditResponse {
 	// 创建一个map来去重，key为issue的code+section_id组合
 	uniqueIssues := make(map[string]*auditor.Issue)
-	
+
 	// 处理规则审计结果
 	for _, issue := range auditResult.Issues {
 		key := fmt.Sprintf("%s_%d", issue.Code, issue.SectionId)
 		uniqueIssues[key] = issue
 	}
-	
+
 	// 处理语义分析结果
 	for _, issue := range semanticResult.Issues {
 		key := fmt.Sprintf("%s_%d", issue.Code, issue.SectionId)
@@ -244,13 +245,13 @@ func (o *Orchestrator) AggregateResults(auditResult *auditor.AuditResponse, sema
 			uniqueIssues[key] = issue
 		}
 	}
-	
+
 	// 将map转换为切片
 	aggregatedIssues := make([]*auditor.Issue, 0, len(uniqueIssues))
 	for _, issue := range uniqueIssues {
 		aggregatedIssues = append(aggregatedIssues, issue)
 	}
-	
+
 	// 按section_id排序
 	for i := 0; i < len(aggregatedIssues)-1; i++ {
 		for j := i + 1; j < len(aggregatedIssues); j++ {
@@ -259,12 +260,40 @@ func (o *Orchestrator) AggregateResults(auditResult *auditor.AuditResponse, sema
 			}
 		}
 	}
-	
+
 	// 计算综合影响分数
 	totalScoreImpact := auditResult.ScoreImpact + semanticResult.ScoreImpact
-	
+
 	return &auditor.AuditResponse{
 		Issues:      aggregatedIssues,
 		ScoreImpact: totalScoreImpact,
 	}
+}
+
+// AnnotateDocument 调用成员A回写接口生成带批注的文档
+func (o *Orchestrator) AnnotateDocument(ctx context.Context, filePath string, issues []*auditor.Issue) (string, error) {
+	var annotatedPath string
+	var err error
+
+	err = o.withRetry(func() error {
+		annotatedPath, err = o.tryAnnotateDocument(ctx, filePath, issues)
+		return err
+	})
+
+	return annotatedPath, err
+}
+
+func (o *Orchestrator) tryAnnotateDocument(ctx context.Context, filePath string, issues []*auditor.Issue) (string, error) {
+	conn, err := o.createGRPCClient(ctx, o.parserAddr)
+	if err != nil {
+		return "", fmt.Errorf("无法连接到解析器进行回写: %w", err)
+	}
+	defer conn.Close()
+
+	client := auditor.NewDocumentAuditorClient(conn)
+	resp, err := client.InjectAnnotations(ctx, &auditor.InjectRequest{FilePath: filePath, Issues: issues})
+	if err != nil {
+		return "", err
+	}
+	return resp.AnnotatedPath, nil
 }

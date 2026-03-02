@@ -9,6 +9,7 @@ github.com/jung-kurt/gofpdf v1.16.2
 github.com/labstack/echo/v4 v4.10.2
 github.com/labstack/gommon v0.4.0
 github.com/prometheus/client_golang v1.19.1
+github.com/redis/go-redis/v9 v9.5.1
 google.golang.org/grpc v1.57.0
 )
 

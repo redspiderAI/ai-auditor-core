@@ -11,13 +11,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/adapter"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/report"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/workflow"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/report"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/adapter"
 )
 
 // WorkerGRPC replaces the simulated worker when built with `-tags grpc`.
@@ -63,12 +63,19 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 			if notificationSvc != nil {
 				notificationSvc.NotifyTaskError(id, fmt.Sprintf("Orchestration error: %v", err))
 			}
+			triggerWebhook(id, t.CallbackURL, store.Error, 0, fmt.Sprintf("Orchestration error: %v", err))
 
 			continue
 		}
 
 		// 聚合来自B和C的结果，剔除重复项并按section_id排序
 		aggregatedResult := orchestrator.AggregateResults(result.AuditResult, result.SemanticResult)
+
+		// 回写批注，生成带批注文档
+		annotatedPath, annotateErr := orchestrator.AnnotateDocument(context.Background(), t.SourcePath, aggregatedResult.Issues)
+		if annotateErr != nil {
+			log.Printf("annotation error for task %s: %v", id, annotateErr)
+		}
 
 		// Update task status to generating
 		_ = s.UpdateTask(id, func(t *store.Task) {
@@ -81,8 +88,8 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 			notificationSvc.NotifyTaskUpdate(id, store.Generating, 80, "Aggregating results and preparing report")
 		}
 
-		// Generate outputs
-		annotatedPath, reportPath, err := generateOutputs(id, t.SourcePath, aggregatedResult.Issues, aggregatedResult.ScoreImpact, tempManager)
+		// Generate outputs（如果回写成功则复用回写后的路径）
+		annotatedPath, reportPath, err := generateOutputs(id, t.SourcePath, annotatedPath, aggregatedResult.Issues, aggregatedResult.ScoreImpact, tempManager)
 		if err != nil {
 			log.Printf("Output generation error for task %s: %v", id, err)
 			_ = s.UpdateTask(id, func(t *store.Task) {
@@ -94,6 +101,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 			if notificationSvc != nil {
 				notificationSvc.NotifyTaskError(id, "Report generation error")
 			}
+			triggerWebhook(id, t.CallbackURL, store.Error, 0, "Report generation error")
 
 			continue
 		}
@@ -110,7 +118,22 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		if notificationSvc != nil {
 			notificationSvc.NotifyTaskCompletion(id)
 		}
+		triggerWebhook(id, t.CallbackURL, store.Completed, 100, "Task completed")
 	}
+}
+
+func triggerWebhook(taskID, callbackURL string, status store.TaskStatus, progress int, message string) {
+	if callbackURL == "" {
+		return
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		payload := notification.WebhookPayload{TaskID: taskID, Status: string(status), Progress: progress, Message: message}
+		if err := notification.SendWebhook(ctx, callbackURL, payload, 5*time.Second); err != nil {
+			log.Printf("webhook error: %v", err)
+		}
+	}()
 }
 
 func getenvDefault(key, def string) string {
@@ -135,9 +158,11 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-func generateOutputs(taskID, sourcePath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
+func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
 	// Generate annotated document path
-	annotatedPath := sourcePath + "-annotated.docx"
+	if annotatedPath == "" {
+		annotatedPath = sourcePath + "-annotated.docx"
+	}
 
 	// Generate JSON report path
 	jsonReportPath := sourcePath + "-report.json"
@@ -145,10 +170,11 @@ func generateOutputs(taskID, sourcePath string, issues []*auditor.Issue, totalSc
 	// Generate PDF report path
 	pdfReportPath := sourcePath + "-report.pdf"
 
-	// Copy source to annotated (in a real system, this would apply annotations)
-	err := copyFile(sourcePath, annotatedPath)
-	if err != nil {
-		return "", "", err
+	// If annotated file does not exist (回写失败或未触发)，回退为原文复制
+	if _, statErr := os.Stat(annotatedPath); statErr != nil {
+		if err := copyFile(sourcePath, annotatedPath); err != nil {
+			return "", "", err
+		}
 	}
 
 	// Track the generated files

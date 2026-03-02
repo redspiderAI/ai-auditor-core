@@ -11,9 +11,27 @@ services:
       - RUST_PARSER_ADDR=parser-rs:52051
       - JAVA_ENGINE_ADDR=engine-java:9191
       - PY_INFERENCE_ADDR=inference-py:8123
+      - REDIS_ADDR=redis:6379
+      - REDIS_STREAM=audit_tasks
+      - REDIS_GROUP=gateway_group
+      - REDIS_CONSUMER=gateway_consumer
     depends_on:
       parser-rs:
         condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - audit-network
+
+  # 任务队列：Redis Streams
+  redis:
+    image: redis:7.2-alpine
+    container_name: audit-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - audit-network
 
@@ -68,3 +86,4 @@ networks:
 volumes:
   temp_docs:
   models:
+  redis-data:

@@ -25,9 +25,9 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 		ParseResult: &auditor.ParsedData{
 			DocId: "mock-doc-id",
 			Metadata: &auditor.DocumentMetadata{
-				Title:       "Mock Document Title",
-				PageCount:   10,
-				MarginTop:   1.0,
+				Title:        "Mock Document Title",
+				PageCount:    10,
+				MarginTop:    1.0,
 				MarginBottom: 1.0,
 			},
 			Sections: []*auditor.Section{
@@ -48,8 +48,8 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 			},
 			References: []*auditor.Reference{
 				{
-					RefId:        "[1]",
-					RawText:      "[1] Sample reference",
+					RefId:         "[1]",
+					RawText:       "[1] Sample reference",
 					IsValidFormat: true,
 				},
 			},
@@ -112,7 +112,7 @@ func TestWorker(t *testing.T) {
 // TestGenerateOutputs 测试输出生成功能
 func TestGenerateOutputs(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	// 创建源文件
 	sourcePath := filepath.Join(tmpDir, "source.docx")
 	err := os.WriteFile(sourcePath, []byte("source content"), 0644)
@@ -133,12 +133,12 @@ func TestGenerateOutputs(t *testing.T) {
 			OriginalSnippet: "Test snippet",
 		},
 	}
-	
+
 	totalScoreImpact := float32(5.0)
 
 	// 调用generateOutputs函数
-	annotatedPath, reportPath, err := generateOutputs("test-task-id", sourcePath, issues, totalScoreImpact, tempManager)
-	
+	annotatedPath, reportPath, err := generateOutputs("test-task-id", sourcePath, "", issues, totalScoreImpact, tempManager)
+
 	if err != nil {
 		t.Errorf("generateOutputs returned error: %v", err)
 	}
@@ -170,12 +170,12 @@ func TestGenerateOutputs(t *testing.T) {
 // TestCopyFile 测试copyFile函数
 func TestCopyFile(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	srcPath := filepath.Join(tmpDir, "source.txt")
 	dstPath := filepath.Join(tmpDir, "destination.txt")
-	
+
 	srcContent := "test content for copying"
-	
+
 	// 创建源文件
 	err := os.WriteFile(srcPath, []byte(srcContent), 0644)
 	if err != nil {
