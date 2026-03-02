@@ -36,3 +36,6 @@ torchvision = [{ index = "pytorch-cu126", extra = "cu126" }]
 name = "pytorch-cu126"
 url = "https://download.pytorch.org/whl/cu126"
 explicit = true
+[[tool.uv.index]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
