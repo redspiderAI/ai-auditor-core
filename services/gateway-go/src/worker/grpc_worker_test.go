@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -264,25 +265,27 @@ func getenvDefault(key, def string) string {
 }
 
 // 为了测试目的，简化generateOutputs函数
-func generateOutputs(taskID, sourcePath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
-	// Generate annotated document path
-	annotatedPath := sourcePath + "-annotated.docx"
+func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
+	if annotatedPath == "" {
+		annotatedPath = sourcePath + "-annotated.docx"
+	}
 
-	// Generate JSON report path
 	jsonReportPath := sourcePath + "-report.json"
 
-	// Create dummy files for testing
-	err := os.WriteFile(annotatedPath, []byte("annotated content"), 0644)
-	if err != nil {
+	if err := os.WriteFile(annotatedPath, []byte("annotated content"), 0644); err != nil {
 		return "", "", err
 	}
 
-	err = os.WriteFile(jsonReportPath, []byte("{\"test\": \"report\"}"), 0644)
-	if err != nil {
+	reportBody := map[string]any{
+		"task_id": taskID,
+		"issues":  len(issues),
+		"score":   totalScoreImpact,
+	}
+	jsonBytes, _ := json.Marshal(reportBody)
+	if err := os.WriteFile(jsonReportPath, jsonBytes, 0644); err != nil {
 		return "", "", err
 	}
 
-	// Track the generated files
 	tempManager.TrackFile(annotatedPath)
 	tempManager.TrackFile(jsonReportPath)
 

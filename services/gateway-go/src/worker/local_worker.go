@@ -165,36 +165,46 @@ func generateParsedData(taskID string) *auditor.ParsedData {
 
 // simulateRuleCheck simulates rule checking by Member B
 func simulateRuleCheck(parsedData *auditor.ParsedData) []*auditor.Issue {
+	targetSection := 1
+	if len(parsedData.Sections) > 0 {
+		targetSection = int(parsedData.Sections[0].SectionId)
+	}
+
 	return []*auditor.Issue{
 		{
 			Code:            "ERR_FONT_001",
 			Message:         "一级标题字体应为黑体，当前为宋体。",
-			SectionId:       1,
+			SectionId:       int32(targetSection),
 			Severity:        auditor.Severity_MEDIUM,
 			Suggestion:      "请修改为黑体三号",
-			OriginalSnippet: "1. 引言",
+			OriginalSnippet: parsedData.Metadata.Title,
 		},
 		{
 			Code:            "ERR_CITATION_001",
 			Message:         "正文引用了[1]，但参考文献列表中未找到对应项。",
-			SectionId:       2,
+			SectionId:       int32(targetSection + 1),
 			Severity:        auditor.Severity_HIGH,
 			Suggestion:      "请补充条目[1]或修改引用编号",
-			OriginalSnippet: "随着人工智能的发展，文档审查变得尤为重要[1]。",
+			OriginalSnippet: parsedData.DocId,
 		},
 	}
 }
 
 // simulateSemanticAnalysis simulates semantic analysis by Member C
 func simulateSemanticAnalysis(parsedData *auditor.ParsedData) []*auditor.Issue {
+	sectionID := int32(2)
+	if len(parsedData.Sections) > 1 {
+		sectionID = parsedData.Sections[1].SectionId
+	}
+
 	return []*auditor.Issue{
 		{
 			Code:            "ERR_TYPO_001",
 			Message:         "检测到疑似错别字：'份' -> '分'。",
-			SectionId:       2,
+			SectionId:       sectionID,
 			Severity:        auditor.Severity_HIGH,
 			Suggestion:      "成分",
-			OriginalSnippet: "随着人工智能的发展，文档审查变得尤为重要[1]。",
+			OriginalSnippet: parsedData.Sections[0].Text,
 		},
 	}
 }
