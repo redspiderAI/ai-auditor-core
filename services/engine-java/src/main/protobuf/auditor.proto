@@ -6,6 +6,7 @@ package academic.auditor;
 option java_multiple_files = true;
 option java_package = "com.auditor.grpc";
 option java_outer_classname = "AuditorProto";
+option go_package = "github.com/redspiderAI/ai-auditor-core/shared/protos;auditorpb";
 
 // --- 服务定义 ---
 
@@ -18,6 +19,9 @@ service DocumentAuditor {
 
   // 成员 C (Python): 语义与 AI 智能审查
   rpc AnalyzeSemantics (SemanticRequest) returns (AuditResponse);
+
+  // 可选：写回批注后的文档
+  rpc InjectAnnotations (InjectRequest) returns (InjectResponse);
 }
 
 // --- 通用消息结构 ---
@@ -70,6 +74,16 @@ message SemanticRequest {
 message AuditResponse {
   repeated Issue issues = 1;
   float score_impact = 2;    // 该模块发现的扣分项总计
+}
+
+// 将批注写回文档
+message InjectRequest {
+  string file_path = 1;      // 原始文档路径
+  repeated Issue issues = 2; // 要写回的批注（含位置/严重度等）
+}
+
+message InjectResponse {
+  string annotated_path = 1; // 生成的批注文档路径
 }
 
 message Issue {

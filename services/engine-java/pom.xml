@@ -145,6 +145,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
                 <configuration>
                     <mainClass>com.auditor.engine.EngineApplication</mainClass> <!-- 修正包名 -->
                 </configuration>
@@ -179,7 +180,7 @@
             <!-- Only activate generation when generated sources are NOT checked into src/main/java -->
             <activation>
                 <file>
-                    <missing>${project.basedir}/src/main/java/com/auditor/grpc</missing>
+                    <missing>${basedir}/src/main/java/com/auditor/grpc</missing>
                 </file>
             </activation>
             <build>
