@@ -9,6 +9,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/adapter"
@@ -25,6 +27,8 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 	parserAddr := getenvDefault("RUST_PARSER_ADDR", "parser-rs:52051")
 	engineAddr := getenvDefault("JAVA_ENGINE_ADDR", "engine-java:9191")
 	inferenceAddr := getenvDefault("PY_INFERENCE_ADDR", "inference-py:50051")
+	emergencyMode := strings.EqualFold(os.Getenv("EMERGENCY_MODE"), "true")
+	quickAuditURL := getenvDefault("QUICK_AUDIT_URL", "http://inference-py:8123/v1/quick-audit")
 
 	for id := range tasks {
 		t, ok := s.GetTask(id)
@@ -43,6 +47,76 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		// Send notification about status update
 		if notificationSvc != nil {
 			notificationSvc.NotifyTaskUpdate(id, store.Parsing, 10, "Starting document parsing")
+		}
+
+		// 紧急模式：跳过 Rust/Java，直接访问 Python 快速审计接口
+		if emergencyMode {
+			if ok := s.UpdateTask(id, func(t *store.Task) {
+				t.Status = store.Auditing
+				t.Progress = 50
+			}); !ok {
+				continue
+			}
+
+			fileData, readErr := os.ReadFile(t.SourcePath)
+			if readErr != nil {
+				log.Printf("emergency read error for task %s: %v", id, readErr)
+				_ = s.UpdateTask(id, func(t *store.Task) {
+					t.Status = store.Error
+					t.ErrorMsg = fmt.Sprintf("Read file failed: %v", readErr)
+				})
+				if notificationSvc != nil {
+					notificationSvc.NotifyTaskError(id, fmt.Sprintf("Read file failed: %v", readErr))
+				}
+				triggerWebhook(id, t.CallbackURL, store.Error, 0, fmt.Sprintf("Read file failed: %v", readErr))
+				continue
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+			respBody, callErr := EmergencyFastTrack(ctx, quickAuditURL, filepath.Base(t.SourcePath), fileData)
+			cancel()
+			if callErr != nil {
+				log.Printf("emergency fast track error for task %s: %v", id, callErr)
+				_ = s.UpdateTask(id, func(t *store.Task) {
+					t.Status = store.Error
+					t.ErrorMsg = fmt.Sprintf("Emergency mode failed: %v", callErr)
+				})
+				if notificationSvc != nil {
+					notificationSvc.NotifyTaskError(id, fmt.Sprintf("Emergency mode failed: %v", callErr))
+				}
+				triggerWebhook(id, t.CallbackURL, store.Error, 0, fmt.Sprintf("Emergency mode failed: %v", callErr))
+				continue
+			}
+
+			reportPath := t.SourcePath + "-quick-report.json"
+			if writeErr := os.WriteFile(reportPath, respBody, 0o644); writeErr != nil {
+				log.Printf("cannot write quick report for task %s: %v", id, writeErr)
+				_ = s.UpdateTask(id, func(t *store.Task) {
+					t.Status = store.Error
+					t.ErrorMsg = fmt.Sprintf("Write quick report failed: %v", writeErr)
+				})
+				if notificationSvc != nil {
+					notificationSvc.NotifyTaskError(id, fmt.Sprintf("Write quick report failed: %v", writeErr))
+				}
+				triggerWebhook(id, t.CallbackURL, store.Error, 0, fmt.Sprintf("Write quick report failed: %v", writeErr))
+				continue
+			}
+
+			if tempManager != nil {
+				tempManager.TrackFile(reportPath)
+			}
+
+			_ = s.UpdateTask(id, func(t *store.Task) {
+				t.Status = store.Completed
+				t.Progress = 100
+				t.ReportPath = reportPath
+			})
+
+			if notificationSvc != nil {
+				notificationSvc.NotifyTaskCompletion(id)
+			}
+			triggerWebhook(id, t.CallbackURL, store.Completed, 100, "Emergency fast track completed")
+			continue
 		}
 
 		// 使用新的编排器来处理审查流程

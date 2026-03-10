@@ -7,6 +7,10 @@ from pathlib import Path
 from typing import Tuple
 
 import grpc
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import uvicorn
 
 from src import grpc_server
 from src.grpc_server import DocumentAuditorServicer
@@ -16,6 +20,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT_ROOT = REPO_ROOT / "data" / "input"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "data" / "output"
 TARGET_PATTERN = re.compile(r"毕业论文\.docx$", re.IGNORECASE)
+EMERGENCY_MESSAGE = "当前处于快速 AI 审查模式，物理格式检查（字号/行距）已跳过。"
+
+# Quick audit components are initialized lazily to avoid extra overhead when running batch/GRPC
+_quick_servicer = DocumentAuditorServicer()
+_quick_detector = _quick_servicer.semantic_detector
 
 
 def _parse_addr_env(env_value: str) -> Tuple[str, int]:
@@ -51,6 +60,19 @@ def _issue_to_dict(issue: auditor_pb2.Issue) -> dict:
         "severity": severity_name,
         "suggestion": issue.suggestion,
         "original_snippet": issue.original_snippet,
+    }
+
+
+def _issue_to_quick_payload(issue: auditor_pb2.Issue, idx: int) -> dict:
+    severity_name = auditor_pb2.Severity.Name(issue.severity)
+    return {
+        "issue_id": issue.code or f"AI_{idx:03d}",
+        "type": severity_name,
+        "severity": severity_name,
+        "original_text": getattr(issue, "original_snippet", ""),
+        "suggested_text": getattr(issue, "suggestion", ""),
+        "reason": issue.message,
+        "location_hint": "whole_document",
     }
 
 
@@ -136,17 +158,77 @@ def run_batch(parser_addr: str, input_root: Path, output_root: Path) -> None:
     logging.info("batch run complete; results in %s", output_root)
 
 
+def create_app() -> FastAPI:
+    app = FastAPI(title="Inference Quick Audit", version="0.1.0")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    @app.get("/health")
+    async def health_check():
+        return {"status": "ok"}
+
+    @app.post("/v1/quick-audit")
+    async def quick_audit(file: UploadFile = File(...)):
+        content = await file.read()
+        text = content.decode("utf-8", errors="ignore")
+
+        issues = []
+        if _quick_detector is not None:
+            issues = _quick_detector.detect_issues(text)
+
+        payload_issues = [_issue_to_quick_payload(issue, idx + 1) for idx, issue in enumerate(issues)]
+
+        summary = {
+            "total_issues": len(payload_issues),
+            "score": max(0.0, 100.0 - float(len(payload_issues))*5.0),
+            "mode": "EMERGENCY_AI_ONLY",
+            "message": EMERGENCY_MESSAGE,
+        }
+
+        payload = {
+            "task_id": file.filename or "quick_audit",
+            "status": "COMPLETED",
+            "summary": summary,
+            "issues": payload_issues,
+        }
+        return JSONResponse(payload)
+
+    return app
+
+
+app = create_app()
+
+
+def start_rest_server(host: str, port: int) -> None:
+    logging.info("Starting FastAPI quick audit server on %s:%s", host, port)
+    uvicorn.run(app, host=host, port=port, log_level="info")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1", help="gRPC bind host")
     parser.add_argument("--port", type=int, default=50051, help="gRPC bind port")
     parser.add_argument("--serve", action="store_true", help="Start gRPC server instead of batch run")
+    parser.add_argument("--rest", action="store_true", help="Start FastAPI quick audit server")
     parser.add_argument("--parser-addr", default=os.environ.get("PARSER_GRPC_ADDR"), help="parser-rs gRPC address host:port")
     parser.add_argument("--input-root", default=None, help="Override input root (defaults to repo data/input)")
     parser.add_argument("--output-root", default=None, help="Override output root (defaults to repo data/output)")
+    parser.add_argument("--rest-host", default=os.environ.get("REST_HOST", "0.0.0.0"), help="FastAPI bind host")
+    parser.add_argument("--rest-port", type=int, default=int(os.environ.get("REST_PORT", "8123")), help="FastAPI bind port")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
+
+    # FastAPI 快速审计模式（跳过 Rust/Java）
+    if args.rest:
+        start_rest_server(host=args.rest_host, port=args.rest_port)
+        return
 
     # 默认执行批处理：扫描 data/input 中仅以 “毕业论文.docx” 结尾的文件，通过 parser-rs 解析后运行审查
     if not args.serve:
