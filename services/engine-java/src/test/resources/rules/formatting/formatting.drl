@@ -1,0 +1,262 @@
+package rules.formatting
+import com.auditor.grpc.Issue
+import com.auditor.grpc.Severity
+import com.auditor.grpc.Section
+import com.auditor.grpc.ParsedData
+import org.slf4j.Logger
+import java.util.*
+
+global java.util.List results
+global Logger logger
+
+// 辅助函数：创建 Issue（与 main DRL 保持一致）
+function Issue createFormatIssue(String code, String message, int sectionId, Severity severity, String suggestion) {
+    return Issue.newBuilder()
+        .setCode(code)
+        .setMessage(message)
+        .setSectionId(sectionId)
+        .setSeverity(severity)
+        .setSuggestion(suggestion)
+        .setOriginalSnippet("")
+        .build();
+}
+
+// 规则1: 检查一级标题字体（从 props map 中读取 font-family）
+rule "Check Level 1 Heading Font"
+when
+    $section: Section(level == 1, type == "heading")
+then
+    String fontFamily = (String)$section.getPropsMap().get("font-family");
+    if (fontFamily != null && !fontFamily.isEmpty() && !"黑体".equals(fontFamily) && !"SimHei".equals(fontFamily)) {
+        logger.info("发现一级标题字体问题: sectionId={}, 当前字体={}", $section.getSectionId(), fontFamily);
+        results.add(createFormatIssue(
+            "FMT_HEADING_FONT",
+            "一级标题（段落" + $section.getSectionId() + "）字体应为黑体，当前为" + fontFamily,
+            $section.getSectionId(),
+            Severity.MEDIUM,
+            "请将一级标题字体修改为黑体"
+        ));
+    }
+end
+
+// 规则2: 检查二级标题字体
+rule "Check Level 2 Heading Font"
+when
+    $section: Section(level == 2, type == "heading")
+then
+    String fontFamily = (String)$section.getPropsMap().get("font-family");
+    if (fontFamily != null && !fontFamily.isEmpty() && !"黑体".equals(fontFamily) && !"SimHei".equals(fontFamily)) {
+        logger.info("发现二级标题字体问题: sectionId={}, 当前字体={}", $section.getSectionId(), fontFamily);
+        results.add(createFormatIssue(
+            "FMT_HEADING_FONT",
+            "二级标题（段落" + $section.getSectionId() + "）字体应为黑体，当前为" + fontFamily,
+            $section.getSectionId(),
+            Severity.MEDIUM,
+            "请将二级标题字体修改为黑体"
+        ));
+    }
+end
+
+// 规则3: 检查正文字体
+rule "Check Body Font"
+when
+    $section: Section(level == 0, type == "paragraph")
+then
+    String fontFamily = (String)$section.getPropsMap().get("font-family");
+    if (fontFamily != null && !fontFamily.isEmpty() && !"宋体".equals(fontFamily) && !"SimSun".equals(fontFamily)) {
+        logger.info("发现正文字体问题: sectionId={}, 当前字体={}", $section.getSectionId(), fontFamily);
+        results.add(createFormatIssue(
+            "FMT_BODY_FONT",
+            "正文（段落" + $section.getSectionId() + "）字体应为宋体，当前为" + fontFamily,
+            $section.getSectionId(),
+            Severity.MEDIUM,
+            "请将正文字体修改为宋体"
+        ));
+    }
+end
+
+// 规则4: 检查一级标题字号（从 props map 中读取 font-size，格式如 "14pt"）
+rule "Check Level 1 Heading Font Size"
+when
+    $section: Section(level == 1, type == "heading")
+then
+    String fontSizeStr = (String)$section.getPropsMap().get("font-size");
+    if (fontSizeStr != null && !fontSizeStr.isEmpty()) {
+        try {
+            double fontSize = Double.parseDouble(fontSizeStr.replaceAll("[^0-9.]", ""));
+            if (fontSize < 16 || fontSize > 18) {
+                logger.info("发现一级标题字号问题: sectionId={}, 当前字号={}", $section.getSectionId(), fontSize);
+                results.add(createFormatIssue(
+                    "FMT_HEADING_SIZE",
+                    "一级标题（段落" + $section.getSectionId() + "）字号应为16-18pt，当前为" + fontSize + "pt",
+                    $section.getSectionId(),
+                    Severity.MEDIUM,
+                    "请将一级标题字号调整为16-18pt"
+                ));
+            }
+        } catch (NumberFormatException e) {
+            logger.warn("无法解析一级标题字号: {}", fontSizeStr);
+        }
+    }
+end
+
+// 规则5: 检查二级标题字号
+rule "Check Level 2 Heading Font Size"
+when
+    $section: Section(level == 2, type == "heading")
+then
+    String fontSizeStr = (String)$section.getPropsMap().get("font-size");
+    if (fontSizeStr != null && !fontSizeStr.isEmpty()) {
+        try {
+            double fontSize = Double.parseDouble(fontSizeStr.replaceAll("[^0-9.]", ""));
+            if (fontSize < 15 || fontSize > 16) {
+                logger.info("发现二级标题字号问题: sectionId={}, 当前字号={}", $section.getSectionId(), fontSize);
+                results.add(createFormatIssue(
+                    "FMT_HEADING_SIZE",
+                    "二级标题（段落" + $section.getSectionId() + "）字号应为15-16pt，当前为" + fontSize + "pt",
+                    $section.getSectionId(),
+                    Severity.MEDIUM,
+                    "请将二级标题字号调整为15-16pt"
+                ));
+            }
+        } catch (NumberFormatException e) {
+            logger.warn("无法解析二级标题字号: {}", fontSizeStr);
+        }
+    }
+end
+
+// 规则6: 检查正文字号
+rule "Check Body Font Size"
+when
+    $section: Section(level == 0, type == "paragraph")
+then
+    String fontSizeStr = (String)$section.getPropsMap().get("font-size");
+    if (fontSizeStr != null && !fontSizeStr.isEmpty()) {
+        try {
+            double fontSize = Double.parseDouble(fontSizeStr.replaceAll("[^0-9.]", ""));
+            if (fontSize < 12 || fontSize > 13) {
+                logger.info("发现正文字号问题: sectionId={}, 当前字号={}", $section.getSectionId(), fontSize);
+                results.add(createFormatIssue(
+                    "FMT_BODY_SIZE",
+                    "正文（段落" + $section.getSectionId() + "）字号应为12-13pt，当前为" + fontSize + "pt",
+                    $section.getSectionId(),
+                    Severity.MEDIUM,
+                    "请将正文字号调整为12-13pt"
+                ));
+            }
+        } catch (NumberFormatException e) {
+            logger.warn("无法解析正文字号: {}", fontSizeStr);
+        }
+    }
+end
+
+// 规则7: 检查行距（从 props map 中读取 line-height）
+// 学术论文行距要求：1.5~2.0 倍，过小（<1.5）或过大（>2.0）均不符合规范
+rule "Check Line Spacing"
+when
+    $section: Section(type == "paragraph" || type == "heading")
+then
+    String lineSpacingStr = (String)$section.getPropsMap().get("line-height");
+    if (lineSpacingStr != null && !lineSpacingStr.isEmpty()) {
+        try {
+            double lineSpacing = Double.parseDouble(lineSpacingStr);
+            if (lineSpacing < 1.5) {
+                logger.info("发现行距过小问题: sectionId={}, 当前行距={}", $section.getSectionId(), lineSpacing);
+                results.add(createFormatIssue(
+                    "FMT_LINE_SPACING_TOO_SMALL",
+                    "段落" + $section.getSectionId() + "的行距过小（应为1.5~2.0倍），当前为" + lineSpacing + "倍",
+                    $section.getSectionId(),
+                    Severity.LOW,
+                    "请将行距调整为1.5~2.0倍"
+                ));
+            } else if (lineSpacing > 2.0) {
+                logger.info("发现行距过大问题: sectionId={}, 当前行距={}", $section.getSectionId(), lineSpacing);
+                results.add(createFormatIssue(
+                    "FMT_LINE_SPACING_TOO_LARGE",
+                    "段落" + $section.getSectionId() + "的行距过大（应为1.5~2.0倍），当前为" + lineSpacing + "倍",
+                    $section.getSectionId(),
+                    Severity.LOW,
+                    "请将行距调整为1.5~2.0倍"
+                ));
+            }
+        } catch (NumberFormatException e) {
+            logger.warn("无法解析行距: {}", lineSpacingStr);
+        }
+    }
+end
+
+// 规则8: 检查对齐方式（从 props map 中读取 alignment）
+rule "Check Text Alignment"
+when
+    $section: Section(type == "paragraph")
+then
+    String textAlignment = (String)$section.getPropsMap().get("alignment");
+    if (textAlignment != null && !textAlignment.isEmpty()
+            && !"justify".equalsIgnoreCase(textAlignment) && !"left".equalsIgnoreCase(textAlignment)) {
+        logger.info("发现对齐方式问题: sectionId={}, 当前对齐方式={}", $section.getSectionId(), textAlignment);
+        results.add(createFormatIssue(
+            "FMT_TEXT_ALIGNMENT",
+            "段落" + $section.getSectionId() + "的对齐方式应为两端对齐或左对齐，当前为" + textAlignment,
+            $section.getSectionId(),
+            Severity.LOW,
+            "请将对齐方式修改为两端对齐或左对齐"
+        ));
+    }
+end
+
+// 规则9: 检查表格跨页续表标志
+rule "Check Table Page Break"
+when
+    $section: Section(type == "table")
+then
+    String pageBreak = (String)$section.getPropsMap().get("page-break");
+    String continueFlag = (String)$section.getPropsMap().get("continue-table-flag");
+    if ("true".equals(pageBreak) && !"true".equals(continueFlag)) {
+        results.add(createFormatIssue(
+            "FMT_TABLE_PAGE_BREAK",
+            "Section " + $section.getSectionId() + " 表格跨页但未设置'续表'标志",
+            $section.getSectionId(),
+            Severity.MEDIUM,
+            "请在跨页表格的后续页添加'续表'标志"
+        ));
+    }
+end
+
+// 规则10: 检查公式对齐方式
+rule "Check Formula Alignment"
+when
+    $section: Section(type == "formula")
+then
+    String alignment = (String)$section.getPropsMap().get("alignment");
+    if (alignment != null && !alignment.isEmpty()
+            && !"right".equalsIgnoreCase(alignment)) {
+        results.add(createFormatIssue(
+            "FMT_FORMULA_ALIGNMENT",
+            "Section " + $section.getSectionId() + " 公式未右对齐，当前对齐方式：" + alignment,
+            $section.getSectionId(),
+            Severity.MEDIUM,
+            "请将公式对齐方式设置为右对齐"
+        ));
+    }
+end
+
+// 规则11: 检查标题层级跳跃（不允许从一级标题直接跳到三级标题）
+rule "Check Heading Level Jump"
+when
+    $h1: Section(type == "heading", level == 1)
+    $h3: Section(type == "heading", level == 3,
+                 sectionId > $h1.sectionId)
+    not Section(type == "heading", level == 2,
+                sectionId > $h1.sectionId,
+                sectionId < $h3.sectionId)
+then
+    logger.info("发现标题层级跳跃: 从一级标题(sectionId={})直接跳到三级标题(sectionId={})",
+        $h1.getSectionId(), $h3.getSectionId());
+    results.add(createFormatIssue(
+        "FMT_HEADING_LEVEL_JUMP",
+        "标题层级跳跃：一级标题(段落" + $h1.getSectionId() + ")后直接出现三级标题(段落" + $h3.getSectionId() + ")，缺少二级标题",
+        $h3.getSectionId(),
+        Severity.MEDIUM,
+        "请在一级标题和三级标题之间添加二级标题，保持层级连续性"
+    ));
+end
