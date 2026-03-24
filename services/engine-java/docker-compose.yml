@@ -1,0 +1,103 @@
+version: '3.8'
+
+# ============================================================
+# AI Auditor - Engine Java 本地开发环境
+# 用途：在 Windows/Linux/Mac 本地一键启动完整服务栈
+#       包含 PostgreSQL + Redis + Java 引擎
+# 使用方法：
+#   启动：docker-compose up -d
+#   停止：docker-compose down
+#   查看日志：docker-compose logs -f engine-java
+#   重建镜像：docker-compose up -d --build engine-java
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL 数据库（存储审计历史记录）
+  # ----------------------------------------------------------
+  postgres:
+    image: postgres:14-alpine
+    container_name: auditor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auditor_db
+      POSTGRES_USER: auditor_user
+      POSTGRES_PASSWORD: auditor_pass_2024
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"        # 本地也可以用 DBeaver/DataGrip 直连调试
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auditor_user -d auditor_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ----------------------------------------------------------
+  # Redis 缓存（缓存常用模板规则，加速重复审查）
+  # ----------------------------------------------------------
+  redis:
+    image: redis:6-alpine
+    container_name: auditor-redis
+    restart: unless-stopped
+    command: redis-server --requirepass auditor_redis_2024 --appendonly yes
+    ports:
+      - "6379:6379"        # 本地也可以用 RedisInsight 直连调试
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "auditor_redis_2024", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ----------------------------------------------------------
+  # Java 规则引擎（核心服务）
+  # ----------------------------------------------------------
+  engine-java:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auditor-engine-java
+    restart: unless-stopped
+    ports:
+      - "8081:8081"        # HTTP / H2 控制台（docker profile 下不启用）
+      - "9191:9191"        # gRPC 端口（供 Go 网关和 Rust 解析器调用）
+    environment:
+      # 激活 docker profile，使用真实 PostgreSQL + Redis
+      SPRING_PROFILES_ACTIVE: docker
+      # 数据库连接（指向同网络中的 postgres 容器）
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auditor_db
+      SPRING_DATASOURCE_USERNAME: auditor_user
+      SPRING_DATASOURCE_PASSWORD: auditor_pass_2024
+      # Redis 连接（指向同网络中的 redis 容器）
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: auditor_redis_2024
+      # JVM 参数
+      JAVA_OPTS: "-Xmx1g -Xms512m -Dfile.encoding=UTF-8"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# ----------------------------------------------------------
+# 数据持久化卷（容器重启后数据不丢失）
+# ----------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
