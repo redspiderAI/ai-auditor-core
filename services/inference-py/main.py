@@ -1,8 +1,11 @@
 import argparse
+import io
 import json
 import logging
 import os
 import re
+import time
+import zipfile
 from pathlib import Path
 from typing import Tuple
 
@@ -149,7 +152,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     # 默认执行批处理：扫描 data/input 中仅以 “毕业论文.docx” 结尾的文件，通过 parser-rs 解析后运行审查
-    if not args.serve:
+    if args.batch or not args.serve:
         parser_addr = args.parser_addr or os.environ.get("RUST_GRPC_ADDR") or "127.0.0.1:52051"
         input_root = Path(args.input_root) if args.input_root else DEFAULT_INPUT_ROOT
         output_root = Path(args.output_root) if args.output_root else DEFAULT_OUTPUT_ROOT
