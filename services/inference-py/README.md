@@ -36,20 +36,35 @@ uv add torch fastapi langgraph
 
 说明：`milvus` 在 Windows 上可能没有可用 wheel，安装可能会因平台不匹配失败；遇到错误可参考下文说明。
 
-批处理模式（默认行为，依赖 parser-rs gRPC）
+快速 AI 审查（默认模式，FastAPI + uvicorn）
 
-- 仅处理 data/input 目录下文件名以 “毕业论文.docx” 结尾的文档，并将审查结果输出到 data/output，保持原有子目录结构。
-- 先确保 parser-rs 已在 52051 端口（或自定义端口）运行 gRPC 服务：`cargo run --bin parser_rs --features with-proto`（需要已安装 `protoc`）。
-- 一键运行批处理（默认模式）：
+- 启动：`uv run main.py`（默认 0.0.0.0:8000，自动使用 env `PARSER_GRPC_ADDR` 或 127.0.0.1:52051 连接 parser-rs）
+- 通过 curl 上传 docx：
 
 ```powershell
-uv run main.py --parser-addr 127.0.0.1:52051 --input-root ../../data/input --output-root ../../data/output
+curl -X POST "http://127.0.0.1:8000/audit" -F "file=@E:\github\ai-auditor-core\data\input\18通信2_1800301208_李良循\18通信2_李良循_毕业论文.docx"
 ```
 
-- 如需启动 gRPC 服务而非批处理，使用 `--serve`：
+- 或直接传已存在的文件路径（无需上传）：
 
 ```powershell
-uv run main.py --serve --host 0.0.0.0 --port 50051
+curl -X POST "http://127.0.0.1:8000/audit?file_path=E:\github\ai-auditor-core\data\input\18通信2_1800301208_李良循\18通信2_李良循_毕业论文.docx"
+```
+
+批处理模式（依赖 parser-rs gRPC）
+
+- 仅处理 data/input 目录下文件名以 “毕业论文.docx” 结尾的文档，并输出到 data/output，保持原有子目录结构。
+- 确保 parser-rs 已在 52051 端口（或自定义端口）运行 gRPC 服务：`cargo run --bin parser_rs --features with-proto`。
+- 运行批处理：
+
+```powershell
+uv run main.py --mode batch --parser-addr 127.0.0.1:52051 --input-root ../../data/input --output-root ../../data/output
+```
+
+gRPC 服务模式
+
+```powershell
+uv run main.py --mode grpc --host 0.0.0.0 --port 50051
 ```
 
 ## 配置说明

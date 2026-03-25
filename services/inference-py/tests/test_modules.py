@@ -1,15 +1,26 @@
 """测试用例：验证各模块功能"""
 
+import os
+import sys
+from pathlib import Path
 import unittest
 
-from src.semantic_detection import SemanticDetector
-from src.fact_checking import ReferenceFactChecker
-from src.logic_consistency import LogicConsistencyChecker
-from src.sliding_window_processor import (
+# Ensure project root is on sys.path when executing tests directly via `uv run`
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+# Avoid spinning up embedded Milvus Lite during unit tests
+os.environ.setdefault("MILVUS_LITE_DISABLED", "1")
+
+from src.semantic_detection import SemanticDetector  # noqa: E402
+from src.fact_checking import ReferenceFactChecker  # noqa: E402
+from src.logic_consistency import LogicConsistencyChecker  # noqa: E402
+from src.sliding_window_processor import (  # noqa: E402
     SlidingWindowProcessor,
     run_sliding_window_analysis,
 )
-from src.protos.auditor_pb2 import Issue
+from src.protos.auditor_pb2 import Issue  # noqa: E402
 
 
 class TestSemanticDetection(unittest.TestCase):
