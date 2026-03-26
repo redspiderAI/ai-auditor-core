@@ -31,7 +31,7 @@ jobs:
       - name: Build with Maven
         run: |
           cd services/engine-java
-          mvn clean compile
+          mvn clean test
 
   # 成员 C: Python 检查 (AI 模型接口、格式审查)
   python-audit:

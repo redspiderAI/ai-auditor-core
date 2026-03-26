@@ -1,4 +1,3 @@
-
 <!--项目基本信息-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -15,7 +14,7 @@
 
     <!-- 属性配置-->
     <properties>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <spring.boot.version>3.2.0</spring.boot.version>
         <kie.version>8.44.0.Final</kie.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -104,6 +103,17 @@
             <artifactId>drools-compiler</artifactId>
             <version>${kie.version}</version>
         </dependency>
+        <!-- 添加 drools-xml-support 用于解析 kmodule.xml -->
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-xml-support</artifactId>
+            <version>${kie.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-mvel</artifactId>
+            <version>${kie.version}</version>
+        </dependency>
 
 
         <!-- Protobuf runtime (use version compatible with protoc used in build)
@@ -135,6 +145,81 @@
             <artifactId>grpc-stub</artifactId>
             <version>1.56.0</version>
         </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
+        <!-- Spring Batch: 大文件分批处理 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
+        <!-- Redis: 审计结果缓存 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- PostgreSQL: 持久化存储 -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Spring Data JPA: ORM 支持 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- Jackson: JSON 处理（真实文件测试需要） -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <!-- H2 内嵌数据库（本地开发替代 PostgreSQL，上服务器时可移除） -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Testing dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -147,7 +232,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
                 <configuration>
-                    <mainClass>com.auditor.engine.EngineApplication</mainClass> <!-- 修正包名 -->
+                    <mainClass>com.auditor.engine.EngineApplication</mainClass>
+                    <!-- 解决 Windows PowerShell/CMD 中文乱码：强制 JVM 使用 UTF-8 输出 -->
+                    <jvmArguments>
+                        -Dfile.encoding=UTF-8
+                        -Dstdout.encoding=UTF-8
+                        -Dstderr.encoding=UTF-8
+                    </jvmArguments>
                 </configuration>
                 <executions>
                     <execution>
@@ -168,8 +259,19 @@
                 </configuration>
             </plugin>
 
-            <!-- protoc/antrun/build-helper moved into a profile below. -->
-
+             <!-- protoc/antrun/build-helper moved into a profile below. -->
+            <!-- Maven Surefire Plugin for JUnit 5 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M9</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -199,12 +301,22 @@
                                 </goals>
                                 <configuration>
                                     <protocVersion>3.21.12</protocVersion>
+                                    <outputTargets>
+                                        <outputTarget>
+                                            <type>java</type>
+                                        </outputTarget>
+                                        <outputTarget>
+                                            <type>grpc-java</type>
+                                            <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.56.0</pluginArtifact>
+                                        </outputTarget>
+                                    </outputTargets>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
 
                     <!-- copy proto files from shared/protos into this module's src/main/protobuf -->
+                    <!-- Disabled for sandbox compatibility
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -229,6 +341,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    -->
 
                     <!-- 把生成的 sources 加入编译路径 -->
                     <plugin>
@@ -244,8 +357,8 @@
                                 </goals>
                                 <configuration>
                                     <sources>
-                                        <source>
-                                            ${project.build.directory}/generated-sources/protobuf/java</source>
+                                        <source>${project.build.directory}/generated-sources/protobuf/java</source>
+                                        <source>${project.build.directory}/generated-sources/protobuf/grpc-java</source>
                                     </sources>
                                 </configuration>
                             </execution>

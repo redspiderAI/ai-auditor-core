@@ -18,7 +18,7 @@ class DetectionResult:
 class SemanticDetector:
     """学术语境高风险项检测器"""
 
-    def __init__(self):
+    def __init__(self, max_issues: int = 200, max_occurrences_per_pattern: int = 5):
         # 形近字错误映射
         self.typo_corrections = {
             "粘度": "黏度",
@@ -57,6 +57,10 @@ class SemanticDetector:
             "做": "实施",
         }
 
+        # 控制输出/性能
+        self.max_issues = max_issues
+        self.max_occurrences_per_pattern = max_occurrences_per_pattern
+
     def detect_issues(self, text: str) -> DetectionResult:
         """检测文本中的问题
         
@@ -66,16 +70,26 @@ class SemanticDetector:
         Returns:
             DetectionResult: 包含检测到的问题和建议
         """
+        text = text or ""
         issues = []
         suggestions = []
+
+        # 提前退出的计数器
+        current_total = 0
 
         # 1. 检测错别字
         typo_issues = self._detect_typos(text)
         issues.extend(typo_issues)
+        current_total = len(issues)
+        if current_total >= self.max_issues:
+            return DetectionResult(issues=issues[: self.max_issues], suggestions=suggestions)
         
         # 2. 检测标点规范
         punctuation_issues = self._detect_punctuation_errors(text)
         issues.extend(punctuation_issues)
+        current_total = len(issues)
+        if current_total >= self.max_issues:
+            return DetectionResult(issues=issues[: self.max_issues], suggestions=suggestions)
         
         # 3. 检测学术风格问题
         style_issues = self._detect_style_errors(text)
@@ -86,10 +100,14 @@ class SemanticDetector:
     def _detect_typos(self, text: str) -> List[Issue]:
         """检测错别字"""
         issues = []
+        seen_counts = {}
         for wrong, correct in self.typo_corrections.items():
             if wrong in text:
                 # 找到所有出现位置
                 for match in re.finditer(re.escape(wrong), text):
+                    seen_counts[wrong] = seen_counts.get(wrong, 0) + 1
+                    if seen_counts[wrong] > self.max_occurrences_per_pattern:
+                        continue
                     issue = Issue()
                     issue.code = "TYPO"
                     issue.message = f"形近字错误: '{wrong}' 应为 '{correct}'"
@@ -97,11 +115,14 @@ class SemanticDetector:
                     issue.suggestion = correct
                     issue.severity = Severity.MEDIUM
                     issues.append(issue)
+                    if len(issues) >= self.max_issues:
+                        return issues
         return issues
 
     def _detect_punctuation_errors(self, text: str) -> List[Issue]:
         """检测标点符号错误"""
         issues = []
+        seen_counts = {}
         # 查找中文文本中的半角标点
         matches = re.finditer(self.half_punct_pattern, text)
         for match in matches:
@@ -114,6 +135,9 @@ class SemanticDetector:
             
             # 如果周围是中文字符，则认为是标点错误
             if self._is_chinese_char(prev_char) or self._is_chinese_char(next_char):
+                seen_counts[char] = seen_counts.get(char, 0) + 1
+                if seen_counts[char] > self.max_occurrences_per_pattern:
+                    continue
                 issue = Issue()
                 issue.code = "PUNCTUATION"
                 issue.message = f"应使用全角标点: '{char}' 应为对应全角符号"
@@ -121,14 +145,20 @@ class SemanticDetector:
                 issue.suggestion = self._to_full_width(char)
                 issue.severity = Severity.LOW
                 issues.append(issue)
+                if len(issues) >= self.max_issues:
+                    return issues
         return issues
 
     def _detect_style_errors(self, text: str) -> List[Issue]:
         """检测学术风格问题"""
         issues = []
+        seen_counts = {}
         for colloquial, formal in self.colloquialisms.items():
             if colloquial in text:
                 for match in re.finditer(re.escape(colloquial), text):
+                    seen_counts[colloquial] = seen_counts.get(colloquial, 0) + 1
+                    if seen_counts[colloquial] > self.max_occurrences_per_pattern:
+                        continue
                     issue = Issue()
                     issue.code = "STYLE"
                     issue.message = f"口语化表达: '{colloquial}' 建议改为 '{formal}'"
@@ -136,6 +166,8 @@ class SemanticDetector:
                     issue.suggestion = formal
                     issue.severity = Severity.MEDIUM
                     issues.append(issue)
+                    if len(issues) >= self.max_issues:
+                        return issues
         return issues
 
     def _is_chinese_char(self, char: str) -> bool:

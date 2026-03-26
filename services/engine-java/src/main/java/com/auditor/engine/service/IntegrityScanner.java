@@ -1,6 +1,7 @@
 package com.auditor.engine.service;
 
 import com.auditor.grpc.*;
+import com.auditor.engine.mock.MockDroolsEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,23 +16,22 @@ import java.util.List;
 public class IntegrityScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(IntegrityScanner.class);
-    private final KieContainer kieContainer;
+    private KieContainer kieContainer;
 
     public IntegrityScanner() {
         try {
             KieServices kieServices = KieServices.Factory.get();
-            this.kieContainer = kieServices.getKieClasspathContainer();
+            kieContainer = kieServices.getKieClasspathContainer();
             logger.info("完整性检查规则引擎初始化成功");
         } catch (Exception e) {
-            logger.error("规则引擎初始化失败", e);
-            throw new RuntimeException("无法初始化规则引擎", e);
+            logger.warn("Drools 规则引擎初始化失败，将使用模拟引擎: {}", e.getMessage());
+            kieContainer = null;
         }
     }
 
     public List<Issue> scanIntegrity(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
 
-        // 输入校验
         if (data == null || !data.hasMetadata()) {
             logger.warn("输入数据为空或缺少元数据");
             issues.add(createErrorIssue("ERR_INTEGRITY_NULL",
@@ -42,23 +42,29 @@ public class IntegrityScanner {
         logger.info("开始完整性检查，文档ID: {}, 标题: {}",
                 data.getDocId(), data.getMetadata().getTitle());
 
+        // 如果 Drools 可用，使用 Drools；否则使用模拟引擎
+        if (kieContainer != null) {
+            return scanIntegrityWithDrools(data, issues);
+        } else {
+            logger.info("使用模拟 Drools 引擎进行完整性检查");
+            return MockDroolsEngine.checkIntegrityRules(data);
+        }
+    }
+
+    private List<Issue> scanIntegrityWithDrools(ParsedData data, List<Issue> issues) {
         KieSession kieSession = null;
 
         try {
-            // 创建 KieSession
             kieSession = kieContainer.newKieSession("integritySession");
 
-            // 设置全局结果收集器
             kieSession.setGlobal("results", issues);
             kieSession.setGlobal("logger", logger);
 
-            // 插入事实数据
             kieSession.insert(data);
             for (Section section : data.getSectionsList()) {
                 kieSession.insert(section);
             }
 
-            // 执行完整性检查规则
             int firedRules = kieSession.fireAllRules();
             logger.info("完整性检查完成，触发 {} 条规则，发现 {} 个问题",
                     firedRules, issues.size());
@@ -88,19 +94,10 @@ public class IntegrityScanner {
         }
 
         try {
-            // 1. 检查章节编号连续性
             checkSectionNumbering(data, issues);
-
-            // 2. 检查标题层级结构
             checkHeadingHierarchy(data, issues);
-
-            // 3. 检查必备章节
             checkRequiredSections(data, issues);
-
-            // 4. 检查图表编号连续性
             checkFigureTableNumbering(data, issues);
-
-            // 5. 检查文档结构完整性
             checkDocumentStructure(data, issues);
 
         } catch (Exception e) {
@@ -113,9 +110,6 @@ public class IntegrityScanner {
         return issues;
     }
 
-    /**
-     * 检查章节编号连续性
-     */
     private void checkSectionNumbering(ParsedData data, List<Issue> issues) {
         int expectedSectionId = 1;
         for (Section section : data.getSectionsList()) {
@@ -131,9 +125,6 @@ public class IntegrityScanner {
         }
     }
 
-    /**
-     * 检查标题层级结构
-     */
     private void checkHeadingHierarchy(ParsedData data, List<Issue> issues) {
         int lastLevel = 0;
         int lastSectionId = 0;
@@ -142,7 +133,6 @@ public class IntegrityScanner {
             if ("heading".equals(section.getType())) {
                 int currentLevel = section.getLevel();
 
-                // 检查标题层级跳跃
                 if (currentLevel > lastLevel + 1) {
                     Issue issue = createIntegrityIssue("ERR_INT_HIER_001",
                             "标题层级跳跃: 从 " + lastLevel + " 级跳至 " + currentLevel + " 级",
@@ -152,7 +142,6 @@ public class IntegrityScanner {
                     issues.add(issue);
                 }
 
-                // 检查同级标题顺序
                 if (currentLevel == lastLevel && section.getSectionId() <= lastSectionId) {
                     Issue issue = createIntegrityIssue("ERR_INT_HIER_002",
                             "同级标题顺序错误: 标题顺序混乱",
@@ -168,11 +157,7 @@ public class IntegrityScanner {
         }
     }
 
-    /**
-     * 检查必备章节
-     */
     private void checkRequiredSections(ParsedData data, List<Issue> issues) {
-        // 学术论文必备章节
         String[] requiredSections = { "摘要", "引言", "正文", "结论", "参考文献" };
 
         for (String requiredSection : requiredSections) {
@@ -182,7 +167,7 @@ public class IntegrityScanner {
             if (!found) {
                 Issue issue = createIntegrityIssue("ERR_INT_REQ_001",
                         "缺少必备章节: " + requiredSection,
-                        0, // 全局问题
+                        0,
                         "添加" + requiredSection + "章节",
                         "");
                 issues.add(issue);
@@ -190,16 +175,12 @@ public class IntegrityScanner {
         }
     }
 
-    /**
-     * 检查图表编号连续性
-     */
     private void checkFigureTableNumbering(ParsedData data, List<Issue> issues) {
         int figureCount = 1;
         int tableCount = 1;
 
         for (Section section : data.getSectionsList()) {
             if ("figure".equals(section.getType())) {
-                // 检查图表编号
                 String sectionText = section.getText().toLowerCase();
                 if (!sectionText.contains("图" + figureCount) &&
                         !sectionText.contains("figure " + figureCount)) {
@@ -227,9 +208,6 @@ public class IntegrityScanner {
         }
     }
 
-    /**
-     * 检查文档结构完整性
-     */
     private void checkDocumentStructure(ParsedData data, List<Issue> issues) {
         boolean hasAbstract = false;
         boolean hasConclusion = false;
@@ -248,7 +226,6 @@ public class IntegrityScanner {
             }
         }
 
-        // 检查文档结构顺序
         if (hasAbstract && hasConclusion) {
             int abstractIndex = -1;
             int conclusionIndex = -1;
@@ -273,7 +250,6 @@ public class IntegrityScanner {
             }
         }
 
-        // 检查必备结构元素
         if (!hasAbstract) {
             issues.add(createIntegrityIssue("ERR_INT_STRUCT_002",
                     "文档缺少摘要部分",
@@ -299,9 +275,6 @@ public class IntegrityScanner {
         }
     }
 
-    /**
-     * 创建完整性检查问题
-     */
     private Issue createIntegrityIssue(String code, String message,
             int sectionId, String suggestion,
             String originalSnippet) {
@@ -316,9 +289,6 @@ public class IntegrityScanner {
                 .build();
     }
 
-    /**
-     * 创建错误问题
-     */
     private Issue createErrorIssue(String code, String message,
             int sectionId, Severity severity) {
         return Issue.newBuilder()

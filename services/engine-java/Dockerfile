@@ -1,29 +1,42 @@
-# Multi-stage build: compile with Maven, run with JRE   1.构建阶段（使用 Maven 镜像）
-FROM maven:3.9.4-eclipse-temurin-17 AS builder
+# ============================================================
+# AI Auditor Engine-Java Dockerfile
+# 多阶段构建：Maven 编译 → JRE 运行
+# Java 版本：21（支持虚拟线程）
+# ============================================================
+
+# ------ 阶段一：构建（Maven + JDK 21）------
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
+
 WORKDIR /workspace
 
-# copy maven config and sources   复制 Maven 配置和源代码
+# 先只复制 pom.xml，利用 Docker 层缓存加速依赖下载
+# （只有 pom.xml 变化时才重新下载依赖，源码变化不触发重新下载）
 COPY pom.xml ./
+RUN mvn -B dependency:go-offline 
+
+# 再复制源码并构建（跳过测试，测试在本地 mvn test 中单独运行）
 COPY src ./src
+RUN mvn -B -DskipTests package 
 
-# build the project artifact     构建项目（跳过测试）
-RUN mvn -B -DskipTests package
+# ------ 阶段二：运行（精简 JRE 21，体积更小）------
+FROM eclipse-temurin:21-jre-jammy
 
+# 创建非 root 用户运行（安全最佳实践）
+RUN groupadd -r auditor && useradd -r -g auditor auditor
 
-#运行阶段配置
-FROM eclipse-temurin:17-jre
+WORKDIR /app
 
-# Default JVM options (can be overridden via docker run -e JAVA_OPTS)   JVM 参数
-ENV JAVA_OPTS="-Xmx2g -Xms2g"
+# 从构建阶段复制 JAR
+COPY --from=builder /workspace/target/engine-java-0.1.0-SNAPSHOT.jar app.jar
+RUN chown auditor:auditor app.jar
 
-# Environment variables expected by the app (can be overridden at runtime)  应用环境变量
-ENV JAVA_ENGINE_ADDR=engine-java:9191
-ENV JAVA_GRPC_PORT=9192
+USER auditor
 
-# Expose both HTTP and gRPC ports (configurable via env)    端口
-EXPOSE 9191 9192
+# 暴露端口
+EXPOSE 8081
+EXPOSE 9191
 
-# Copy built jar   从构建阶段复制生成的 JAR 文件
-COPY --from=builder /workspace/target/engine-java-0.1.0-SNAPSHOT.jar /app/app.jar
+# JVM 参数（可通过 docker-compose.yml 的 JAVA_OPTS 环境变量覆盖）
+ENV JAVA_OPTS="-Xmx1g -Xms512m -Dfile.encoding=UTF-8"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
