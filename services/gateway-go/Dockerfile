@@ -1,8 +1,12 @@
-# 使用官方Golang镜像作为构建环境
-FROM golang:1.22-alpine AS builder
+# 使用官方Golang镜像作为构建环境（升级以减少已知漏洞）
+FROM golang:1.22.7-bookworm AS builder
 
 # 设置工作目录
 WORKDIR /app
+
+# 配置国内代理以加速依赖下载，可按需替换
+RUN go env -w GO111MODULE=on \
+    && go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
 
 # 复制go.mod和go.sum文件
 COPY go.mod go.sum ./
@@ -16,26 +20,17 @@ COPY . .
 # 构建应用
 RUN CGO_ENABLED=0 GOOS=linux go build -o gateway .
 
-# 使用轻量级的基础镜像运行应用
-FROM alpine:latest
-
-# 安装ca-certificates，以便应用可以进行HTTPS请求
-RUN apk --no-cache add ca-certificates
-
-# 创建非root用户
-RUN adduser -D -s /bin/sh appuser
+# 使用 distroless 运行时镜像，减少攻击面
+FROM gcr.io/distroless/static-debian12:nonroot
 
 # 设置工作目录
 WORKDIR /app
 
 # 从构建阶段复制二进制文件
-COPY --from=builder /app/gateway .
+COPY --from=builder /app/gateway /app/gateway
 
-# 更改文件所有权给非root用户
-RUN chown appuser:appuser gateway
-
-# 切换到非root用户
-USER appuser
+# 切换到非root用户（镜像已预置 nonroot 用户）
+USER nonroot
 
 # 暴露端口
 EXPOSE 8080

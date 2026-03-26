@@ -11,13 +11,13 @@ import (
 type TaskStatus string
 
 const (
-	Pending     TaskStatus = "Pending"
-	Queued      TaskStatus = "Queued"
-	Parsing     TaskStatus = "Parsing"
-	Auditing    TaskStatus = "Auditing"
-	Generating  TaskStatus = "Generating"
-	Completed   TaskStatus = "Completed"
-	Error       TaskStatus = "Error"
+	Pending    TaskStatus = "Pending"
+	Queued     TaskStatus = "Queued"
+	Parsing    TaskStatus = "Parsing"
+	Auditing   TaskStatus = "Auditing"
+	Generating TaskStatus = "Generating"
+	Completed  TaskStatus = "Completed"
+	Error      TaskStatus = "Error"
 )
 
 // Task represents a processing job state.
@@ -28,6 +28,7 @@ type Task struct {
 	SourcePath    string     `json:"source_path"`
 	AnnotatedPath string     `json:"annotated_path"`
 	ReportPath    string     `json:"report_path"`
+	CallbackURL   string     `json:"callback_url,omitempty"`
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 	ErrorMsg      string     `json:"error_msg,omitempty"`

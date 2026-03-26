@@ -1,6 +1,7 @@
 """使用LangGraph实现的状态机和滑动窗口逻辑
 用于处理长文本并维护全局状态以确保术语一致性
 """
+import re
 from typing import Dict, List, Any, TypeAlias
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph
@@ -23,6 +24,7 @@ class GraphState(TypedDict):
     processed_windows: int
     summary_section: str
     conclusion_section: str
+    consistency_issues: List[IssueType]
 
 
 class SlidingWindowProcessor:
@@ -104,13 +106,31 @@ class SlidingWindowProcessor:
     
     def _update_global_state(self, state: GraphState) -> Dict[str, Any]:
         """更新全局状态，包括术语跟踪"""
-        # 这里可以添加更新全局状态的逻辑
-        # 例如，更新术语在整个文档中的使用情况
         updated_terms = state.get("global_terms", {})
-        
-        # 简单的术语收集逻辑（在实际实现中会更复杂）
-        # 遍历当前检测到的问题，更新术语使用情况
-        
+
+        # 在当前窗口的章节中提取术语（缩写、大写词、含“算法/模型/方法/网络/系统”的短语）
+        term_patterns = [
+            r"\b[A-Z]{2,5}\b",
+            r"[\u4e00-\u9fff]{2,6}(算法|模型|方法|网络|系统)",
+            r"\b\w+(?:algorithm|model|method|network|system)\b",
+        ]
+
+        current_idx = state["current_index"]
+        window_size = state["window_size"]
+        end_idx = min(current_idx, state["total_sections"])
+        start_idx = max(0, end_idx - window_size)
+        window_sections = state["sections"][start_idx:end_idx]
+
+        for section in window_sections:
+            sec_id = section.get("section_id", 0)
+            text = section.get("text", "")
+            for pattern in term_patterns:
+                for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+                    term = match.group()
+                    updated_terms.setdefault(term, [])
+                    if sec_id not in updated_terms[term]:
+                        updated_terms[term].append(sec_id)
+
         return {
             "global_terms": updated_terms,
             "processed_windows": state["processed_windows"] + 1
@@ -164,11 +184,18 @@ class SlidingWindowProcessor:
             window_size=window_size,
             processed_windows=0,
             summary_section="",
-            conclusion_section=""
+            conclusion_section="",
+            consistency_issues=[],
         )
         
         # 执行工作流
         final_state = await self.workflow.ainvoke(initial_state)
+
+        # 追加长文本一致性检查（摘要-结论、术语一致性等）
+        consistency_result = await self.consistency_checker.check_consistency(sections)
+        final_state["consistency_issues"] = consistency_result.issues
+        # 把术语使用情况并入全局状态
+        final_state["global_terms"].update(consistency_result.term_usage)
         
         return final_state
 
@@ -187,5 +214,7 @@ async def run_sliding_window_analysis(sections: List[Dict[str, Any]], api_key: s
     """
     processor = SlidingWindowProcessor(api_key=api_key)
     final_state = await processor.process_document(sections)
-    
-    return final_state["detected_issues"]
+    # 汇总窗口内检测 + 一致性检测的全部问题
+    all_issues = list(final_state["detected_issues"])
+    all_issues.extend(final_state.get("consistency_issues", []))
+    return all_issues

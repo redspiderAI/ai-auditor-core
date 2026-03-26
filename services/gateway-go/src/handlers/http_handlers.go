@@ -14,12 +14,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/queue"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
 )
 
 // UploadHandler handles file uploads and enqueues tasks.
-func UploadHandler(s *store.Store, tasks chan<- string, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+func UploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		f, err := c.FormFile("file")
 		if err != nil {
@@ -49,14 +50,11 @@ func UploadHandler(s *store.Store, tasks chan<- string, tempManager *tempmanager
 		// Track the uploaded file
 		tempManager.TrackFile(dstPath)
 
-		s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath})
+		callbackURL := c.FormValue("callback_url")
+		s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath, CallbackURL: callbackURL})
 
-		select {
-		case tasks <- id:
-		default:
-			// queue full: mark queued and enqueue asynchronously
-			_ = s.UpdateTask(id, func(t *store.Task) { t.Status = store.Queued })
-			go func() { tasks <- id }()
+		if err := taskQueue.Enqueue(c.Request().Context(), id); err != nil {
+			return c.JSON(http.StatusServiceUnavailable, map[string]string{"error": "queue unavailable", "detail": err.Error()})
 		}
 
 		return c.JSON(http.StatusAccepted, map[string]string{"task_id": id})
@@ -165,7 +163,7 @@ func DownloadHandler(s *store.Store, tempManager *tempmanager.TempFileManager) e
 }
 
 // BatchUploadHandler handles batch file uploads and enqueues tasks.
-func BatchUploadHandler(s *store.Store, tasks chan<- string, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+func BatchUploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		form, err := c.MultipartForm()
 		if err != nil {
@@ -183,6 +181,7 @@ func BatchUploadHandler(s *store.Store, tasks chan<- string, tempManager *tempma
 
 		var results []map[string]interface{}
 		successCount := 0
+		callbackURL := c.FormValue("callback_url")
 
 		for _, fileHeader := range files {
 			id := uuid.New().String()
@@ -224,14 +223,14 @@ func BatchUploadHandler(s *store.Store, tasks chan<- string, tempManager *tempma
 			// Track the uploaded file
 			tempManager.TrackFile(dstPath)
 
-			s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath})
-
-			select {
-			case tasks <- id:
-			default:
-				// queue full: mark queued and enqueue asynchronously
-				_ = s.UpdateTask(id, func(t *store.Task) { t.Status = store.Queued })
-				go func() { tasks <- id }()
+			s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath, CallbackURL: callbackURL})
+			if err := taskQueue.Enqueue(c.Request().Context(), id); err != nil {
+				results = append(results, map[string]interface{}{
+					"filename": fileHeader.Filename,
+					"success":  false,
+					"error":    fmt.Sprintf("queue unavailable: %v", err),
+				})
+				continue
 			}
 
 			results = append(results, map[string]interface{}{
@@ -243,10 +242,10 @@ func BatchUploadHandler(s *store.Store, tasks chan<- string, tempManager *tempma
 		}
 
 		response := map[string]interface{}{
-			"total_files":    len(files),
-			"success_count":  successCount,
-			"failure_count":  len(files) - successCount,
-			"results":        results,
+			"total_files":   len(files),
+			"success_count": successCount,
+			"failure_count": len(files) - successCount,
+			"results":       results,
 		}
 
 		return c.JSON(http.StatusAccepted, response)

@@ -11,9 +11,29 @@ services:
       - RUST_PARSER_ADDR=parser-rs:52051
       - JAVA_ENGINE_ADDR=engine-java:9191
       - PY_INFERENCE_ADDR=inference-py:8123
+      - EMERGENCY_MODE=true
+      - QUICK_AUDIT_URL=http://inference-py:8123/v1/quick-audit
+      - REDIS_ADDR=redis:6379
+      - REDIS_STREAM=audit_tasks
+      - REDIS_GROUP=gateway_group
+      - REDIS_CONSUMER=gateway_consumer
     depends_on:
       parser-rs:
         condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - audit-network
+
+  # 任务队列：Redis Streams
+  redis:
+    image: redis:7.2-alpine
+    container_name: audit-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - audit-network
 
@@ -46,6 +66,7 @@ services:
   inference-py:
     build: ./services/inference-py
     container_name: audit-inference
+    command: ["uv", "run", "main.py", "--rest", "--rest-host", "0.0.0.0", "--rest-port", "8123"]
     deploy:
       resources:
         reservations:
@@ -56,10 +77,14 @@ services:
     environment:
       - QWEN_API_KEY=${QWEN_API_KEY}
       - MODEL_PATH=/app/models/qwen2.5
+      - REST_PORT=8123
+      - REST_HOST=0.0.0.0
     networks:
       - audit-network
     volumes:
       - ./models:/app/models # 映射本地预下载的模型
+    ports:
+      - "8123:8123"
 
 networks:
   audit-network:
@@ -68,3 +93,4 @@ networks:
 volumes:
   temp_docs:
   models:
+  redis-data:

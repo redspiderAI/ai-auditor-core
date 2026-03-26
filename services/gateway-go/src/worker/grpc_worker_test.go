@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -25,9 +26,9 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 		ParseResult: &auditor.ParsedData{
 			DocId: "mock-doc-id",
 			Metadata: &auditor.DocumentMetadata{
-				Title:       "Mock Document Title",
-				PageCount:   10,
-				MarginTop:   1.0,
+				Title:        "Mock Document Title",
+				PageCount:    10,
+				MarginTop:    1.0,
 				MarginBottom: 1.0,
 			},
 			Sections: []*auditor.Section{
@@ -48,8 +49,8 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 			},
 			References: []*auditor.Reference{
 				{
-					RefId:        "[1]",
-					RawText:      "[1] Sample reference",
+					RefId:         "[1]",
+					RawText:       "[1] Sample reference",
 					IsValidFormat: true,
 				},
 			},
@@ -112,7 +113,7 @@ func TestWorker(t *testing.T) {
 // TestGenerateOutputs 测试输出生成功能
 func TestGenerateOutputs(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	// 创建源文件
 	sourcePath := filepath.Join(tmpDir, "source.docx")
 	err := os.WriteFile(sourcePath, []byte("source content"), 0644)
@@ -133,12 +134,12 @@ func TestGenerateOutputs(t *testing.T) {
 			OriginalSnippet: "Test snippet",
 		},
 	}
-	
+
 	totalScoreImpact := float32(5.0)
 
 	// 调用generateOutputs函数
-	annotatedPath, reportPath, err := generateOutputs("test-task-id", sourcePath, issues, totalScoreImpact, tempManager)
-	
+	annotatedPath, reportPath, err := generateOutputs("test-task-id", sourcePath, "", issues, totalScoreImpact, tempManager)
+
 	if err != nil {
 		t.Errorf("generateOutputs returned error: %v", err)
 	}
@@ -170,12 +171,12 @@ func TestGenerateOutputs(t *testing.T) {
 // TestCopyFile 测试copyFile函数
 func TestCopyFile(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	srcPath := filepath.Join(tmpDir, "source.txt")
 	dstPath := filepath.Join(tmpDir, "destination.txt")
-	
+
 	srcContent := "test content for copying"
-	
+
 	// 创建源文件
 	err := os.WriteFile(srcPath, []byte(srcContent), 0644)
 	if err != nil {
@@ -264,25 +265,27 @@ func getenvDefault(key, def string) string {
 }
 
 // 为了测试目的，简化generateOutputs函数
-func generateOutputs(taskID, sourcePath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
-	// Generate annotated document path
-	annotatedPath := sourcePath + "-annotated.docx"
+func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
+	if annotatedPath == "" {
+		annotatedPath = sourcePath + "-annotated.docx"
+	}
 
-	// Generate JSON report path
 	jsonReportPath := sourcePath + "-report.json"
 
-	// Create dummy files for testing
-	err := os.WriteFile(annotatedPath, []byte("annotated content"), 0644)
-	if err != nil {
+	if err := os.WriteFile(annotatedPath, []byte("annotated content"), 0644); err != nil {
 		return "", "", err
 	}
 
-	err = os.WriteFile(jsonReportPath, []byte("{\"test\": \"report\"}"), 0644)
-	if err != nil {
+	reportBody := map[string]any{
+		"task_id": taskID,
+		"issues":  len(issues),
+		"score":   totalScoreImpact,
+	}
+	jsonBytes, _ := json.Marshal(reportBody)
+	if err := os.WriteFile(jsonReportPath, jsonBytes, 0644); err != nil {
 		return "", "", err
 	}
 
-	// Track the generated files
 	tempManager.TrackFile(annotatedPath)
 	tempManager.TrackFile(jsonReportPath)
 
