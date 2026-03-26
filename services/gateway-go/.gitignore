@@ -8,6 +8,8 @@
 /coverage-*.out
 *.prof
 *.exe
+*.zip
+*.txt
 
 # Scripts
 *.ps1
