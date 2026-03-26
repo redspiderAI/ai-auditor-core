@@ -1,7 +1,9 @@
 """配置管理模块，使用Pydantic Settings管理应用配置"""
-from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
+from pathlib import Path
 from typing import Optional
+
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -27,10 +29,8 @@ class Settings(BaseSettings):
     # 调试配置
     debug: bool = False
 
-    model_config = ConfigDict(
-        env_file=".env",
-        env_file_encoding='utf-8'
-    )
+    _env_path = Path(__file__).resolve().parents[1] / ".env"
+    model_config = ConfigDict(env_file=str(_env_path), env_file_encoding="utf-8")
 
 
 # 创建全局配置实例
