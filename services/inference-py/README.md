@@ -1,0 +1,118 @@
+# Inference-Py
+
+轻量的 AI 审查与模型中台服务（Python）。本目录包含用于语义审查、文献核验与长文本一致性检查的代码骨架与测试脚本。
+
+项目结构（工作区相对路径）
+
+- [main.py](main.py): 启动脚本（项目入口示例）
+- [pyproject.toml](pyproject.toml): 项目元数据与 `uv` 配置
+- [model/](model): 本地模型或模型配置目录（当前为空）
+- [data/](data): 本地数据目录（当前为空）
+- [src/](src): 源代码（模块实现位于此）
+  - [src/semantic_detection](src/semantic_detection)
+  - [src/fact_checking](src/fact_checking)
+  - [src/logic_consistency](src/logic_consistency)
+- [tests/](tests): 简单的运行/功能测试（含 `torch` 测试）
+
+主要模块
+
+- semantic_detection: 语义、用词与标点检测
+- fact_checking: 参考文献检索与真伪比对（RAG）
+- logic_consistency: 长文本前后逻辑一致性检查
+
+快速开始
+
+1. 使用 `uv` 创建虚拟环境（推荐）：
+
+```powershell
+uv venv
+```
+
+1. 安装必要依赖（示例）：
+
+```powershell
+uv add torch fastapi langgraph
+```
+
+说明：`milvus` 在 Windows 上可能没有可用 wheel，安装可能会因平台不匹配失败；遇到错误可参考下文说明。
+
+快速 AI 审查（默认模式，FastAPI + uvicorn）
+
+- 启动：`uv run main.py`（默认 0.0.0.0:8000，自动使用 env `PARSER_GRPC_ADDR` 或 127.0.0.1:52051 连接 parser-rs）
+- 通过 curl 上传 docx：
+
+```powershell
+curl -X POST "http://127.0.0.1:8000/audit" -F "file=@E:\github\ai-auditor-core\data\input\18通信2_1800301208_李良循\18通信2_李良循_毕业论文.docx"
+```
+
+- 或直接传已存在的文件路径（无需上传）：
+
+```powershell
+curl -X POST "http://127.0.0.1:8000/audit?file_path=E:\github\ai-auditor-core\data\input\18通信2_1800301208_李良循\18通信2_李良循_毕业论文.docx"
+```
+
+批处理模式（依赖 parser-rs gRPC）
+
+- 仅处理 data/input 目录下文件名以 “毕业论文.docx” 结尾的文档，并输出到 data/output，保持原有子目录结构。
+- 确保 parser-rs 已在 52051 端口（或自定义端口）运行 gRPC 服务：`cargo run --bin parser_rs --features with-proto`。
+- 运行批处理：
+
+```powershell
+uv run main.py --mode batch --parser-addr 127.0.0.1:52051 --input-root ../../data/input --output-root ../../data/output
+```
+
+gRPC 服务模式
+
+```powershell
+uv run main.py --mode grpc --host 0.0.0.0 --port 50051
+```
+
+## 配置说明
+
+本项目使用 `.env` 文件管理配置。请复制 `.env.example` 文件并重命名为 `.env`，然后填入您的配置信息：
+
+```bash
+cp .env.example .env
+```
+
+需要配置的主要参数包括：
+
+- `DASHSCOPE_API_KEY`: 通义千问API密钥（必填）
+- `HOST`: 服务器主机地址（默认: 127.0.0.1）
+- `PORT`: 服务器端口（默认: 50051）
+- `MILVUS_HOST`: Milvus数据库主机地址（可选）
+- `MILVUS_PORT`: Milvus数据库端口（可选）
+- `MODEL_NAME`: 使用的模型名称（默认: qwen-max）
+- `WINDOW_SIZE`: 滑动窗口大小（默认: 3）
+- `DEBUG`: 是否开启调试模式（默认: false）
+
+运行测试
+
+- 直接运行（不通过 `uv`）：
+
+```powershell
+python tests/torch_test.py
+```
+
+- 通过 `uv` 运行（当使用 `uv` 管理虚拟环境与依赖时）：
+
+```powershell
+uv run ./tests/torch_test.py
+```
+
+设备选择（GPU/CPU）
+
+- 命令行覆盖：
+
+```powershell
+uv run ./tests/torch_test.py -- --device cuda:0
+```
+
+- 环境变量覆盖：
+
+```powershell
+set TORCH_DEVICE=cuda:0
+uv run ./tests/torch_test.py
+```
+
+如果不指定设备，脚本会在运行时优先选择可用的 CUDA（GPU），否则回退到 CPU。

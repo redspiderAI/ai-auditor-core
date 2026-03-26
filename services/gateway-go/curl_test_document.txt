@@ -1,0 +1,5 @@
+# 测试文档内容
+This is a test document for academic auditing.
+It contains some intentional formatting issues.
+For example, incorrect citation style [1].
+Another paragraph with potential issues.

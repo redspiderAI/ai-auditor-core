@@ -1,0 +1,40 @@
+# Build artifacts
+/gateway-go
+/gateway-go.exe
+/bin/
+/*.out
+/*.test
+/coverage.out
+/coverage-*.out
+*.prof
+*.exe
+
+# Scripts
+*.ps1
+*.bat
+
+# Vendored deps
+/vendor/
+
+# Local env/config
+.env
+.env.local
+.env.*.local
+.envrc
+!.env.example
+
+# Logs & temp
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+/tmp/
+/temp/
+/.cache/
+
+# Editor/OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
