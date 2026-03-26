@@ -17,5 +17,5 @@ Thumbs.db
 # Maven local repo (don't include huge .m2 cached jars)
 .m2/
 
-# output
-src/test/resources/data/audit_results_final.json
+# Output (test data)
+src/test/resources/data/
