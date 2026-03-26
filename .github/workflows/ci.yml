@@ -1,0 +1,63 @@
+name: CI-Build-Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  # 成员 A: Rust 检查 (语法、性能、安全性)
+  rust-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust Check
+        run: |
+          cd services/parser-rs
+          cargo check --release
+
+  # 成员 B: Java 检查 (规则逻辑、依赖扫描)
+  java-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build with Maven
+        run: |
+          cd services/engine-java
+          mvn clean test
+
+  # 成员 C: Python 检查 (AI 模型接口、格式审查)
+  python-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Python Lint
+        run: |
+          cd services/inference-py
+          uv venv
+          uv sync --extra dev
+          uv run --extra dev ruff check .
+
+  # 成员 D: Go 检查 (网关逻辑、并发安全)
+  go-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: services/gateway-go/go.sum
+      - name: Build Gateway
+        run: |
+          cd services/gateway-go
+          go build -v ./...
