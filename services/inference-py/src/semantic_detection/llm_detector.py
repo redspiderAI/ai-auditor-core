@@ -12,6 +12,12 @@ try:
 except ImportError:
     DASHSCOPE_AVAILABLE = False
 
+try:
+    from openai import OpenAI  # OpenAI兼容接口
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
 from ..protos.auditor_pb2 import Issue, Severity
 
 
@@ -24,49 +30,58 @@ class LLMAnalysisResult:
 
 class LLMDetector:
     """基于大语言模型的语义检测器"""
-    
-    def __init__(self, api_key: Optional[str] = None, model: str = "qwen-max"):
+
+    def __init__(self, api_key: Optional[str] = None, model: str = "qwen-max", base_url: Optional[str] = None):
         """
         初始化LLM检测器
-        
+
         Args:
-            api_key: 通义千问API密钥
-            model: 使用的模型名称，默认为qwen-max
+            api_key: API密钥（DashScope或OpenAI兼容）
+            model: 使用的模型名称
+            base_url: API基础URL（用于OpenAI兼容模式）
         """
         self.api_key = api_key
         self.model = model
-        if DASHSCOPE_AVAILABLE and api_key:
+        self.base_url = base_url
+        
+        # 判断使用哪种API模式
+        if base_url and OPENAI_AVAILABLE:
+            # 使用OpenAI兼容模式
+            self.use_openai_mode = True
+            self.client = OpenAI(api_key=api_key, base_url=base_url)
+        elif DASHSCOPE_AVAILABLE and api_key:
+            # 使用DashScope模式
+            self.use_openai_mode = False
             dashscope.api_key = api_key
+        else:
+            self.use_openai_mode = False
+            self.client = None
     
     def detect_semantic_errors(self, text: str, max_length: int = 2000) -> LLMAnalysisResult:
         """
         使用LLM检测语义错误
-        
+
         Args:
             text: 待检测的文本
             max_length: 单次请求最大长度，超过则分段处理
-            
+
         Returns:
             LLMAnalysisResult: 包含检测到的问题和原始响应
         """
-        if not DASHSCOPE_AVAILABLE:
-            # 如果没有dashscope，返回空结果
-            return LLMAnalysisResult(issues=[], raw_response="DashScope SDK not available")
-        
         if not self.api_key:
             return LLMAnalysisResult(issues=[], raw_response="API Key not provided")
-        
+
         # 如果文本太长，进行分段处理
         if len(text) > max_length:
             segments = self._split_text(text, max_length)
             all_issues = []
             all_responses = []
-            
+
             for segment in segments:
                 result = self._analyze_segment(segment)
                 all_issues.extend(result.issues)
                 all_responses.append(result.raw_response)
-            
+
             return LLMAnalysisResult(
                 issues=all_issues,
                 raw_response="\n".join(all_responses)
@@ -101,28 +116,45 @@ class LLMDetector:
     def _analyze_segment(self, text: str) -> LLMAnalysisResult:
         """分析单个文本段落"""
         prompt = self._build_prompt(text)
-        
+
         try:
-            response = dashscope.Generation.call(
-                model=self.model,
-                prompt=prompt,
-                top_p=0.8,
-                temperature=0.5,
-                max_tokens=2000,
-                result_format='json'
-            )
-            
-            if response.status_code == 200:
-                raw_response = response.output.text
+            if self.use_openai_mode and self.client:
+                # 使用OpenAI兼容模式
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.5,
+                    max_tokens=2000
+                )
                 
-                # 解析JSON响应
-                issues = self._parse_llm_response(raw_response)
+                raw_response = response.choices[0].message.content
                 
-                return LLMAnalysisResult(issues=issues, raw_response=raw_response)
+            elif not self.use_openai_mode and DASHSCOPE_AVAILABLE:
+                # 使用DashScope模式
+                response = dashscope.Generation.call(
+                    model=self.model,
+                    prompt=prompt,
+                    top_p=0.8,
+                    temperature=0.5,
+                    max_tokens=2000,
+                    result_format='json'
+                )
+
+                if response.status_code == 200:
+                    raw_response = response.output.text
+                else:
+                    # 如果API调用失败，返回空结果
+                    return LLMAnalysisResult(issues=[], raw_response=f"API Error: {response}")
             else:
-                # 如果API调用失败，返回空结果
-                return LLMAnalysisResult(issues=[], raw_response=f"API Error: {response}")
-                
+                return LLMAnalysisResult(issues=[], raw_response="No available API client")
+
+            # 解析JSON响应
+            issues = self._parse_llm_response(raw_response)
+
+            return LLMAnalysisResult(issues=issues, raw_response=raw_response)
+
         except Exception as e:
             return LLMAnalysisResult(issues=[], raw_response=f"Exception: {str(e)}")
     

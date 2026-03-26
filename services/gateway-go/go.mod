@@ -10,8 +10,11 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/go-redis/v9 v9.18.0
+	github.com/redspiderAI/ai-auditor-core/shared/protos v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.57.0
 )
+
+replace github.com/redspiderAI/ai-auditor-core/shared/protos => ./../../shared/protos
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

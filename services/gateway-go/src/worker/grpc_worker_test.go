@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
+	auditorpb "github.com/redspiderAI/ai-auditor-core/shared/protos"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/workflow"
 )
@@ -23,15 +23,15 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 	}
 	// 默认返回成功结果
 	return &workflow.TaskResult{
-		ParseResult: &auditor.ParsedData{
+		ParseResult: &auditorpb.ParsedData{
 			DocId: "mock-doc-id",
-			Metadata: &auditor.DocumentMetadata{
+			Metadata: &auditorpb.DocumentMetadata{
 				Title:        "Mock Document Title",
 				PageCount:    10,
 				MarginTop:    1.0,
 				MarginBottom: 1.0,
 			},
-			Sections: []*auditor.Section{
+			Sections: []*auditorpb.Section{
 				{
 					SectionId: 1,
 					Type:      "heading",
@@ -47,7 +47,7 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 					Props:     map[string]string{"font": "SimSun", "size": "12pt"},
 				},
 			},
-			References: []*auditor.Reference{
+			References: []*auditorpb.Reference{
 				{
 					RefId:         "[1]",
 					RawText:       "[1] Sample reference",
@@ -55,26 +55,26 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 				},
 			},
 		},
-		AuditResult: &auditor.AuditResponse{
-			Issues: []*auditor.Issue{
+		AuditResult: &auditorpb.AuditResponse{
+			Issues: []*auditorpb.Issue{
 				{
 					Code:            "ERR_FONT_001",
 					Message:         "Incorrect font used in section",
 					SectionId:       1,
-					Severity:        auditor.Severity_MEDIUM,
+					Severity:        auditorpb.Severity_MEDIUM,
 					Suggestion:      "Use SimSun font",
 					OriginalSnippet: "Introduction",
 				},
 			},
 			ScoreImpact: 5.0,
 		},
-		SemanticResult: &auditor.AuditResponse{
-			Issues: []*auditor.Issue{
+		SemanticResult: &auditorpb.AuditResponse{
+			Issues: []*auditorpb.Issue{
 				{
 					Code:            "SEM_ERR_001",
 					Message:         "Potential grammatical error detected",
 					SectionId:       2,
-					Severity:        auditor.Severity_LOW,
+					Severity:        auditorpb.Severity_LOW,
 					Suggestion:      "Consider revising the sentence structure",
 					OriginalSnippet: "This is a sample paragraph.",
 				},
@@ -84,7 +84,7 @@ func (m *MockOrchestrator) Process(ctx context.Context, filePath string) (*workf
 	}, nil
 }
 
-func (m *MockOrchestrator) AggregateResults(auditResult *auditor.AuditResponse, semanticResult *auditor.AuditResponse) *auditor.AuditResponse {
+func (m *MockOrchestrator) AggregateResults(auditResult *auditorpb.AuditResponse, semanticResult *auditorpb.AuditResponse) *auditorpb.AuditResponse {
 	// 使用真实的聚合逻辑
 	o := &workflow.Orchestrator{}
 	return o.AggregateResults(auditResult, semanticResult)
@@ -124,12 +124,12 @@ func TestGenerateOutputs(t *testing.T) {
 	tempManager := tempmanager.NewTempFileManager(tmpDir)
 
 	// 准备测试数据
-	issues := []*auditor.Issue{
+	issues := []*auditorpb.Issue{
 		{
 			Code:            "ERR_TEST_001",
 			Message:         "Test error message",
 			SectionId:       1,
-			Severity:        auditor.Severity_MEDIUM,
+			Severity:        auditorpb.Severity_MEDIUM,
 			Suggestion:      "Test suggestion",
 			OriginalSnippet: "Test snippet",
 		},
@@ -206,37 +206,37 @@ func TestOrchestratorIntegration(t *testing.T) {
 	o := workflow.NewOrchestrator("parser:52051", "engine:9191", "inference:50051")
 
 	// 测试聚合功能
-	auditResult := &auditor.AuditResponse{
-		Issues: []*auditor.Issue{
+	auditResult := &auditorpb.AuditResponse{
+		Issues: []*auditorpb.Issue{
 			{
 				Code:      "ERR_DUPLICATE",
 				Message:   "Duplicate error from audit",
 				SectionId: 1,
-				Severity:  auditor.Severity_MEDIUM,
+				Severity:  auditorpb.Severity_MEDIUM,
 			},
 			{
 				Code:      "ERR_UNIQUE_AUDIT",
 				Message:   "Unique error from audit",
 				SectionId: 2,
-				Severity:  auditor.Severity_HIGH,
+				Severity:  auditorpb.Severity_HIGH,
 			},
 		},
 		ScoreImpact: 5.0,
 	}
 
-	semanticResult := &auditor.AuditResponse{
-		Issues: []*auditor.Issue{
+	semanticResult := &auditorpb.AuditResponse{
+		Issues: []*auditorpb.Issue{
 			{
 				Code:      "ERR_DUPLICATE",
 				Message:   "Duplicate error from semantic",
 				SectionId: 1,
-				Severity:  auditor.Severity_HIGH, // 更高的严重性
+				Severity:  auditorpb.Severity_HIGH, // 更高的严重性
 			},
 			{
 				Code:      "ERR_UNIQUE_SEMANTIC",
 				Message:   "Unique error from semantic",
 				SectionId: 3,
-				Severity:  auditor.Severity_LOW,
+				Severity:  auditorpb.Severity_LOW,
 			},
 		},
 		ScoreImpact: 3.0,
@@ -265,7 +265,7 @@ func getenvDefault(key, def string) string {
 }
 
 // 为了测试目的，简化generateOutputs函数
-func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
+func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditorpb.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
 	if annotatedPath == "" {
 		annotatedPath = sourcePath + "-annotated.docx"
 	}

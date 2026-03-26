@@ -13,18 +13,19 @@ import (
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/report"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
 )
 
 // Worker simulates processing (parse -> audit -> report -> annotate).
-func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFileManager, notificationSvc *notification.NotificationService) {
+func Worker(tasks <-chan string, s store.TaskStore, tempManager *tempmanager.TempFileManager, notificationSvc *notification.NotificationService) {
 	for id := range tasks {
 		// Update task status to parsing
-		if ok := s.UpdateTask(id, func(t *store.Task) {
+		if err := s.Update(id, func(t *store.Task) {
 			t.Status = store.Parsing
 			t.Progress = 10
-		}); !ok {
+		}); err != nil {
 			continue
 		}
 
@@ -37,7 +38,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		time.Sleep(1 * time.Second)
 
 		// Update task status to auditing
-		_ = s.UpdateTask(id, func(t *store.Task) {
+		_ = s.Update(id, func(t *store.Task) {
 			t.Status = store.Auditing
 			t.Progress = 40
 		})
@@ -50,7 +51,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		// Simulate audit phase - process with members B and C
 		for p := 50; p <= 90; p += 10 {
 			time.Sleep(800 * time.Millisecond)
-			_ = s.UpdateTask(id, func(t *store.Task) { t.Progress = p })
+			_ = s.Update(id, func(t *store.Task) { t.Progress = p })
 
 			// Send progress notification
 			if notificationSvc != nil {
@@ -68,20 +69,22 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		semanticIssues := simulateSemanticAnalysis(parsedData)
 
 		annotated := filepath.Join(tempManager.TempDir, id+"-annotated.docx")
-		report := filepath.Join(tempManager.TempDir, id+"-report.json")
+		reportPath := filepath.Join(tempManager.TempDir, id+"-report.json")
+		pdfReport := filepath.Join(tempManager.TempDir, id+"-report.pdf")
 
-		if t, ok := s.GetTask(id); ok {
+		if t, ok := s.Get(id); ok {
 			_ = copyFile(t.SourcePath, annotated)
 			// Track the generated files
 			tempManager.TrackFile(annotated)
-			tempManager.TrackFile(report)
+			tempManager.TrackFile(reportPath)
+			tempManager.TrackFile(pdfReport)
 		}
 
 		// Combine results from both modules
 		allIssues := append(ruleIssues, semanticIssues...)
 
 		// Generate detailed report according to protocol
-		_ = store.WriteReport(report, map[string]any{
+		_ = store.WriteReport(reportPath, map[string]any{
 			"task_id":      id,
 			"status":       "completed",
 			"generated_at": time.Now().Format(time.RFC3339),
@@ -96,9 +99,34 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 			"total_score":     calculateTotalScore(allIssues),
 		})
 
-		_ = s.UpdateTask(id, func(t *store.Task) {
+		// Generate PDF report
+		pdfGen := report.NewPDFGenerator()
+		complianceReport := &report.ComplianceReport{
+			TaskID:      id,
+			Status:      "completed",
+			GeneratedAt: time.Now().Format(time.RFC3339),
+			DocumentInfo: map[string]interface{}{
+				"title":      parsedData.Metadata.Title,
+				"page_count": parsedData.Metadata.PageCount,
+				"file_size":  1234,
+			},
+			Issues:         convertIssuesToProtocol(allIssues),
+			IssueSummary:   generateIssueSummary(allIssues),
+			ComplianceRate: calculateComplianceRate(allIssues),
+			TotalScore:     calculateTotalScore(allIssues),
+		}
+		err := pdfGen.GeneratePDFReport(complianceReport, pdfReport)
+		if err != nil {
+			log.Printf("Warning: failed to generate PDF report for task %s: %v", id, err)
+		} else {
+			// If PDF generation succeeds, track the file
+			tempManager.TrackFile(pdfReport)
+		}
+
+		_ = s.Update(id, func(t *store.Task) {
 			t.AnnotatedPath = annotated
-			t.ReportPath = report
+			t.ReportPath = reportPath
+			t.PDFReportPath = pdfReport
 			t.Status = store.Completed
 			t.Progress = 100
 		})
@@ -107,7 +135,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		if notificationSvc != nil {
 			notificationSvc.NotifyTaskCompletion(id)
 		}
-		if t, ok := s.GetTask(id); ok {
+		if t, ok := s.Get(id); ok {
 			triggerWebhookLocal(id, t.CallbackURL, store.Completed, 100, "Task completed")
 		}
 	}

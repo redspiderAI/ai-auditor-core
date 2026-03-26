@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r>
+        <w:t>这是一篇测试文档，用于验证应急模式的功能。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>在研究过层中，我们发现了一些问题。</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>由于这个实验结果非常的好，所以我们打算继续研究。</w:t>
+      </w:r>
+    </w:p>
+  </w:body>
+</w:document>

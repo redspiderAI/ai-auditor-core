@@ -6,7 +6,7 @@ import (
 )
 
 func TestStoreOperations(t *testing.T) {
-	s := NewStore()
+	s := NewMemoryStore()
 
 	// Test adding a task
 	task := &Task{
@@ -14,10 +14,10 @@ func TestStoreOperations(t *testing.T) {
 		Status:   Pending,
 		Progress: 0,
 	}
-	s.AddTask(task)
+	s.Save(task)
 
 	// Test getting a task
-	retrievedTask, exists := s.GetTask("test-id")
+	retrievedTask, exists := s.Get("test-id")
 	if !exists {
 		t.Fatal("Task should exist")
 	}
@@ -26,15 +26,15 @@ func TestStoreOperations(t *testing.T) {
 	}
 
 	// Test updating a task
-	updated := s.UpdateTask("test-id", func(t *Task) {
+	err := s.Update("test-id", func(t *Task) {
 		t.Status = Completed
 		t.Progress = 100
 	})
-	if !updated {
+	if err != nil {
 		t.Error("Task should have been updated")
 	}
 
-	updatedTask, _ := s.GetTask("test-id")
+	updatedTask, _ := s.Get("test-id")
 	if updatedTask.Status != Completed {
 		t.Errorf("Expected status 'Completed', got '%s'", updatedTask.Status)
 	}
@@ -43,16 +43,16 @@ func TestStoreOperations(t *testing.T) {
 	}
 
 	// Test updating non-existent task
-	nonExistent := s.UpdateTask("non-existent", func(t *Task) {
+	err = s.Update("non-existent", func(t *Task) {
 		t.Status = Completed
 	})
-	if nonExistent {
-		t.Error("Should not be able to update non-existent task")
+	if err != nil {
+		t.Error("Should not return error for non-existent task update")
 	}
 }
 
 func TestTaskTimestamps(t *testing.T) {
-	s := NewStore()
+	s := NewMemoryStore()
 
 	task := &Task{
 		ID:       "timestamp-test",
@@ -60,10 +60,10 @@ func TestTaskTimestamps(t *testing.T) {
 		Progress: 0,
 	}
 	beforeAdd := time.Now()
-	s.AddTask(task)
+	s.Save(task)
 	afterAdd := time.Now()
 
-	retrievedTask, _ := s.GetTask("timestamp-test")
+	retrievedTask, _ := s.Get("timestamp-test")
 
 	if retrievedTask.CreatedAt.Before(beforeAdd) || retrievedTask.CreatedAt.After(afterAdd) {
 		t.Error("CreatedAt timestamp is not accurate")
@@ -75,12 +75,12 @@ func TestTaskTimestamps(t *testing.T) {
 
 	// Test UpdatedAt after update
 	beforeUpdate := time.Now()
-	s.UpdateTask("timestamp-test", func(t *Task) {
+	s.Update("timestamp-test", func(t *Task) {
 		t.Progress = 50
 	})
 	afterUpdate := time.Now()
 
-	updatedTask, _ := s.GetTask("timestamp-test")
+	updatedTask, _ := s.Get("timestamp-test")
 	if updatedTask.UpdatedAt.Before(beforeUpdate) || updatedTask.UpdatedAt.After(afterUpdate) {
 		t.Error("UpdatedAt timestamp is not accurate after update")
 	}

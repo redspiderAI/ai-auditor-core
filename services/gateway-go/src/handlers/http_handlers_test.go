@@ -32,7 +32,7 @@ func TestUploadAndStatusHandlers(t *testing.T) {
 	t.Cleanup(func() { _ = os.Chdir(oldWD) })
 
 	e := echo.New()
-	s := store.NewStore()
+	s := store.NewMemoryStore()
 	taskQueue := queue.NewInMemoryQueue(1)
 
 	// build multipart form with a dummy file
@@ -71,7 +71,7 @@ func TestUploadAndStatusHandlers(t *testing.T) {
 	}
 
 	// task should be stored
-	if _, ok := s.GetTask(id); !ok {
+	if _, ok := s.Get(id); !ok {
 		t.Fatalf("task not stored")
 	}
 

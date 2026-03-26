@@ -12,6 +12,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/config"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/handlers"
@@ -37,7 +38,34 @@ func main() {
 		e.Use(m)
 	}
 
-	s := store.NewStore()
+	// 根据配置选择存储实现
+	var taskStore store.TaskStore
+	
+	switch cfg.StorageType {
+	case "redis":
+		if cfg.RedisAddr != "" {
+			redisClient := redis.NewClient(&redis.Options{
+				Addr: cfg.RedisAddr,
+			})
+			
+			// 测试连接
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if err := redisClient.Ping(ctx).Err(); err != nil {
+				log.Printf("Redis connection failed: %v, falling back to memory store", err)
+				taskStore = store.NewMemoryStore()
+			} else {
+				taskStore = store.NewRedisStore(redisClient, time.Duration(cfg.TaskTTLHours)*time.Hour)
+				log.Printf("Using Redis store with TTL: %d hours", cfg.TaskTTLHours)
+			}
+		} else {
+			log.Println("Redis address not configured, using memory store")
+			taskStore = store.NewMemoryStore()
+		}
+	default:
+		taskStore = store.NewMemoryStore()
+		log.Println("Using memory store")
+	}
 
 	// Select queue implementation (Redis Streams preferred, fall back to memory)
 	var taskQueue queue.TaskQueue
@@ -107,11 +135,11 @@ func main() {
 	})
 
 	// Routes
-	e.POST("/api/v1/audit", handlers.UploadHandler(s, taskQueue, tempManager))
-	e.POST("/api/v1/batch-audit", handlers.BatchUploadHandler(s, taskQueue, tempManager)) // 新增批量审核接口
-	e.GET("/api/v1/tasks/:id", handlers.StatusHandler(s))
-	e.GET("/api/v1/report/:id", handlers.ReportHandler(s))
-	e.GET("/api/v1/download/:id", handlers.DownloadHandler(s, tempManager))
+	e.POST("/api/v1/audit", handlers.UploadHandler(taskStore, taskQueue, tempManager))
+	e.POST("/api/v1/batch-audit", handlers.BatchUploadHandler(taskStore, taskQueue, tempManager)) // 新增批量审核接口
+	e.GET("/api/v1/tasks/:id", handlers.StatusHandler(taskStore))
+	e.GET("/api/v1/report/:id", handlers.ReportHandler(taskStore))
+	e.GET("/api/v1/download/:id", handlers.DownloadHandler(taskStore, tempManager))
 
 	// WebSocket route for real-time notifications
 	e.GET("/ws/task/:id", func(c echo.Context) error {
@@ -131,7 +159,7 @@ func main() {
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	// Start worker
-	go worker.Worker(tasks, s, tempManager, notificationSvc)
+	go worker.Worker(tasks, taskStore, tempManager, notificationSvc)
 
 	log.Printf("gateway-go starting on :%s", cfg.ServerPort)
 	if err := e.Start("0.0.0.0:" + cfg.ServerPort); err != http.ErrServerClosed {

@@ -18,6 +18,8 @@ type Config struct {
 	RedisGroup            string
 	RedisConsumer         string
 	WebhookTimeoutSeconds int
+	StorageType           string
+	TaskTTLHours          int
 }
 
 // LoadConfig loads configuration from environment variables or uses defaults
@@ -34,6 +36,8 @@ func LoadConfig() *Config {
 		RedisGroup:            getEnvOrDefault("REDIS_GROUP", "gateway_group"),
 		RedisConsumer:         getEnvOrDefault("REDIS_CONSUMER", "gateway_consumer"),
 		WebhookTimeoutSeconds: getIntEnvOrDefault("WEBHOOK_TIMEOUT_SECONDS", 5),
+		StorageType:           getEnvOrDefault("STORAGE_TYPE", "memory"), // 默认使用内存存储
+		TaskTTLHours:          getIntEnvOrDefault("TASK_TTL_HOURS", 24),  // 默认24小时
 	}
 
 	return config

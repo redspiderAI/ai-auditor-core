@@ -20,8 +20,15 @@ COPY . .
 # 构建应用
 RUN CGO_ENABLED=0 GOOS=linux go build -o gateway .
 
-# 使用 distroless 运行时镜像，减少攻击面
-FROM gcr.io/distroless/static-debian12:nonroot
+# 使用 Alpine 作为运行时镜像
+FROM alpine:latest
+
+# 安装 ca-certificates 包以支持 HTTPS
+RUN apk --no-cache add ca-certificates
+
+# 创建非root用户
+RUN addgroup -g 65532 nonroot &&\
+    adduser -D -u 65532 -G nonroot nonroot
 
 # 设置工作目录
 WORKDIR /app
@@ -29,7 +36,10 @@ WORKDIR /app
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/gateway /app/gateway
 
-# 切换到非root用户（镜像已预置 nonroot 用户）
+# 更改文件权限给非root用户
+RUN chown -R nonroot:nonroot /app
+
+# 切换到非root用户
 USER nonroot
 
 # 暴露端口

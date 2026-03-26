@@ -34,7 +34,12 @@ func SendWebhook(ctx context.Context, url string, payload WebhookPayload, timeou
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{Timeout: timeout}
+	client := &http.Client{
+		Timeout: timeout,
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment, // 使用环境变量中的代理设置
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

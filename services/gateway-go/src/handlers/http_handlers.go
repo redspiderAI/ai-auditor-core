@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,7 +22,7 @@ import (
 )
 
 // UploadHandler handles file uploads and enqueues tasks.
-func UploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+func UploadHandler(s store.TaskStore, taskQueue queue.TaskQueue, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		f, err := c.FormFile("file")
 		if err != nil {
@@ -51,7 +53,19 @@ func UploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *tempm
 		tempManager.TrackFile(dstPath)
 
 		callbackURL := c.FormValue("callback_url")
-		s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath, CallbackURL: callbackURL})
+		task := &store.Task{
+			ID:          id,
+			Status:      store.Pending,
+			Progress:    0,
+			SourcePath:  dstPath,
+			CallbackURL: callbackURL,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		}
+		
+		if err := s.Save(task); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to save task"})
+		}
 
 		if err := taskQueue.Enqueue(c.Request().Context(), id); err != nil {
 			return c.JSON(http.StatusServiceUnavailable, map[string]string{"error": "queue unavailable", "detail": err.Error()})
@@ -62,10 +76,10 @@ func UploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *tempm
 }
 
 // StatusHandler returns task status.
-func StatusHandler(s *store.Store) echo.HandlerFunc {
+func StatusHandler(s store.TaskStore) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
-		t, ok := s.GetTask(id)
+		t, ok := s.Get(id)
 		if !ok {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "task not found"})
 		}
@@ -74,10 +88,10 @@ func StatusHandler(s *store.Store) echo.HandlerFunc {
 }
 
 // ReportHandler returns the JSON report if available.
-func ReportHandler(s *store.Store) echo.HandlerFunc {
+func ReportHandler(s store.TaskStore) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
-		t, ok := s.GetTask(id)
+		t, ok := s.Get(id)
 		if !ok {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "task not found"})
 		}
@@ -100,11 +114,11 @@ func ReportHandler(s *store.Store) echo.HandlerFunc {
 	}
 }
 
-// DownloadHandler serves a ZIP archive containing the annotated docx and report.
-func DownloadHandler(s *store.Store, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+// DownloadHandler serves a ZIP archive containing the annotated docx, PDF report, and JSON report.
+func DownloadHandler(s store.TaskStore, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
-		t, ok := s.GetTask(id)
+		t, ok := s.Get(id)
 		if !ok {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "task not found"})
 		}
@@ -118,33 +132,87 @@ func DownloadHandler(s *store.Store, tempManager *tempmanager.TempFileManager) e
 		defer zipWriter.Close()
 
 		// Add annotated document to ZIP if it exists
-		if t.AnnotatedPath != "" {
+		if t.AnnotatedPath != "" && fileExists(t.AnnotatedPath) {
 			file, err := os.Open(t.AnnotatedPath)
 			if err == nil {
 				defer file.Close()
 
 				writer, err := zipWriter.Create("annotated.docx")
 				if err == nil {
-					io.Copy(writer, file)
+					_, err := io.Copy(writer, file)
+					if err != nil {
+						log.Printf("Error copying annotated.docx to zip: %v", err)
+					}
 				}
+			} else {
+				log.Printf("Error opening annotated file %s: %v", t.AnnotatedPath, err)
 			}
 		}
 
-		// Add report to ZIP if it exists
-		if t.ReportPath != "" {
+		// Add JSON report to ZIP if it exists
+		if t.ReportPath != "" && fileExists(t.ReportPath) {
 			file, err := os.Open(t.ReportPath)
 			if err == nil {
 				defer file.Close()
 
 				writer, err := zipWriter.Create("report.json")
 				if err == nil {
-					io.Copy(writer, file)
+					_, err := io.Copy(writer, file)
+					if err != nil {
+						log.Printf("Error copying report.json to zip: %v", err)
+					}
 				}
+			} else {
+				log.Printf("Error opening report file %s: %v", t.ReportPath, err)
+			}
+		}
+
+		// Add PDF report to ZIP if it exists
+		if t.PDFReportPath != "" && fileExists(t.PDFReportPath) {
+			// Use the PDF report path stored in the task
+			file, err := os.Open(t.PDFReportPath)
+			if err == nil {
+				defer file.Close()
+
+				writer, err := zipWriter.Create("report.pdf")
+				if err == nil {
+					_, err := io.Copy(writer, file)
+					if err != nil {
+						log.Printf("Error copying report.pdf to zip: %v", err)
+					}
+				}
+			} else {
+				log.Printf("Error opening PDF report file %s: %v", t.PDFReportPath, err)
+			}
+		} else if t.ReportPath != "" {
+			// Fallback: derive PDF path from JSON report path
+			pdfReportPath := strings.TrimSuffix(t.ReportPath, ".json") + ".pdf"
+			if fileExists(pdfReportPath) {
+				// PDF exists, add it to the ZIP
+				file, err := os.Open(pdfReportPath)
+				if err == nil {
+					defer file.Close()
+
+					writer, err := zipWriter.Create("report.pdf")
+					if err == nil {
+						_, err := io.Copy(writer, file)
+						if err != nil {
+							log.Printf("Error copying report.pdf to zip: %v", err)
+						}
+					}
+				} else {
+					log.Printf("Error opening PDF report file %s: %v", pdfReportPath, err)
+				}
+			} else {
+				log.Printf("PDF report file does not exist: %s", pdfReportPath)
 			}
 		}
 
 		// Close the zip writer to finalize the archive
-		zipWriter.Close()
+		if err := zipWriter.Close(); err != nil {
+			log.Printf("Error closing zip writer: %v", err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to create zip archive"})
+		}
 
 		// Clean up temp files after download
 		defer func() {
@@ -162,8 +230,14 @@ func DownloadHandler(s *store.Store, tempManager *tempmanager.TempFileManager) e
 	}
 }
 
+// Helper function to check if a file exists
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil
+}
+
 // BatchUploadHandler handles batch file uploads and enqueues tasks.
-func BatchUploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
+func BatchUploadHandler(s store.TaskStore, taskQueue queue.TaskQueue, tempManager *tempmanager.TempFileManager) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		form, err := c.MultipartForm()
 		if err != nil {
@@ -223,7 +297,25 @@ func BatchUploadHandler(s *store.Store, taskQueue queue.TaskQueue, tempManager *
 			// Track the uploaded file
 			tempManager.TrackFile(dstPath)
 
-			s.AddTask(&store.Task{ID: id, Status: store.Pending, Progress: 0, SourcePath: dstPath, CallbackURL: callbackURL})
+			task := &store.Task{
+				ID:          id,
+				Status:      store.Pending,
+				Progress:    0,
+				SourcePath:  dstPath,
+				CallbackURL: callbackURL,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			}
+			
+			if err := s.Save(task); err != nil {
+				results = append(results, map[string]interface{}{
+					"filename": fileHeader.Filename,
+					"success":  false,
+					"error":    "failed to save task",
+				})
+				continue
+			}
+			
 			if err := taskQueue.Enqueue(c.Request().Context(), id); err != nil {
 				results = append(results, map[string]interface{}{
 					"filename": fileHeader.Filename,

@@ -1,0 +1,84 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: ai-auditor-workflow-
+spec:
+  entrypoint: audit-document
+  templates:
+  - name: audit-document
+    dag:
+      tasks:
+      - name: parse-document
+        template: rust-parser
+        arguments:
+          parameters:
+          - name: document-path
+            value: "{{workflow.parameters.document-path}}"
+      
+      - name: rule-audit
+        template: java-engine
+        dependencies: [parse-document]
+        arguments:
+          parameters:
+          - name: parsed-data
+            value: "{{tasks.parse-document.outputs.result}}"
+      
+      - name: semantic-analysis
+        template: python-inference
+        dependencies: [parse-document]
+        arguments:
+          parameters:
+          - name: parsed-data
+            value: "{{tasks.parse-document.outputs.result}}"
+      
+      - name: aggregate-results
+        template: result-aggregator
+        dependencies: [rule-audit, semantic-analysis]
+        arguments:
+          parameters:
+          - name: rule-result
+            value: "{{tasks.rule-audit.outputs.result}}"
+          - name: semantic-result
+            value: "{{tasks.semantic-analysis.outputs.result}}"
+
+  - name: rust-parser
+    inputs:
+      parameters:
+      - name: document-path
+    container:
+      image: ai-auditor/parser-rs:latest
+      command: ["/bin/sh", "-c"]
+      args: ["parse {{inputs.parameters.document-path}}"]
+
+  - name: java-engine
+    inputs:
+      parameters:
+      - name: parsed-data
+    container:
+      image: ai-auditor/engine-java:latest
+      command: ["/bin/sh", "-c"]
+      args: ["audit '{{inputs.parameters.parsed-data}}'"]
+
+  - name: python-inference
+    inputs:
+      parameters:
+      - name: parsed-data
+    container:
+      image: ai-auditor/inference-py:latest
+      command: ["/bin/sh", "-c"]
+      args: ["analyze '{{inputs.parameters.parsed-data}}'"]
+
+  - name: result-aggregator
+    inputs:
+      parameters:
+      - name: rule-result
+      - name: semantic-result
+    container:
+      image: ai-auditor/gateway-go:latest
+      command: ["/bin/sh", "-c"]
+      args: ["aggregate '{{inputs.parameters.rule-result}}' '{{inputs.parameters.semantic-result}}'"]
+
+  arguments:
+    parameters:
+    - name: document-path
+      value: "/tmp/document.pdf"

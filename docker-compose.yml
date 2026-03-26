@@ -11,16 +11,16 @@ services:
       - RUST_PARSER_ADDR=parser-rs:52051
       - JAVA_ENGINE_ADDR=engine-java:9191
       - PY_INFERENCE_ADDR=inference-py:8123
-      - EMERGENCY_MODE=true
+      - EMERGENCY_MODE=true  # 启用应急模式
       - QUICK_AUDIT_URL=http://inference-py:8123/v1/quick-audit
       - REDIS_ADDR=redis:6379
       - REDIS_STREAM=audit_tasks
       - REDIS_GROUP=gateway_group
       - REDIS_CONSUMER=gateway_consumer
     depends_on:
-      parser-rs:
-        condition: service_healthy
       redis:
+        condition: service_started
+      inference-py:
         condition: service_started
     networks:
       - audit-network
@@ -37,7 +37,7 @@ services:
     networks:
       - audit-network
 
-  # 成员 A: Rust 高性能解析模块
+  # 成员 A: Rust 高性能解析模块 (应急模式下可选)
   parser-rs:
     build: ./services/parser-rs
     container_name: audit-parser
@@ -50,8 +50,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    profiles: ["normal"]  # 只在正常模式下启动
 
-  # 成员 B: Java 业务规则引擎
+  # 成员 B: Java 业务规则引擎 (应急模式下可选)
   engine-java:
     build: ./services/engine-java
     container_name: audit-engine
@@ -61,6 +62,7 @@ services:
       - audit-network
     depends_on:
       - parser-rs
+    profiles: ["normal"]  # 只在正常模式下启动
 
   # 成员 C: Python Qwen 模型推理中台
   inference-py:

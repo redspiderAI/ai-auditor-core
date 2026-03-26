@@ -14,21 +14,27 @@ import (
 	"time"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/adapter"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
+	auditorpb "github.com/redspiderAI/ai-auditor-core/shared/protos"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/report"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/utils"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/workflow"
 )
 
 // WorkerGRPC replaces the simulated worker when built with `-tags grpc`.
-func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFileManager, notificationSvc *notification.NotificationService) {
+func Worker(tasks <-chan string, s store.TaskStore, tempManager *tempmanager.TempFileManager, notificationSvc *notification.NotificationService) {
 	parserAddr := getenvDefault("RUST_PARSER_ADDR", "parser-rs:52051")
 	engineAddr := getenvDefault("JAVA_ENGINE_ADDR", "engine-java:9191")
 	inferenceAddr := getenvDefault("PY_INFERENCE_ADDR", "inference-py:50051")
 	emergencyMode := strings.EqualFold(os.Getenv("EMERGENCY_MODE"), "true")
-	quickAuditURL := getenvDefault("QUICK_AUDIT_URL", "http://inference-py:8123/v1/quick-audit")
+	quickAuditURL := getenvDefault("QUICK_AUDIT_URL", "http://localhost:8123/v1/quick-audit")
+
+	// Debug logging
+	log.Printf("EMERGENCY_MODE: %s", os.Getenv("EMERGENCY_MODE"))
+	log.Printf("emergencyMode flag: %t", emergencyMode)
+	log.Printf("quickAuditURL: %s", quickAuditURL)
 
 	for id := range tasks {
 		t, ok := s.GetTask(id)
@@ -37,10 +43,10 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		}
 
 		// Update task status to parsing
-		if ok := s.UpdateTask(id, func(t *store.Task) {
+		if err := s.Update(id, func(t *store.Task) {
 			t.Status = store.Parsing
 			t.Progress = 10
-		}); !ok {
+		}); err != nil {
 			continue
 		}
 
@@ -51,6 +57,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 
 		// 紧急模式：跳过 Rust/Java，直接访问 Python 快速审计接口
 		if emergencyMode {
+			log.Printf("Entering emergency mode for task %s, using URL: %s", id, quickAuditURL)
 			if ok := s.UpdateTask(id, func(t *store.Task) {
 				t.Status = store.Auditing
 				t.Progress = 50
@@ -73,18 +80,54 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 			}
 
 			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-			respBody, callErr := EmergencyFastTrack(ctx, quickAuditURL, filepath.Base(t.SourcePath), fileData)
+			respBody, callErr := utils.EmergencyFastTrack(ctx, quickAuditURL, filepath.Base(t.SourcePath), fileData)
 			cancel()
 			if callErr != nil {
 				log.Printf("emergency fast track error for task %s: %v", id, callErr)
-				_ = s.UpdateTask(id, func(t *store.Task) {
-					t.Status = store.Error
-					t.ErrorMsg = fmt.Sprintf("Emergency mode failed: %v", callErr)
-				})
-				if notificationSvc != nil {
-					notificationSvc.NotifyTaskError(id, fmt.Sprintf("Emergency mode failed: %v", callErr))
+				// 即使Python服务调用失败，也要确保worker继续运行
+				// 创建一个包含错误信息的报告
+				errorReport := fmt.Sprintf(`{
+					"task_id": "%s",
+					"status": "ERROR",
+					"summary": {
+						"total_issues": 0,
+						"score": 0,
+						"mode": "EMERGENCY_AI_ONLY",
+						"message": "Failed to connect to Python AI service: %s"
+					},
+					"issues": []
+				}`, id, callErr.Error())
+
+				reportPath := t.SourcePath + "-quick-report.json"
+				writeErr := os.WriteFile(reportPath, []byte(errorReport), 0o644)
+				if writeErr != nil {
+					log.Printf("cannot write error report for task %s: %v", id, writeErr)
+					_ = s.UpdateTask(id, func(t *store.Task) {
+						t.Status = store.Error
+						t.ErrorMsg = fmt.Sprintf("Write error report failed: %v", writeErr)
+					})
+					if notificationSvc != nil {
+						notificationSvc.NotifyTaskError(id, fmt.Sprintf("Write error report failed: %v", writeErr))
+					}
+					triggerWebhook(id, t.CallbackURL, store.Error, 0, fmt.Sprintf("Write error report failed: %v", writeErr))
+					continue
 				}
-				triggerWebhook(id, t.CallbackURL, store.Error, 0, fmt.Sprintf("Emergency mode failed: %v", callErr))
+
+				if tempManager != nil {
+					tempManager.TrackFile(reportPath)
+				}
+
+				_ = s.UpdateTask(id, func(t *store.Task) {
+					t.Status = store.Error  // 标记为错误状态，但仍然完成
+					t.Progress = 100
+					t.ReportPath = reportPath
+					t.ErrorMsg = fmt.Sprintf("Python service connection failed: %v", callErr)
+				})
+
+				if notificationSvc != nil {
+					notificationSvc.NotifyTaskError(id, fmt.Sprintf("Python service connection failed: %v", callErr))
+				}
+				triggerWebhook(id, t.CallbackURL, store.Error, 100, fmt.Sprintf("Python service connection failed: %v", callErr))
 				continue
 			}
 
@@ -119,6 +162,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 			continue
 		}
 
+		log.Printf("Using regular mode for task %s, not emergency mode", id)
 		// 使用新的编排器来处理审查流程
 		orchestrator := workflow.NewOrchestrator(parserAddr, engineAddr, inferenceAddr)
 
@@ -163,7 +207,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		}
 
 		// Generate outputs（如果回写成功则复用回写后的路径）
-		annotatedPath, reportPath, err := generateOutputs(id, t.SourcePath, annotatedPath, aggregatedResult.Issues, aggregatedResult.ScoreImpact, tempManager)
+		annotatedPath, reportPath, pdfReportPath, err := generateOutputs(id, t.SourcePath, annotatedPath, aggregatedResult.Issues, aggregatedResult.ScoreImpact, tempManager)
 		if err != nil {
 			log.Printf("Output generation error for task %s: %v", id, err)
 			_ = s.UpdateTask(id, func(t *store.Task) {
@@ -184,6 +228,7 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		_ = s.UpdateTask(id, func(t *store.Task) {
 			t.AnnotatedPath = annotatedPath
 			t.ReportPath = reportPath
+			t.PDFReportPath = pdfReportPath
 			t.Status = store.Completed
 			t.Progress = 100
 		})
@@ -232,7 +277,7 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, error) {
+func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditorpb.Issue, totalScoreImpact float32, tempManager *tempmanager.TempFileManager) (string, string, string, error) {
 	// Generate annotated document path
 	if annotatedPath == "" {
 		annotatedPath = sourcePath + "-annotated.docx"
@@ -247,7 +292,7 @@ func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor
 	// If annotated file does not exist (回写失败或未触发)，回退为原文复制
 	if _, statErr := os.Stat(annotatedPath); statErr != nil {
 		if err := copyFile(sourcePath, annotatedPath); err != nil {
-			return "", "", err
+			return "", "", "", err
 		}
 	}
 
@@ -262,13 +307,13 @@ func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor
 	// Generate comprehensive report using the new report generator
 	complianceReport, err := report.GenerateReportWithProtocolIssues(taskID, sourcePath, protocolIssues, totalScoreImpact)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to generate compliance report: %w", err)
+		return "", "", "", fmt.Errorf("failed to generate compliance report: %w", err)
 	}
 
 	// Save the JSON report to file
 	err = report.SaveReportToFile(complianceReport, jsonReportPath)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to save JSON report to file: %w", err)
+		return "", "", "", fmt.Errorf("failed to save JSON report to file: %w", err)
 	}
 
 	// Generate and save PDF report
@@ -277,7 +322,10 @@ func generateOutputs(taskID, sourcePath, annotatedPath string, issues []*auditor
 	if err != nil {
 		// 如果PDF生成失败，记录警告但不中断流程
 		log.Printf("Warning: failed to generate PDF report: %v", err)
+	} else {
+		// 如果PDF生成成功，也跟踪该文件
+		tempManager.TrackFile(pdfReportPath)
 	}
 
-	return annotatedPath, jsonReportPath, nil
+	return annotatedPath, jsonReportPath, pdfReportPath, nil
 }

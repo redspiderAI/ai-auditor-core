@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.14-rc-bookworm-slim
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -8,6 +8,10 @@ WORKDIR /app
 # Copy project files (copy lockfile first for better cache)
 COPY pyproject.toml uv.lock ./
 COPY . /app
+
+# Install uv and upgrade pip
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir uv
 
 # Install dependencies into a project virtual environment using uv
 RUN uv sync --locked

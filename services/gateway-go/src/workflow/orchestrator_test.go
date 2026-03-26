@@ -6,30 +6,30 @@ import (
 	"time"
 
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/circuit"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
+	auditorpb "github.com/redspiderAI/ai-auditor-core/shared/protos"
 )
 
 // MockDocumentAuditorClient 用于测试的模拟客户端
 type MockDocumentAuditorClient struct {
-	parseDocumentFunc    func(ctx context.Context, in *auditor.ParseRequest) (*auditor.ParsedData, error)
-	auditRulesFunc       func(ctx context.Context, in *auditor.AuditRequest) (*auditor.AuditResponse, error)
-	analyzeSemanticsFunc func(ctx context.Context, in *auditor.SemanticRequest) (*auditor.AuditResponse, error)
+	parseDocumentFunc    func(ctx context.Context, in *auditorpb.ParseRequest) (*auditorpb.ParsedData, error)
+	auditRulesFunc       func(ctx context.Context, in *auditorpb.AuditRequest) (*auditorpb.AuditResponse, error)
+	analyzeSemanticsFunc func(ctx context.Context, in *auditorpb.SemanticRequest) (*auditorpb.AuditResponse, error)
 }
 
-func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *auditor.ParseRequest) (*auditor.ParsedData, error) {
+func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *auditorpb.ParseRequest) (*auditorpb.ParsedData, error) {
 	if m.parseDocumentFunc != nil {
 		return m.parseDocumentFunc(ctx, in)
 	}
 	// 默认返回模拟数据
-	return &auditor.ParsedData{
+	return &auditorpb.ParsedData{
 		DocId: "mock-doc-id",
-		Metadata: &auditor.DocumentMetadata{
+		Metadata: &auditorpb.DocumentMetadata{
 			Title:        "Mock Document Title",
 			PageCount:    10,
 			MarginTop:    1.0,
 			MarginBottom: 1.0,
 		},
-		Sections: []*auditor.Section{
+		Sections: []*auditorpb.Section{
 			{
 				SectionId: 1,
 				Type:      "heading",
@@ -45,7 +45,7 @@ func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *audit
 				Props:     map[string]string{"font": "SimSun", "size": "12pt"},
 			},
 		},
-		References: []*auditor.Reference{
+		References: []*auditorpb.Reference{
 			{
 				RefId:         "[1]",
 				RawText:       "[1] Sample reference",
@@ -55,18 +55,18 @@ func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *audit
 	}, nil
 }
 
-func (m *MockDocumentAuditorClient) AuditRules(ctx context.Context, in *auditor.AuditRequest) (*auditor.AuditResponse, error) {
+func (m *MockDocumentAuditorClient) AuditRules(ctx context.Context, in *auditorpb.AuditRequest) (*auditorpb.AuditResponse, error) {
 	if m.auditRulesFunc != nil {
 		return m.auditRulesFunc(ctx, in)
 	}
 	// 默认返回模拟数据
-	return &auditor.AuditResponse{
-		Issues: []*auditor.Issue{
+	return &auditorpb.AuditResponse{
+		Issues: []*auditorpb.Issue{
 			{
 				Code:            "ERR_FONT_001",
 				Message:         "Incorrect font used in section",
 				SectionId:       1,
-				Severity:        auditor.Severity_MEDIUM,
+				Severity:        auditorpb.Severity_MEDIUM,
 				Suggestion:      "Use SimSun font",
 				OriginalSnippet: "Introduction",
 			},
@@ -75,18 +75,18 @@ func (m *MockDocumentAuditorClient) AuditRules(ctx context.Context, in *auditor.
 	}, nil
 }
 
-func (m *MockDocumentAuditorClient) AnalyzeSemantics(ctx context.Context, in *auditor.SemanticRequest) (*auditor.AuditResponse, error) {
+func (m *MockDocumentAuditorClient) AnalyzeSemantics(ctx context.Context, in *auditorpb.SemanticRequest) (*auditorpb.AuditResponse, error) {
 	if m.analyzeSemanticsFunc != nil {
 		return m.analyzeSemanticsFunc(ctx, in)
 	}
 	// 默认返回模拟数据
-	return &auditor.AuditResponse{
-		Issues: []*auditor.Issue{
+	return &auditorpb.AuditResponse{
+		Issues: []*auditorpb.Issue{
 			{
 				Code:            "SEM_ERR_001",
 				Message:         "Potential grammatical error detected",
 				SectionId:       2,
-				Severity:        auditor.Severity_LOW,
+				Severity:        auditorpb.Severity_LOW,
 				Suggestion:      "Consider revising the sentence structure",
 				OriginalSnippet: "This is a sample paragraph.",
 			},
@@ -136,24 +136,24 @@ func TestProcess(t *testing.T) {
 
 	// 由于我们不能连接到真实的gRPC服务，我们测试聚合功能
 	result := &TaskResult{
-		AuditResult: &auditor.AuditResponse{
-			Issues: []*auditor.Issue{
+		AuditResult: &auditorpb.AuditResponse{
+			Issues: []*auditorpb.Issue{
 				{
 					Code:      "ERR_TEST_001",
 					Message:   "Test error from audit",
 					SectionId: 1,
-					Severity:  auditor.Severity_MEDIUM,
+					Severity:  auditorpb.Severity_MEDIUM,
 				},
 			},
 			ScoreImpact: 5.0,
 		},
-		SemanticResult: &auditor.AuditResponse{
-			Issues: []*auditor.Issue{
+		SemanticResult: &auditorpb.AuditResponse{
+			Issues: []*auditorpb.Issue{
 				{
 					Code:      "SEM_TEST_001",
 					Message:   "Test semantic error",
 					SectionId: 2,
-					Severity:  auditor.Severity_LOW,
+					Severity:  auditorpb.Severity_LOW,
 				},
 			},
 			ScoreImpact: 2.0,
@@ -176,37 +176,37 @@ func TestProcess(t *testing.T) {
 func TestAggregateResults(t *testing.T) {
 	o := &Orchestrator{}
 
-	auditResult := &auditor.AuditResponse{
-		Issues: []*auditor.Issue{
+	auditResult := &auditorpb.AuditResponse{
+		Issues: []*auditorpb.Issue{
 			{
 				Code:      "ERR_DUPLICATE",
 				Message:   "Duplicate error from audit",
 				SectionId: 1,
-				Severity:  auditor.Severity_MEDIUM,
+				Severity:  auditorpb.Severity_MEDIUM,
 			},
 			{
 				Code:      "ERR_UNIQUE_AUDIT",
 				Message:   "Unique error from audit",
 				SectionId: 2,
-				Severity:  auditor.Severity_HIGH,
+				Severity:  auditorpb.Severity_HIGH,
 			},
 		},
 		ScoreImpact: 5.0,
 	}
 
-	semanticResult := &auditor.AuditResponse{
-		Issues: []*auditor.Issue{
+	semanticResult := &auditorpb.AuditResponse{
+		Issues: []*auditorpb.Issue{
 			{
 				Code:      "ERR_DUPLICATE",
 				Message:   "Duplicate error from semantic",
 				SectionId: 1,
-				Severity:  auditor.Severity_HIGH, // 更高的严重性
+				Severity:  auditorpb.Severity_HIGH, // 更高的严重性
 			},
 			{
 				Code:      "ERR_UNIQUE_SEMANTIC",
 				Message:   "Unique error from semantic",
 				SectionId: 3,
-				Severity:  auditor.Severity_LOW,
+				Severity:  auditorpb.Severity_LOW,
 			},
 		},
 		ScoreImpact: 3.0,
@@ -223,7 +223,7 @@ func TestAggregateResults(t *testing.T) {
 	duplicateIssue := findIssueByCodeAndSection(aggregated.Issues, "ERR_DUPLICATE", 1)
 	if duplicateIssue == nil {
 		t.Error("Expected to find duplicate issue after aggregation")
-	} else if duplicateIssue.Severity != auditor.Severity_HIGH {
+	} else if duplicateIssue.Severity != auditorpb.Severity_HIGH {
 		t.Errorf("Expected duplicate issue to have HIGH severity (from semantic result), got %s", duplicateIssue.Severity.String())
 	}
 
@@ -244,7 +244,7 @@ func TestAggregateResults(t *testing.T) {
 }
 
 // 辅助函数：根据代码和节号查找问题
-func findIssueByCodeAndSection(issues []*auditor.Issue, code string, sectionId int32) *auditor.Issue {
+func findIssueByCodeAndSection(issues []*auditorpb.Issue, code string, sectionId int32) *auditorpb.Issue {
 	for _, issue := range issues {
 		if issue.Code == code && issue.SectionId == sectionId {
 			return issue

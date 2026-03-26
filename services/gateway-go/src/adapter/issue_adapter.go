@@ -3,7 +3,7 @@ package adapter
 import (
 	"strings"
 
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
+	auditorpb "github.com/redspiderAI/ai-auditor-core/shared/protos"
 )
 
 // ProtocolIssue 符合通讯协议的问题结构
@@ -24,24 +24,24 @@ type Location struct {
 }
 
 // ConvertIssuesToProtocol 将protobuf Issue转换为符合通讯协议的格式
-func ConvertIssuesToProtocol(issues []*auditor.Issue) []*ProtocolIssue {
+func ConvertIssuesToProtocol(issues []*auditorpb.Issue) []*ProtocolIssue {
 	protocolIssues := make([]*ProtocolIssue, len(issues))
-	
+
 	for i, issue := range issues {
 		// 确定模块类型
 		module := determineModule(issue.Code)
-		
+
 		// 确定问题类型
 		issueType := extractIssueType(issue.Code)
-		
+
 		// 创建位置信息
 		location := Location{
 			SectionID: issue.SectionId,
 		}
-		
+
 		// 确定严重程度
 		severity := severityToString(issue.Severity)
-		
+
 		protocolIssues[i] = &ProtocolIssue{
 			Module:      module,
 			IssueType:   issueType,
@@ -51,14 +51,14 @@ func ConvertIssuesToProtocol(issues []*auditor.Issue) []*ProtocolIssue {
 			Severity:    severity,
 		}
 	}
-	
+
 	return protocolIssues
 }
 
 // determineModule 根据错误代码确定模块类型
 func determineModule(code string) string {
 	lowerCode := strings.ToLower(code)
-	
+
 	// 根据错误代码判断模块类型
 	if strings.Contains(lowerCode, "semantic") || strings.Contains(lowerCode, "gramma") || strings.Contains(lowerCode, "typo") {
 		return "semantic"
@@ -101,17 +101,17 @@ func extractIssueType(code string) string {
 }
 
 // severityToString 将严重程度枚举转换为字符串
-func severityToString(severity auditor.Severity) string {
+func severityToString(severity auditorpb.Severity) string {
 	switch severity {
-	case auditor.Severity_INFO:
+	case auditorpb.Severity_INFO:
 		return "info"
-	case auditor.Severity_LOW:
+	case auditorpb.Severity_LOW:
 		return "low"
-	case auditor.Severity_MEDIUM:
+	case auditorpb.Severity_MEDIUM:
 		return "medium"
-	case auditor.Severity_HIGH:
+	case auditorpb.Severity_HIGH:
 		return "high"
-	case auditor.Severity_CRITICAL:
+	case auditorpb.Severity_CRITICAL:
 		return "critical"
 	default:
 		return "unknown"

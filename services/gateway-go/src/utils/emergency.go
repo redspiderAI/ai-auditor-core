@@ -1,4 +1,4 @@
-package worker
+package utils
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ import (
 // EmergencyFastTrack sends the raw file to the Python quick audit endpoint and returns the response body.
 func EmergencyFastTrack(ctx context.Context, endpoint, fileName string, fileData []byte) ([]byte, error) {
 	if endpoint == "" {
-		endpoint = "http://inference-py:8123/v1/quick-audit"
+		endpoint = "http://localhost:8123/v1/quick-audit"
 	}
 
 	body := &bytes.Buffer{}
@@ -36,7 +36,12 @@ func EmergencyFastTrack(ctx context.Context, endpoint, fileName string, fileData
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment, // 使用环境变量中的代理设置
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("send request: %w", err)

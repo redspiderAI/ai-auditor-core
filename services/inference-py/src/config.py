@@ -7,8 +7,11 @@ from typing import Optional
 class Settings(BaseSettings):
     """应用配置设置"""
 
-    # API配置
-    dashscope_api_key: str
+    # API配置 - 支持DashScope和OpenAI兼容模式
+    dashscope_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = None
+    openai_base_url: Optional[str] = None
+    openai_model: Optional[str] = None
 
     # 服务器配置
     host: str = "127.0.0.1"
@@ -31,6 +34,21 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding='utf-8'
     )
+
+    def get_primary_api_key(self) -> str:
+        """获取主要API密钥，优先使用DashScope，其次是OpenAI"""
+        if self.dashscope_api_key:
+            return self.dashscope_api_key
+        elif self.openai_api_key:
+            return self.openai_api_key
+        else:
+            raise ValueError("Either dashscope_api_key or openai_api_key must be provided")
+
+    def get_model_name(self) -> str:
+        """获取模型名称，优先使用OpenAI模型名称"""
+        if self.openai_model:
+            return self.openai_model
+        return self.model_name
 
 
 # 创建全局配置实例
