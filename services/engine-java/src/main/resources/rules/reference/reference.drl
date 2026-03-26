@@ -4,134 +4,960 @@ import com.auditor.grpc.*
 import org.slf4j.Logger
 import java.util.regex.Pattern
 import java.util.regex.Matcher
-import java.util.BitSet
 import java.util.*
 
-global java.util.List results global Logger logger
+global java.util.List results
+global Logger logger
 
-// 常量定义
-dialect"java"
+dialect "java"
 
-// 全局函数：检查引用格式
-function void checkReferenceFormat(Reference ref,List results,Logger logger){String rawText=ref.getRawText();int refNum=extractReferenceNumber(ref.getRefId());
+// ==================== 规则定义 ====================
 
-if(refNum<=0){return;}
+// 规则1: 期刊 [J] 格式检查 - 全角逗号检查
+rule "期刊文献全角逗号检查"
+when 
+    $ref: Reference(rawText.contains("[J]") && rawText.contains("，"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 期刊文献 [{}] 检查到全角逗号", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_JOURNAL_FULL_COMMA")
+                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：使用了全角逗号，应使用英文逗号")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("将全角逗号（，）替换为英文逗号（,）")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-// 检查文献类型标识
-Character docType=extractDocType(rawText);if(docType==null){results.add(createFormatIssue(refNum,"缺少文献类型标识（如 [M], [J], [D] 等）","请根据文献类型添加相应的标识",rawText));}else{
-// 检查特定类型的必需字段
-checkRequiredFields(refNum,docType,rawText,results);
+// 规则2: 期刊 [J] 格式检查 - 年份超出范围
+rule "期刊文献年份超出范围检查"
+when 
+    $ref: Reference(rawText.contains("[J]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        Pattern yearPattern = Pattern.compile("\\b(\\d{4})\\b");
+        Matcher yearMatcher = yearPattern.matcher(rawText);
+        
+        while (yearMatcher.find()) {
+            try {
+                int year = Integer.parseInt(yearMatcher.group(1));
+                int currentYear = 2026;
+                
+                if (year > currentYear) {
+                    logger.debug("DEBUG: 期刊文献 [{}] 年份 {} > {}", refNum, year, currentYear);
+                    results.add(Issue.newBuilder()
+                            .setCode("ERR_REF_JOURNAL_YEAR_EXCEED")
+                            .setMessage("参考文献 [" + refNum + "] 年份超出范围：" + year + " > " + currentYear)
+                            .setSectionId(0)
+                            .setSeverity(Severity.HIGH)
+                            .setSuggestion("请检查年份是否正确")
+                            .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                            .build());
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析年份");
+            }
+        }
+    }
+end
 
-// 检查通用格式
-checkGeneralFormat(refNum,rawText,results);}}
+// 规则3: 期刊 [J] 格式检查 - [J] 后面没有点号
+rule "期刊文献J标记后无点号检查"
+when 
+    $ref: Reference(rawText.contains("[J]") && !rawText.contains("[J]."))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 期刊文献 [{}] [J] 后面没有点号", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_JOURNAL_NO_DOT")
+                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：[J] 后面应有句点")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("在 [J] 后面添加英文句点")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-// 辅助函数：解析引用编号
-function int extractReferenceNumber(String refId){if(refId==null||refId.isEmpty()){return 0;}
+// 规则4: 期刊 [J] 格式检查 - 缺少卷(期)
+rule "期刊文献缺少卷期检查"
+when 
+    $ref: Reference(rawText.contains("[J]") && !rawText.matches(".*\\d+\\s*\\(\\s*\\d+\\s*\\).*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 期刊文献 [{}] 缺少卷(期)", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_JOURNAL_NO_VOLUME")
+                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：缺少卷(期)信息")
+                .setSectionId(0)
+                .setSeverity(Severity.MEDIUM)
+                .setSuggestion("添加卷(期)信息，格式如 10(2)")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-try{String cleaned=refId.replaceAll("\\[|\\]","").trim();return Integer.parseInt(cleaned);}catch(NumberFormatException e){logger.warn("无法解析参考文献编号: {}",refId);return 0;}}
+// 规则5: 期刊 [J] 格式检查 - 缺少页码
+rule "期刊文献缺少页码检查"
+when 
+    $ref: Reference(rawText.contains("[J]") && !rawText.matches(".*:\\s*\\d+\\s*[-~]?\\s*\\d*.*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 期刊文献 [{}] 缺少页码", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_JOURNAL_NO_PAGE")
+                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：缺少页码信息")
+                .setSectionId(0)
+                .setSeverity(Severity.MEDIUM)
+                .setSuggestion("添加页码信息，格式如 1-10")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-// 辅助函数：提取文献类型
-function Character extractDocType(String rawText){Pattern pattern=Pattern.compile("\\[([MCJNDRSP])\\]");Matcher matcher=pattern.matcher(rawText);return matcher.find()?matcher.group(1).charAt(0):null;}
+// 规则6: 期刊 [J] 格式检查 - 多作者但没有"等"
+rule "期刊文献多作者无等检查"
+when 
+    $ref: Reference(rawText.contains("[J]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        int typeIndex = rawText.indexOf("[J]");
+        if (typeIndex > 0) {
+            String authorPart = rawText.substring(0, typeIndex);
+            int commaCount = 0;
+            for (char c : authorPart.toCharArray()) {
+                if (c == ',') {
+                    commaCount++;
+                }
+            }
+            
+            if (commaCount > 2) {
+                if (!authorPart.contains("等") && !authorPart.contains("et al.") && 
+                    !authorPart.contains("et al") && !authorPart.contains("等.")) {
+                    logger.debug("DEBUG: 期刊文献 [{}] 多作者但没有等", refNum);
+                    results.add(Issue.newBuilder()
+                            .setCode("ERR_REF_JOURNAL_MULTI_AUTHOR")
+                            .setMessage("参考文献 [" + refNum + "] 多作者格式错误：超过2个作者应使用'等'或'et al.'")
+                            .setSectionId(0)
+                            .setSeverity(Severity.MEDIUM)
+                            .setSuggestion("在第2个作者后添加'等'或'et al.'")
+                            .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                            .build());
+                }
+            }
+        }
+    }
+end
 
-// 辅助函数：检查必需字段
-function void checkRequiredFields(int refNum,Character docType,String rawText,List results){Map<Character,String>DOC_TYPE_MAP=Map.of('M',"专著",'C',"会议录",'N',"报纸文章",'J',"期刊文章",'D',"学位论文",'R',"报告",'S',"标准",'P',"专利");
+// 规则7: 专著 [M] 格式检查 - 全角句号检查
+rule "专著文献全角句号检查"
+when 
+    $ref: Reference(rawText.contains("[M]") && rawText.contains("。"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 专著文献 [{}] 检查到全角句号", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_MONO_FULL_PERIOD")
+                .setMessage("参考文献 [" + refNum + "] 专著格式错误：使用了全角句号，应使用英文句点")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("将全角句号（。）替换为英文句点（.）")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-Map<Character,Set<String>>REQUIRED_FIELDS=Map.of('M',new HashSet<>(Arrays.asList("作者","书名","出版地","出版者","出版年")),'J',new HashSet<>(Arrays.asList("作者","题名","刊名","年","卷","期","页码")),'D',new HashSet<>(Arrays.asList("作者","题名","保存地","保存单位","年份")),'C',new HashSet<>(Arrays.asList("作者","题名","会议名称","会议地点","会议日期")));
+// 规则8: 专著 [M] 格式检查 - 年份超出范围
+rule "专著文献年份超出范围检查"
+when 
+    $ref: Reference(rawText.contains("[M]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        Pattern yearPattern = Pattern.compile("\\b(\\d{4})\\b");
+        Matcher yearMatcher = yearPattern.matcher(rawText);
+        
+        while (yearMatcher.find()) {
+            try {
+                int year = Integer.parseInt(yearMatcher.group(1));
+                int currentYear = 2026;
+                
+                if (year > currentYear) {
+                    logger.debug("DEBUG: 专著文献 [{}] 年份 {} > {}", refNum, year, currentYear);
+                    results.add(Issue.newBuilder()
+                            .setCode("ERR_REF_MONO_YEAR_EXCEED")
+                            .setMessage("参考文献 [" + refNum + "] 年份超出范围：" + year + " > " + currentYear)
+                            .setSectionId(0)
+                            .setSeverity(Severity.HIGH)
+                            .setSuggestion("请检查年份是否正确")
+                            .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                            .build());
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析年份");
+            }
+        }
+    }
+end
 
-Set<String>required=REQUIRED_FIELDS.get(docType);if(required==null){return;}
+// 规则9: 专著 [M] 格式检查 - [M] 后面没有点号
+rule "专著文献M标记后无点号检查"
+when 
+    $ref: Reference(rawText.contains("[M]") && !rawText.contains("[M]."))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 专著文献 [{}] [M] 后面没有点号", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_MONO_NO_DOT")
+                .setMessage("参考文献 [" + refNum + "] 专著格式错误：[M] 后面应有句点")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("在 [M] 后面添加英文句点")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-for(String field:required){if(!rawText.contains(field)){String typeName=DOC_TYPE_MAP.getOrDefault(docType,"未知类型");results.add(createFormatIssue(refNum,typeName+" 缺少必需字段: "+field,"请补充 "+field+" 信息",rawText));}}
+// 规则10: 专著 [M] 格式检查 - 缺少出版地:出版者
+rule "专著文献缺少出版地出版者检查"
+when 
+    $ref: Reference(rawText.contains("[M]") && !rawText.matches(".*[\\u4e00-\\u9fff\\w]+\\s*:\\s*[\\u4e00-\\u9fff\\w]+.*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 专著文献 [{}] 缺少出版地:出版者", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_MONO_NO_PUBLISHER")
+                .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少出版地:出版者信息")
+                .setSectionId(0)
+                .setSeverity(Severity.MEDIUM)
+                .setSuggestion("添加出版地:出版者信息，格式如 北京: 出版社")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-if(docType=='M'&&!rawText.contains(":")){results.add(createFormatIssue(refNum,"专著格式不完整，缺少出版地:出版者信息","格式应为: 作者. 书名[M]. 出版地: 出版者, 出版年.",rawText));}
+// 规则11: 专著 [M] 格式检查 - 多作者但没有"等"
+rule "专著文献多作者无等检查"
+when 
+    $ref: Reference(rawText.contains("[M]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        int typeIndex = rawText.indexOf("[M]");
+        if (typeIndex > 0) {
+            String authorPart = rawText.substring(0, typeIndex);
+            int commaCount = 0;
+            for (char c : authorPart.toCharArray()) {
+                if (c == ',') {
+                    commaCount++;
+                }
+            }
+            
+            if (commaCount > 2) {
+                if (!authorPart.contains("等") && !authorPart.contains("et al.") && 
+                    !authorPart.contains("et al") && !authorPart.contains("等.")) {
+                    logger.debug("DEBUG: 专著文献 [{}] 多作者但没有等", refNum);
+                    results.add(Issue.newBuilder()
+                            .setCode("ERR_REF_MONO_MULTI_AUTHOR")
+                            .setMessage("参考文献 [" + refNum + "] 多作者格式错误：超过2个作者应使用'等'或'et al.'")
+                            .setSectionId(0)
+                            .setSeverity(Severity.MEDIUM)
+                            .setSuggestion("在第2个作者后添加'等'或'et al.'")
+                            .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                            .build());
+                }
+            }
+        }
+    }
+end
 
-if(docType=='J'&&!rawText.matches(".*\\d{4}.*,\\s*\\d+.*\\(.*\\).*")){results.add(createFormatIssue(refNum,"期刊文章格式不完整，缺少卷期信息","格式应为: 作者. 题名[J]. 刊名, 年, 卷(期): 页码.",rawText));}}
+// 规则12: 引用一致性检查 - 缺失的参考文献
+rule "检查缺失的参考文献"
+when 
+    $data: ParsedData()
+then
+    Set<Integer> citedNumbers = new HashSet<>();
+    Set<Integer> existingRefNumbers = new HashSet<>();
+    
+    // 提取正文中的所有引用
+    for (Section section : $data.getSectionsList()) {
+        Pattern citationPattern = Pattern.compile("\\[(\\d+)\\]");
+        Matcher matcher = citationPattern.matcher(section.getText());
+        while (matcher.find()) {
+            try {
+                citedNumbers.add(Integer.parseInt(matcher.group(1)));
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析引用编号");
+            }
+        }
+    }
+    
+    // 提取参考文献列表中的所有编号
+    for (Reference ref : $data.getReferencesList()) {
+        String refId = ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            try {
+                String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+                existingRefNumbers.add(Integer.parseInt(cleaned));
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析参考文献编号");
+            }
+        }
+    }
+    
+    // 检查缺失的引用
+    for (Integer citedNum : citedNumbers) {
+        if (!existingRefNumbers.contains(citedNum)) {
+            logger.debug("DEBUG: 检查到缺失的参考文献 [{}]", citedNum);
+            results.add(Issue.newBuilder()
+                    .setCode("ERR_REF_MISSING")
+                    .setMessage("参考文献 [" + citedNum + "] 在正文中被引用，但在参考文献列表中缺失")
+                    .setSectionId(0)
+                    .setSeverity(Severity.CRITICAL)
+                    .setSuggestion("请添加参考文献 [" + citedNum + "]")
+                    .setOriginalSnippet("引用 [" + citedNum + "]")
+                    .build());
+        }
+    }
+end
 
-// 辅助函数：检查通用格式
-function void checkGeneralFormat(int refNum,String rawText,List results){if(rawText.contains("，")||rawText.contains("。")){results.add(createFormatIssue(refNum,"使用了中文标点，应使用英文标点","请将中文标点（，。）替换为英文标点（,.）",rawText));}
+// 规则13: 期刊 [J] 格式检查 - 年份过早
+rule "期刊文献年份过早检查"
+when 
+    $ref: Reference(rawText.contains("[J]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        Pattern yearPattern = Pattern.compile("\\b(\\d{4})\\b");
+        Matcher yearMatcher = yearPattern.matcher(rawText);
+        
+        while (yearMatcher.find()) {
+            try {
+                int year = Integer.parseInt(yearMatcher.group(1));
+                
+                if (year < 1900) {
+                    logger.debug("DEBUG: 期刊文献 [{}] 年份 {} < 1900", refNum, year);
+                    results.add(Issue.newBuilder()
+                            .setCode("ERR_REF_JOURNAL_YEAR_EARLY")
+                            .setMessage("参考文献 [" + refNum + "] 年份过早：" + year + " < 1900")
+                            .setSectionId(0)
+                            .setSeverity(Severity.MEDIUM)
+                            .setSuggestion("请检查年份是否正确")
+                            .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                            .build());
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析年份");
+            }
+        }
+    }
+end
 
-if(!rawText.trim().endsWith(".")){results.add(createFormatIssue(refNum,"末尾缺少句点","请在参考文献末尾添加句点",rawText));}
+// 规则14: 专著 [M] 格式检查 - 年份过早
+rule "专著文献年份过早检查"
+when 
+    $ref: Reference(rawText.contains("[M]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        Pattern yearPattern = Pattern.compile("\\b(\\d{4})\\b");
+        Matcher yearMatcher = yearPattern.matcher(rawText);
+        
+        while (yearMatcher.find()) {
+            try {
+                int year = Integer.parseInt(yearMatcher.group(1));
+                
+                if (year < 1900) {
+                    logger.debug("DEBUG: 专著文献 [{}] 年份 {} < 1900", refNum, year);
+                    results.add(Issue.newBuilder()
+                            .setCode("ERR_REF_MONO_YEAR_EARLY")
+                            .setMessage("参考文献 [" + refNum + "] 年份过早：" + year + " < 1900")
+                            .setSectionId(0)
+                            .setSeverity(Severity.MEDIUM)
+                            .setSuggestion("请检查年份是否正确")
+                            .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                            .build());
+                }
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析年份");
+            }
+        }
+    }
+end
 
-if(!rawText.contains(".")||rawText.indexOf(".")>50){results.add(createFormatIssue(refNum,"作者格式可能不正确","作者名后应使用英文句点分隔",rawText));}}
+// 规则15: 期刊 [J] 格式检查 - 小写 [j]
+rule "期刊文献小写j检查"
+when 
+    $ref: Reference(rawText.contains("[j]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 期刊文献 [{}] 使用小写 [j]", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_JOURNAL_LOWERCASE")
+                .setMessage("参考文献 [" + refNum + "] 期刊标记错误：应使用大写 [J] 而非小写 [j]")
+                .setSectionId(0)
+                .setSeverity(Severity.MEDIUM)
+                .setSuggestion("将 [j] 改为 [J]")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-// 辅助函数：创建格式问题 Issue
-function Issue createFormatIssue(int refNum,String description,String suggestion,String rawText){return Issue.newBuilder().setCode("ERR_REF_FORMAT_"+refNum).setMessage("参考文献 ["+refNum+"] "+description).setSectionId(0).setSeverity(Severity.MEDIUM).setSuggestion(suggestion).setOriginalSnippet(rawText.length()>100?rawText.substring(0,100)+"...":rawText).build();}
 
-// 辅助函数：创建一般问题 Issue
-function Issue createIssue(String code,String message,int sectionId,Severity severity){return Issue.newBuilder().setCode(code).setMessage(message).setSectionId(sectionId).setSeverity(severity).setSuggestion("请根据建议进行修改").setOriginalSnippet("").build();}
+// 规则16: 期刊 [J] 格式检查 - 年份为两位数（在逗号后面）
+rule "期刊文献年份两位数检查"
+when 
+    $ref: Reference(rawText.contains("[J]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        // 只检查在逗号后面的两位数年份
+        Pattern twoDigitYearPattern = Pattern.compile(",\\s*(\\d{2})\\s*,");
+        Matcher matcher = twoDigitYearPattern.matcher(rawText);
+        
+        if (matcher.find()) {
+            String twoDigit = matcher.group(1);
+            try {
+                int year = Integer.parseInt(twoDigit);
+                logger.debug("DEBUG: 期刊文献 [{}] 年份为两位数 {}", refNum, twoDigit);
+                results.add(Issue.newBuilder()
+                        .setCode("ERR_REF_JOURNAL_YEAR_TWO_DIGIT")
+                        .setMessage("参考文献 [" + refNum + "] 年份格式错误：年份应为四位数，而非两位数 " + twoDigit)
+                        .setSectionId(0)
+                        .setSeverity(Severity.MEDIUM)
+                        .setSuggestion("将两位数年份改为四位数，如 20" + twoDigit)
+                        .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                        .build());
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析年份");
+            }
+        }
+    }
+end
 
-// 辅助函数：提取引用数字
-function List<Integer>extractCitationNumbers(String text){List<Integer>citations=new ArrayList<>();Pattern CITATION_PATTERN=Pattern.compile("\\[\\s*(\\d+(?:\\s*[-,\\s]\\s*\\d+)*)\\s*\\]");Matcher matcher=CITATION_PATTERN.matcher(text);
+// 规则17: 专著 [M] 格式检查 - 年份为两位数（在逗号后面）
+rule "专著文献年份两位数检查"
+when 
+    $ref: Reference(rawText.contains("[M]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        // 只检查在逗号后面的两位数年份或末尾的两位数
+        Pattern twoDigitYearPattern = Pattern.compile(",\\s*(\\d{2})\\s*[,.]$");
+        Matcher matcher = twoDigitYearPattern.matcher(rawText);
+        
+        if (matcher.find()) {
+            String twoDigit = matcher.group(1);
+            try {
+                int year = Integer.parseInt(twoDigit);
+                logger.debug("DEBUG: 专著文献 [{}] 年份为两位数 {}", refNum, twoDigit);
+                results.add(Issue.newBuilder()
+                        .setCode("ERR_REF_MONO_YEAR_TWO_DIGIT")
+                        .setMessage("参考文献 [" + refNum + "] 年份格式错误：年份应为四位数，而非两位数 " + twoDigit)
+                        .setSectionId(0)
+                        .setSeverity(Severity.MEDIUM)
+                        .setSuggestion("将两位数年份改为四位数，如 20" + twoDigit)
+                        .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                        .build());
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析年份");
+            }
+        }
+    }
+end
 
-while(matcher.find()){String numbers=matcher.group(1);String[]parts=numbers.split("[,\\s]+");
+// 规则18: 期刊 [J] 格式检查 - 缺少作者
+rule "期刊文献缺少作者检查"
+when 
+    $ref: Reference(rawText.contains("[J]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        int typeIndex = rawText.indexOf("[J]");
+        if (typeIndex > 0) {
+            String beforeType = rawText.substring(0, typeIndex);
+            // 检查是否没有作者（即 [J] 前面没有句点或没有足够的文本）
+            if (!beforeType.contains(".") || beforeType.trim().length() < 3) {
+                logger.debug("DEBUG: 期刊文献 [{}] 缺少作者", refNum);
+                results.add(Issue.newBuilder()
+                        .setCode("ERR_REF_JOURNAL_NO_AUTHOR")
+                        .setMessage("参考文献 [" + refNum + "] 期刊格式错误：缺少作者信息")
+                        .setSectionId(0)
+                        .setSeverity(Severity.HIGH)
+                        .setSuggestion("添加作者信息，格式如 作者. 题名[J].")
+                        .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                        .build());
+            }
+        }
+    }
+end
 
-for(String part:parts){if(part.contains("-")){String[]range=part.split("-");try{int start=Integer.parseInt(range[0].trim());int end=Integer.parseInt(range[1].trim());for(int i=start;i<=end;i++){citations.add(i);}}catch(NumberFormatException e){logger.warn("无法解析引用范围: {}",part);}}else{try{citations.add(Integer.parseInt(part.trim()));}catch(NumberFormatException e){logger.warn("无法解析引用编号: {}",part);}}}}
+// 规则19: 专著 [M] 格式检查 - 缺少作者
+rule "专著文献缺少作者检查"
+when 
+    $ref: Reference(rawText.contains("[M]"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        int typeIndex = rawText.indexOf("[M]");
+        if (typeIndex > 0) {
+            String beforeType = rawText.substring(0, typeIndex);
+            // 检查是否没有作者（即 [M] 前面没有句点或没有足够的文本）
+            if (!beforeType.contains(".") || beforeType.trim().length() < 3) {
+                logger.debug("DEBUG: 专著文献 [{}] 缺少作者", refNum);
+                results.add(Issue.newBuilder()
+                        .setCode("ERR_REF_MONO_NO_AUTHOR")
+                        .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少作者信息")
+                        .setSectionId(0)
+                        .setSeverity(Severity.HIGH)
+                        .setSuggestion("添加作者信息，格式如 作者. 书名[M].")
+                        .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                        .build());
+            }
+        }
+    }
+end
 
-return citations;}
 
-// 规则1: 检查参考文献格式
-rule"检查参考文献格式"when $ref:Reference()then checkReferenceFormat($ref,results,logger);end
+// 规则20: 检查未使用的参考文献
+rule "检查未使用的参考文献"
+when 
+    $data: ParsedData()
+then
+    Set<Integer> citedNumbers = new HashSet<>();
+    Set<Integer> existingRefNumbers = new HashSet<>();
+    
+    // 提取正文中的所有引用
+    for (Section section : $data.getSectionsList()) {
+        Pattern citationPattern = Pattern.compile("\\[(\\d+)\\]");
+        Matcher matcher = citationPattern.matcher(section.getText());
+        while (matcher.find()) {
+            try {
+                citedNumbers.add(Integer.parseInt(matcher.group(1)));
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析引用编号");
+            }
+        }
+    }
+    
+    // 提取参考文献列表中的所有编号
+    for (Reference ref : $data.getReferencesList()) {
+        String refId = ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            try {
+                String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+                existingRefNumbers.add(Integer.parseInt(cleaned));
+            } catch (NumberFormatException e) {
+                logger.warn("无法解析参考文献编号");
+            }
+        }
+    }
+    
+    // 检查未使用的引用
+    for (Integer refNum : existingRefNumbers) {
+        if (!citedNumbers.contains(refNum)) {
+            logger.debug("DEBUG: 检查到未使用的参考文献 [{}]", refNum);
+            results.add(Issue.newBuilder()
+                    .setCode("WARN_REF_UNUSED")
+                    .setMessage("参考文献 [" + refNum + "] 在正文中未被引用")
+                    .setSectionId(0)
+                    .setSeverity(Severity.LOW)
+                    .setSuggestion("删除未被引用的参考文献或在正文中添加引用")
+                    .setOriginalSnippet("")
+                    .build());
+        }
+    }
+end
 
-// 规则2: 检查参考文献顺序
-rule"检查引用顺序"when $data:ParsedData()then
-// 构建引用有向图
-Map<Integer,List<Integer>>graph=new HashMap<>();
 
-for(Section section:$data.getSectionsList()){List<Integer>citations=extractCitationNumbers(section.getText());if(!citations.isEmpty()){graph.put(section.getSectionId(),citations);}}
+// ==================== 新增规则：检查必需字段 ====================
 
-// 排序校验
-List<Integer>orderedCitations=new ArrayList<>();graph.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->orderedCitations.addAll(entry.getValue()));
+// 规则21: 专著 [M] - 缺少出版地
+rule "专著文献缺少出版地检查"
+when 
+    $ref: Reference(rawText.contains("[M]") && !rawText.matches(".*[：:].*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 专著文献 [{}] 缺少出版地", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_MONO_NO_PLACE")
+                .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少出版地")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("添加出版地信息，格式为 出版地:")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-int lastCitation=0;for(int i=0;i<orderedCitations.size();i++){int current=orderedCitations.get(i);if(current<lastCitation){int violationSection=0;for(Map.Entry<Integer,List<Integer>>entry:graph.entrySet()){if(entry.getValue().contains(current)){violationSection=entry.getKey();break;}}
+// 规则22: 专著 [M] - 缺少出版者
+rule "专著文献缺少出版者检查"
+when 
+    $ref: Reference(rawText.contains("[M]") && !rawText.matches(".*[：:] *[^,，]*,.*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 专著文献 [{}] 缺少出版者", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_MONO_NO_PUBLISHER")
+                .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少出版者")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("添加出版者信息，格式为 出版地: 出版者")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-Issue issue=Issue.newBuilder().setCode("ERR_REF_ORDER_001").setMessage(String.format("引用序号不符合顺序编码制: [%d] 出现在 [%d] 之后，应为 [%d] 出现在 [%d] 之前",current,lastCitation,lastCitation,current)).setSectionId(violationSection).setSeverity(Severity.HIGH).setSuggestion("请按照引用在正文中出现的先后顺序重新编号").setOriginalSnippet(String.format("引用顺序错误: ...[%d]...[%d]...",lastCitation,current)).build();results.add(issue);break;}lastCitation=current;}end
+// 规则23: 学位论文 [D] - 缺少学位授予单位
+rule "学位论文缺少学位授予单位检查"
+when 
+    $ref: Reference(rawText.contains("[D]") && !rawText.matches(".*[：:] *[^,，]*,.*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 学位论文 [{}] 缺少学位授予单位", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_THESIS_NO_UNIVERSITY")
+                .setMessage("参考文献 [" + refNum + "] 学位论文格式错误：缺少学位授予单位")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("添加学位授予单位信息，格式为 城市: 大学名称")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-// 规则3: 检查引用闭环
-rule"检查引用闭环"when $data:ParsedData()then
-// 构建引用有向图
-Map<Integer,List<Integer>>graph=new HashMap<>();Set<Integer>citedNumbers=new HashSet<>();
+// 规则24: 学位论文 [D] - 缺少年份
+rule "学位论文缺少年份检查"
+when 
+    $ref: Reference(rawText.contains("[D]") && !rawText.matches(".*\\d{4}.*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 学位论文 [{}] 缺少年份", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_THESIS_NO_YEAR")
+                .setMessage("参考文献 [" + refNum + "] 学位论文格式错误：缺少年份")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("添加年份信息，格式为 YYYY")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-for(Section section:$data.getSectionsList()){List<Integer>citations=extractCitationNumbers(section.getText());if(!citations.isEmpty()){graph.put(section.getSectionId(),citations);citedNumbers.addAll(citations);}}
+// 规则25: 会议录 [C] - 缺少会议地点
+rule "会议录缺少会议地点检查"
+when 
+    $ref: Reference(rawText.contains("[C]") && !rawText.matches(".*,.*,.*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 会议录 [{}] 缺少会议地点", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_CONF_NO_PLACE")
+                .setMessage("参考文献 [" + refNum + "] 会议录格式错误：缺少会议地点")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("添加会议地点信息，格式为 会议名, 地点, 年份")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
 
-// 获取现有的参考文献编号
-Set<Integer>existingRefNumbers=new HashSet<>();for(Reference ref:$data.getReferencesList()){int refNum=extractReferenceNumber(ref.getRefId());if(refNum>0){existingRefNumbers.add(refNum);}}
-
-// 检查缺失的引用
-for(Integer citedNum:citedNumbers){if(!existingRefNumbers.contains(citedNum)){int sectionId=0;for(Map.Entry<Integer,List<Integer>>entry:graph.entrySet()){if(entry.getValue().contains(citedNum)){sectionId=entry.getKey();break;}}
-
-Issue issue=Issue.newBuilder().setCode("ERR_REF_MISSING_001").setMessage("参考文献 ["+citedNum+"] 在正文中被引用，但在参考文献列表中缺失").setSectionId(sectionId).setSeverity(Severity.CRITICAL).setSuggestion("请添加参考文献 ["+citedNum+"]").setOriginalSnippet("引用 ["+citedNum+"]").build();results.add(issue);}}
-
-// 检查未使用的引用
-for(Integer refNum:existingRefNumbers){if(!citedNumbers.contains(refNum)){Issue issue=Issue.newBuilder().setCode("WARN_REF_UNUSED_001").setMessage("参考文献 ["+refNum+"] 在正文中未被引用").setSectionId(0).setSeverity(Severity.LOW).setSuggestion("删除未被引用的参考文献或在正文中添加引用").setOriginalSnippet("").build();results.add(issue);}}end
-
-// 规则4: 位图算法检查
-rule"位图算法检查"when $data:ParsedData()then
-// 获取最大参考文献编号
-int maxRefNumber=0;for(Reference ref:$data.getReferencesList()){int refNum=extractReferenceNumber(ref.getRefId());if(refNum>maxRefNumber){maxRefNumber=refNum;}}
-
-if(maxRefNumber<=0){return;}
-
-BitSet citationBitmap=new BitSet(maxRefNumber+1);BitSet referenceBitmap=new BitSet(maxRefNumber+1);
-
-// 构建引用位图
-for(Section section:$data.getSectionsList()){for(Integer citation:extractCitationNumbers(section.getText())){if(citation<=maxRefNumber&&citation>0){citationBitmap.set(citation);}}}
-
-// 构建参考文献位图
-for(Reference ref:$data.getReferencesList()){int refNum=extractReferenceNumber(ref.getRefId());if(refNum>0&&refNum<=maxRefNumber){referenceBitmap.set(refNum);}}
-
-// 检查被引用但缺失的参考文献
-BitSet citedButMissing=(BitSet)citationBitmap.clone();citedButMissing.andNot(referenceBitmap);
-
-for(int i=citedButMissing.nextSetBit(0);i>=0;i=citedButMissing.nextSetBit(i+1)){results.add(Issue.newBuilder().setCode("ERR_REF_BITMAP_MISSING").setMessage("位图检查：参考文献 ["+i+"] 被引用但缺失").setSectionId(0).setSeverity(Severity.HIGH).setSuggestion("添加参考文献 ["+i+"]").setOriginalSnippet("").build());}
-
-// 检查存在但未被引用的参考文献
-BitSet existsButNotCited=(BitSet)referenceBitmap.clone();existsButNotCited.andNot(citationBitmap);
-
-for(int i=existsButNotCited.nextSetBit(0);i>=0;i=existsButNotCited.nextSetBit(i+1)){results.add(Issue.newBuilder().setCode("WARN_REF_BITMAP_UNUSED").setMessage("位图检查：参考文献 ["+i+"] 存在但未被引用").setSectionId(0).setSeverity(Severity.LOW).setSuggestion("删除参考文献 ["+i+"] 或在正文中添加引用").setOriginalSnippet("").build());}
-
-// 检查引用编号连续性
-int firstCitation=citationBitmap.nextSetBit(0);if(firstCitation>0){int expected=firstCitation;for(int i=firstCitation;i<=maxRefNumber;i++){if(citationBitmap.get(i)){if(i!=expected){results.add(Issue.newBuilder().setCode("ERR_REF_BITMAP_GAP").setMessage("位图检查：引用编号不连续，缺少引用 ["+expected+"]").setSectionId(0).setSeverity(Severity.MEDIUM).setSuggestion("补充引用 ["+expected+"] 或重新编号").setOriginalSnippet("").build());break;}expected++;}}}
-
-logger.debug("位图算法检查完成，最大编号: {}, 引用数: {}, 文献数: {}",maxRefNumber,citationBitmap.cardinality(),referenceBitmap.cardinality());end
-
-// 规则5: 空数据检查
-rule"空数据检查"when $data:ParsedData($data==null)then results.add(createIssue("ERR_REF_NULL","输入数据为空",0,Severity.CRITICAL));end
+// 规则26: 会议录 [C] - 缺少会议名称
+rule "会议录缺少会议名称检查"
+when 
+    $ref: Reference(rawText.contains("[C]") && !rawText.matches(".*\\[C\\].*\\..*"))
+then
+    String rawText = $ref.getRawText();
+    int refNum = 0;
+    try {
+        String refId = $ref.getRefId();
+        if (refId != null && !refId.isEmpty()) {
+            String cleaned = refId.replaceAll("\\[|\\]", "").trim();
+            refNum = Integer.parseInt(cleaned);
+        }
+    } catch (Exception e) {
+        logger.warn("无法解析参考文献编号");
+    }
+    
+    if (refNum > 0) {
+        logger.debug("DEBUG: 会议录 [{}] 缺少会议名称", refNum);
+        results.add(Issue.newBuilder()
+                .setCode("ERR_REF_CONF_NO_NAME")
+                .setMessage("参考文献 [" + refNum + "] 会议录格式错误：缺少会议名称")
+                .setSectionId(0)
+                .setSeverity(Severity.HIGH)
+                .setSuggestion("添加会议名称信息，格式为 [C]. 会议名称")
+                .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
+                .build());
+    }
+end
