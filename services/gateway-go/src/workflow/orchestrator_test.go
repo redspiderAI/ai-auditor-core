@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/circuit"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
 )
 
 // MockDocumentAuditorClient 用于测试的模拟客户端
@@ -24,9 +24,9 @@ func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *audit
 	return &auditor.ParsedData{
 		DocId: "mock-doc-id",
 		Metadata: &auditor.DocumentMetadata{
-			Title:       "Mock Document Title",
-			PageCount:   10,
-			MarginTop:   1.0,
+			Title:        "Mock Document Title",
+			PageCount:    10,
+			MarginTop:    1.0,
 			MarginBottom: 1.0,
 		},
 		Sections: []*auditor.Section{
@@ -47,8 +47,8 @@ func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *audit
 		},
 		References: []*auditor.Reference{
 			{
-				RefId:        "[1]",
-				RawText:      "[1] Sample reference",
+				RefId:         "[1]",
+				RawText:       "[1] Sample reference",
 				IsValidFormat: true,
 			},
 		},
@@ -136,18 +136,6 @@ func TestProcess(t *testing.T) {
 
 	// 由于我们不能连接到真实的gRPC服务，我们测试聚合功能
 	result := &TaskResult{
-		ParseResult: &auditor.ParsedData{
-			Sections: []*auditor.Section{
-				{
-					SectionId: 1,
-					Text:      "Test section 1",
-				},
-				{
-					SectionId: 2,
-					Text:      "Test section 2",
-				},
-			},
-		},
 		AuditResult: &auditor.AuditResponse{
 			Issues: []*auditor.Issue{
 				{
@@ -174,11 +162,11 @@ func TestProcess(t *testing.T) {
 
 	// 验证聚合功能
 	aggregated := o.AggregateResults(result.AuditResult, result.SemanticResult)
-	
+
 	if len(aggregated.Issues) != 2 {
 		t.Errorf("Expected 2 issues after aggregation, got %d", len(aggregated.Issues))
 	}
-	
+
 	if aggregated.ScoreImpact != 7.0 {
 		t.Errorf("Expected ScoreImpact to be 7.0, got %f", aggregated.ScoreImpact)
 	}
@@ -277,7 +265,7 @@ func TestCircuitBreakerFunctionality(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error on attempt %d: %v", i+1, err)
 		}
-		
+
 		// 引入失败操作
 		err = cb.Execute(func() error {
 			return &MockError{"simulated failure"}

@@ -2,6 +2,8 @@ package auditor
 
 import (
 	"context"
+	"os"
+
 	"google.golang.org/grpc"
 )
 
@@ -12,6 +14,7 @@ type DocumentAuditorClient interface {
 	ParseDocument(ctx context.Context, in *ParseRequest, opts ...grpc.CallOption) (*ParsedData, error)
 	AuditRules(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error)
 	AnalyzeSemantics(ctx context.Context, in *SemanticRequest, opts ...grpc.CallOption) (*AuditResponse, error)
+	InjectAnnotations(ctx context.Context, in *InjectRequest, opts ...grpc.CallOption) (*InjectResponse, error)
 }
 
 // Mock implementation
@@ -22,9 +25,9 @@ func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *Parse
 	return &ParsedData{
 		DocId: "mock-doc-id",
 		Metadata: &DocumentMetadata{
-			Title:       "Mock Document Title",
-			PageCount:   10,
-			MarginTop:   1.0,
+			Title:        "Mock Document Title",
+			PageCount:    10,
+			MarginTop:    1.0,
 			MarginBottom: 1.0,
 		},
 		Sections: []*Section{
@@ -45,8 +48,8 @@ func (m *MockDocumentAuditorClient) ParseDocument(ctx context.Context, in *Parse
 		},
 		References: []*Reference{
 			{
-				RefId:        "[1]",
-				RawText:      "[1] Sample reference",
+				RefId:         "[1]",
+				RawText:       "[1] Sample reference",
 				IsValidFormat: true,
 			},
 		},
@@ -87,6 +90,15 @@ func (m *MockDocumentAuditorClient) AnalyzeSemantics(ctx context.Context, in *Se
 	}, nil
 }
 
+// InjectAnnotations writes annotated doc to a new path.
+func (m *MockDocumentAuditorClient) InjectAnnotations(ctx context.Context, in *InjectRequest, opts ...grpc.CallOption) (*InjectResponse, error) {
+	annotatedPath := in.FilePath + "-annotated.docx"
+	if err := os.WriteFile(annotatedPath, []byte("annotated content"), 0644); err != nil {
+		return nil, err
+	}
+	return &InjectResponse{AnnotatedPath: annotatedPath}, nil
+}
+
 // Helper function to create a new client
 func NewDocumentAuditorClient(cc *grpc.ClientConn) DocumentAuditorClient {
 	return &MockDocumentAuditorClient{}
@@ -94,22 +106,22 @@ func NewDocumentAuditorClient(cc *grpc.ClientConn) DocumentAuditorClient {
 
 // Message definitions based on auditor.proto
 type ParseRequest struct {
-	FilePath    string `protobuf:"bytes,1,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+	FilePath     string `protobuf:"bytes,1,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
 	TemplateType string `protobuf:"bytes,2,opt,name=template_type,json=templateType,proto3" json:"template_type,omitempty"`
 }
 
 type ParsedData struct {
-	DocId      string             `protobuf:"bytes,1,opt,name=doc_id,json=docId,proto3" json:"doc_id,omitempty"`
-	Metadata   *DocumentMetadata  `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Sections   []*Section         `protobuf:"bytes,3,rep,name=sections,proto3" json:"sections,omitempty"`
-	References []*Reference       `protobuf:"bytes,4,rep,name=references,proto3" json:"references,omitempty"`
+	DocId      string            `protobuf:"bytes,1,opt,name=doc_id,json=docId,proto3" json:"doc_id,omitempty"`
+	Metadata   *DocumentMetadata `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Sections   []*Section        `protobuf:"bytes,3,rep,name=sections,proto3" json:"sections,omitempty"`
+	References []*Reference      `protobuf:"bytes,4,rep,name=references,proto3" json:"references,omitempty"`
 }
 
 type DocumentMetadata struct {
-	Title         string  `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	PageCount     int32   `protobuf:"varint,2,opt,name=page_count,json=pageCount,proto3" json:"page_count,omitempty"`
-	MarginTop     float32 `protobuf:"fixed32,3,opt,name=margin_top,json=marginTop,proto3" json:"margin_top,omitempty"`
-	MarginBottom  float32 `protobuf:"fixed32,4,opt,name=margin_bottom,json=marginBottom,proto3" json:"margin_bottom,omitempty"`
+	Title        string  `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	PageCount    int32   `protobuf:"varint,2,opt,name=page_count,json=pageCount,proto3" json:"page_count,omitempty"`
+	MarginTop    float32 `protobuf:"fixed32,3,opt,name=margin_top,json=marginTop,proto3" json:"margin_top,omitempty"`
+	MarginBottom float32 `protobuf:"fixed32,4,opt,name=margin_bottom,json=marginBottom,proto3" json:"margin_bottom,omitempty"`
 }
 
 type Section struct {
@@ -121,19 +133,19 @@ type Section struct {
 }
 
 type Reference struct {
-	RefId        string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
-	RawText      string `protobuf:"bytes,2,opt,name=raw_text,json=rawText,proto3" json:"raw_text,omitempty"`
-	IsValidFormat bool  `protobuf:"varint,3,opt,name=is_valid_format,json=isValidFormat,proto3" json:"is_valid_format,omitempty"`
+	RefId         string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
+	RawText       string `protobuf:"bytes,2,opt,name=raw_text,json=rawText,proto3" json:"raw_text,omitempty"`
+	IsValidFormat bool   `protobuf:"varint,3,opt,name=is_valid_format,json=isValidFormat,proto3" json:"is_valid_format,omitempty"`
 }
 
 type AuditRequest struct {
-	Data        *ParsedData `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
-	TargetRuleSet string    `protobuf:"bytes,2,opt,name=target_rule_set,json=targetRuleSet,proto3" json:"target_rule_set,omitempty"`
+	Data          *ParsedData `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	TargetRuleSet string      `protobuf:"bytes,2,opt,name=target_rule_set,json=targetRuleSet,proto3" json:"target_rule_set,omitempty"`
 }
 
 type SemanticRequest struct {
-	Sections    []*Section `protobuf:"bytes,1,rep,name=sections,proto3" json:"sections,omitempty"`
-	ModelVersion string    `protobuf:"bytes,2,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
+	Sections     []*Section `protobuf:"bytes,1,rep,name=sections,proto3" json:"sections,omitempty"`
+	ModelVersion string     `protobuf:"bytes,2,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
 }
 
 type AuditResponse struct {
@@ -142,22 +154,22 @@ type AuditResponse struct {
 }
 
 type Issue struct {
-	Code            string     `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
-	Message         string     `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	SectionId       int32      `protobuf:"varint,3,opt,name=section_id,json=sectionId,proto3" json:"section_id,omitempty"`
-	Severity        Severity   `protobuf:"varint,4,opt,name=severity,proto3,enum=academic.auditor.Severity" json:"severity,omitempty"`
-	Suggestion      string     `protobuf:"bytes,5,opt,name=suggestion,proto3" json:"suggestion,omitempty"`
-	OriginalSnippet string     `protobuf:"bytes,6,opt,name=original_snippet,json=originalSnippet,proto3" json:"original_snippet,omitempty"`
+	Code            string   `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Message         string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	SectionId       int32    `protobuf:"varint,3,opt,name=section_id,json=sectionId,proto3" json:"section_id,omitempty"`
+	Severity        Severity `protobuf:"varint,4,opt,name=severity,proto3,enum=academic.auditor.Severity" json:"severity,omitempty"`
+	Suggestion      string   `protobuf:"bytes,5,opt,name=suggestion,proto3" json:"suggestion,omitempty"`
+	OriginalSnippet string   `protobuf:"bytes,6,opt,name=original_snippet,json=originalSnippet,proto3" json:"original_snippet,omitempty"`
 }
 
 type Severity int32
 
 const (
-	Severity_INFO      Severity = 0
-	Severity_LOW       Severity = 1
-	Severity_MEDIUM    Severity = 2
-	Severity_HIGH      Severity = 3
-	Severity_CRITICAL  Severity = 4
+	Severity_INFO     Severity = 0
+	Severity_LOW      Severity = 1
+	Severity_MEDIUM   Severity = 2
+	Severity_HIGH     Severity = 3
+	Severity_CRITICAL Severity = 4
 )
 
 func (x Severity) String() string {
@@ -175,4 +187,15 @@ func (x Severity) String() string {
 	default:
 		return "UNKNOWN"
 	}
+}
+
+// InjectRequest carries the source doc path and issues for annotation.
+type InjectRequest struct {
+	FilePath string   `protobuf:"bytes,1,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+	Issues   []*Issue `protobuf:"bytes,2,rep,name=issues,proto3" json:"issues,omitempty"`
+}
+
+// InjectResponse returns the annotated document path.
+type InjectResponse struct {
+	AnnotatedPath string `protobuf:"bytes,1,opt,name=annotated_path,json=annotatedPath,proto3" json:"annotated_path,omitempty"`
 }

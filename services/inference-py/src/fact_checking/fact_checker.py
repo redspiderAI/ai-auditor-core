@@ -261,10 +261,7 @@ class ReferenceFactChecker:
         reference = re.sub(r"\s+", " ", reference)
 
         # 提取标题（通常在引号或书名号内，也包括句点后的标题）
-        title_match = re.search(
-            r'["“”\'\'‘’]([^"“”\'\'‘’]+)["“”\'\'‘’]|\[([^\]]+)\]|《([^》]+)》',
-            reference,
-        )
+        title_match = re.search(r'[""''"'']([^""''"'']+)[""''"'']|\[([^]]+)\]|《([^》]+)》', reference)
         if title_match:
             info["title"] = (
                 title_match.group(1) or title_match.group(2) or title_match.group(3)

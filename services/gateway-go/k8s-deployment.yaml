@@ -26,6 +26,12 @@ spec:
           value: "8080"
         - name: TEMP_DIR
           value: "/tmp/docs"
+        - name: PY_INFERENCE_ADDR
+          value: "inference-py:8123"
+        - name: EMERGENCY_MODE
+          value: "true"
+        - name: QUICK_AUDIT_URL
+          value: "http://inference-py:8123/v1/quick-audit"
         resources:
           requests:
             memory: "128Mi"

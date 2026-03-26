@@ -4,15 +4,17 @@
 package worker
 
 import (
+	"context"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
+	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/store"
 	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/tempmanager"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/notification"
-	"github.com/redspiderAI/ai-auditor-core/services/gateway-go/src/mock/auditor"
 )
 
 // Worker simulates processing (parse -> audit -> report -> annotate).
@@ -88,8 +90,8 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 				"page_count": parsedData.Metadata.PageCount,
 				"file_size":  1234,
 			},
-			"issues": convertIssuesToProtocol(allIssues),
-			"issue_summary": generateIssueSummary(allIssues),
+			"issues":          convertIssuesToProtocol(allIssues),
+			"issue_summary":   generateIssueSummary(allIssues),
 			"compliance_rate": calculateComplianceRate(allIssues),
 			"total_score":     calculateTotalScore(allIssues),
 		})
@@ -105,7 +107,24 @@ func Worker(tasks <-chan string, s *store.Store, tempManager *tempmanager.TempFi
 		if notificationSvc != nil {
 			notificationSvc.NotifyTaskCompletion(id)
 		}
+		if t, ok := s.GetTask(id); ok {
+			triggerWebhookLocal(id, t.CallbackURL, store.Completed, 100, "Task completed")
+		}
 	}
+}
+
+func triggerWebhookLocal(taskID, callbackURL string, status store.TaskStatus, progress int, message string) {
+	if callbackURL == "" {
+		return
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		payload := notification.WebhookPayload{TaskID: taskID, Status: string(status), Progress: progress, Message: message}
+		if err := notification.SendWebhook(ctx, callbackURL, payload, 5*time.Second); err != nil {
+			log.Printf("webhook error: %v", err)
+		}
+	}()
 }
 
 // generateParsedData generates structured document data according to protocol
@@ -113,9 +132,9 @@ func generateParsedData(taskID string) *auditor.ParsedData {
 	return &auditor.ParsedData{
 		DocId: taskID,
 		Metadata: &auditor.DocumentMetadata{
-			Title:       "基于AI的文档审查研究",
-			PageCount:   24,
-			MarginTop:   1.0,
+			Title:        "基于AI的文档审查研究",
+			PageCount:    24,
+			MarginTop:    1.0,
 			MarginBottom: 1.0,
 		},
 		Sections: []*auditor.Section{
@@ -136,8 +155,8 @@ func generateParsedData(taskID string) *auditor.ParsedData {
 		},
 		References: []*auditor.Reference{
 			{
-				RefId:        "[1]",
-				RawText:      "[1] 张三. 人工智能导论[M]. 北京: 科学出版社, 2023.",
+				RefId:         "[1]",
+				RawText:       "[1] 张三. 人工智能导论[M]. 北京: 科学出版社, 2023.",
 				IsValidFormat: true,
 			},
 		},
@@ -146,36 +165,46 @@ func generateParsedData(taskID string) *auditor.ParsedData {
 
 // simulateRuleCheck simulates rule checking by Member B
 func simulateRuleCheck(parsedData *auditor.ParsedData) []*auditor.Issue {
+	targetSection := 1
+	if len(parsedData.Sections) > 0 {
+		targetSection = int(parsedData.Sections[0].SectionId)
+	}
+
 	return []*auditor.Issue{
 		{
 			Code:            "ERR_FONT_001",
 			Message:         "一级标题字体应为黑体，当前为宋体。",
-			SectionId:       1,
+			SectionId:       int32(targetSection),
 			Severity:        auditor.Severity_MEDIUM,
 			Suggestion:      "请修改为黑体三号",
-			OriginalSnippet: "1. 引言",
+			OriginalSnippet: parsedData.Metadata.Title,
 		},
 		{
 			Code:            "ERR_CITATION_001",
 			Message:         "正文引用了[1]，但参考文献列表中未找到对应项。",
-			SectionId:       2,
+			SectionId:       int32(targetSection + 1),
 			Severity:        auditor.Severity_HIGH,
 			Suggestion:      "请补充条目[1]或修改引用编号",
-			OriginalSnippet: "随着人工智能的发展，文档审查变得尤为重要[1]。",
+			OriginalSnippet: parsedData.DocId,
 		},
 	}
 }
 
 // simulateSemanticAnalysis simulates semantic analysis by Member C
 func simulateSemanticAnalysis(parsedData *auditor.ParsedData) []*auditor.Issue {
+	sectionID := int32(2)
+	if len(parsedData.Sections) > 1 {
+		sectionID = parsedData.Sections[1].SectionId
+	}
+
 	return []*auditor.Issue{
 		{
 			Code:            "ERR_TYPO_001",
 			Message:         "检测到疑似错别字：'份' -> '分'。",
-			SectionId:       2,
+			SectionId:       sectionID,
 			Severity:        auditor.Severity_HIGH,
 			Suggestion:      "成分",
-			OriginalSnippet: "随着人工智能的发展，文档审查变得尤为重要[1]。",
+			OriginalSnippet: parsedData.Sections[0].Text,
 		},
 	}
 }
@@ -231,9 +260,9 @@ func generateIssueSummary(issues []*auditor.Issue) map[string]any {
 			"low":    0,
 		},
 		"by_category": map[string]int{
-			"structural":  0,
-			"relational":  0,
-			"semantic":    0,
+			"structural": 0,
+			"relational": 0,
+			"semantic":   0,
 		},
 		"high_risk_issues": 0,
 	}
@@ -315,8 +344,8 @@ func calculateTotalScore(issues []*auditor.Issue) float64 {
 // Helper functions
 func contains(str, substr string) bool {
 	return len(str) >= len(substr) &&
-		   (str[:len(substr)] == substr ||
-		    str[len(str)-len(substr):] == substr ||
+		(str[:len(substr)] == substr ||
+			str[len(str)-len(substr):] == substr ||
 			findSubstring(str, substr))
 }
 

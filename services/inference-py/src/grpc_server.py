@@ -83,6 +83,11 @@ class DocumentAuditorServicer(auditor_pb2_grpc.DocumentAuditorServicer):
                     run_sliding_window_analysis(sections, api_key=settings.dashscope_api_key)
                 )
                 resp.issues.extend(issues)
+                # 追加长文本逻辑一致性结果
+                consistency_result = loop.run_until_complete(
+                    self.consistency_checker.check_consistency(sections)
+                )
+                resp.issues.extend(consistency_result.issues)
             finally:
                 loop.close()
 

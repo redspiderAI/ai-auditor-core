@@ -27,6 +27,11 @@ DEFAULT_OUTPUT_ROOT = REPO_ROOT / "data" / "output"
 # FastAPI 上传文件的暂存目录
 UPLOAD_ROOT = Path(tempfile.gettempdir()) / "ai_auditor_uploads"
 TARGET_PATTERN = re.compile(r"毕业论文\.docx$", re.IGNORECASE)
+EMERGENCY_MESSAGE = "当前处于快速 AI 审查模式，物理格式检查（字号/行距）已跳过。"
+
+# Quick audit components are initialized lazily to avoid extra overhead when running batch/GRPC
+_quick_servicer = DocumentAuditorServicer()
+_quick_detector = _quick_servicer.semantic_detector
 
 
 def _parse_addr_env(env_value: str) -> Tuple[str, int]:

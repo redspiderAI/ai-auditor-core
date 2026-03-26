@@ -1,0 +1,64 @@
+package com.auditor.rules.formatting
+
+import com.auditor.grpc.Issue
+import com.auditor.grpc.Severity
+import com.auditor.grpc.Section
+import com.auditor.grpc.ParsedData
+import org.slf4j.Logger
+
+global java.util.List issues global Logger logger
+
+// 辅助函数：创建 Issue
+function Issue createIssue(String code,String message,String sectionId,Severity severity,String suggestion){int sectionNum=0;try{sectionNum=Integer.parseInt(sectionId);}catch(NumberFormatException e){sectionNum=0;}
+
+return Issue.newBuilder().setCode(code).setMessage(message).setSectionId(sectionNum).setSeverity(severity).setSuggestion(suggestion).setOriginalSnippet(message).build();}
+
+// 规则1: 检查一级标题字体
+rule"Check Level 1 Heading Font"when $section:Section(level==1,fontFamily!="黑体")then logger.info("发现一级标题字体问题: sectionId={}, 当前字体={}",$section.getId(),$section.getFontFamily());
+
+Issue issue=createIssue("FMT_HEADING_FONT","一级标题（段落"+$section.getId()+"）字体应为黑体，当前为"+$section.getFontFamily(),$section.getId(),Severity.MEDIUM,"请将一级标题字体修改为黑体");issues.add(issue);end
+
+// 规则2: 检查二级标题字体
+rule"Check Level 2 Heading Font"when $section:Section(level==2,fontFamily!="黑体")then logger.info("发现二级标题字体问题: sectionId={}, 当前字体={}",$section.getId(),$section.getFontFamily());
+
+Issue issue=createIssue("FMT_HEADING_FONT","二级标题（段落"+$section.getId()+"）字体应为黑体，当前为"+$section.getFontFamily(),$section.getId(),Severity.MEDIUM,"请将二级标题字体修改为黑体");issues.add(issue);end
+
+// 规则3: 检查正文字体
+rule"Check Body Font"when $section:Section(level==0,fontFamily!="宋体")then logger.info("发现正文字体问题: sectionId={}, 当前字体={}",$section.getId(),$section.getFontFamily());
+
+Issue issue=createIssue("FMT_BODY_FONT","正文（段落"+$section.getId()+"）字体应为宋体，当前为"+$section.getFontFamily(),$section.getId(),Severity.MEDIUM,"请将正文字体修改为宋体");issues.add(issue);end
+
+// 规则4: 检查一级标题字号
+rule"Check Level 1 Heading Font Size"when $section:Section(level==1,fontSize<16||fontSize>18)then logger.info("发现一级标题字号问题: sectionId={}, 当前字号={}",$section.getId(),$section.getFontSize());
+
+Issue issue=createIssue("FMT_HEADING_SIZE","一级标题（段落"+$section.getId()+"）字号应为16-18pt，当前为"+$section.getFontSize()+"pt",$section.getId(),Severity.MEDIUM,"请将一级标题字号调整为16-18pt");issues.add(issue);end
+
+// 规则5: 检查二级标题字号
+rule"Check Level 2 Heading Font Size"when $section:Section(level==2,fontSize<15||fontSize>16)then logger.info("发现二级标题字号问题: sectionId={}, 当前字号={}",$section.getId(),$section.getFontSize());
+
+Issue issue=createIssue("FMT_HEADING_SIZE","二级标题（段落"+$section.getId()+"）字号应为15-16pt，当前为"+$section.getFontSize()+"pt",$section.getId(),Severity.MEDIUM,"请将二级标题字号调整为15-16pt");issues.add(issue);end
+
+// 规则6: 检查正文字号
+rule"Check Body Font Size"when $section:Section(level==0,fontSize<12||fontSize>13)then logger.info("发现正文字号问题: sectionId={}, 当前字号={}",$section.getId(),$section.getFontSize());
+
+Issue issue=createIssue("FMT_BODY_SIZE","正文（段落"+$section.getId()+"）字号应为12-13pt，当前为"+$section.getFontSize()+"pt",$section.getId(),Severity.MEDIUM,"请将正文字号调整为12-13pt");issues.add(issue);end
+
+// 规则7: 检查行距
+rule"Check Line Spacing"when $section:Section(lineSpacing<1.5)then logger.info("发现行距问题: sectionId={}, 当前行距={}",$section.getId(),$section.getLineSpacing());
+
+Issue issue=createIssue("FMT_LINE_SPACING","段落"+$section.getId()+"的行距应不小于1.5倍，当前为"+$section.getLineSpacing()+"倍",$section.getId(),Severity.LOW,"请将行距调整为1.5倍或更高");issues.add(issue);end
+
+// 规则8: 检查段前距
+rule"Check Paragraph Spacing Before"when $section:Section(paragraphSpacingBefore<0.5)then logger.info("发现段前距问题: sectionId={}, 当前段前距={}",$section.getId(),$section.getParagraphSpacingBefore());
+
+Issue issue=createIssue("FMT_PARAGRAPH_SPACING","段落"+$section.getId()+"的段前距应不小于0.5行，当前为"+$section.getParagraphSpacingBefore()+"行",$section.getId(),Severity.LOW,"请将段前距调整为0.5行或更高");issues.add(issue);end
+
+// 规则9: 检查段后距
+rule"Check Paragraph Spacing After"when $section:Section(paragraphSpacingAfter<0.5)then logger.info("发现段后距问题: sectionId={}, 当前段后距={}",$section.getId(),$section.getParagraphSpacingAfter());
+
+Issue issue=createIssue("FMT_PARAGRAPH_SPACING","段落"+$section.getId()+"的段后距应不小于0.5行，当前为"+$section.getParagraphSpacingAfter()+"行",$section.getId(),Severity.LOW,"请将段后距调整为0.5行或更高");issues.add(issue);end
+
+// 规则10: 检查对齐方式
+rule"Check Text Alignment"when $section:Section(textAlignment!="justify"&&textAlignment!="left")then logger.info("发现对齐方式问题: sectionId={}, 当前对齐方式={}",$section.getId(),$section.getTextAlignment());
+
+Issue issue=createIssue("FMT_TEXT_ALIGNMENT","段落"+$section.getId()+"的对齐方式应为两端对齐或左对齐，当前为"+$section.getTextAlignment(),$section.getId(),Severity.LOW,"请将对齐方式修改为两端对齐或左对齐");issues.add(issue);end
