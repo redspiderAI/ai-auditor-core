@@ -1,0 +1,1614 @@
+{
+  "sections": [
+    {
+      "id": 1,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_1.txt",
+      "offset": 2381467167040
+    },
+    {
+      "id": 2,
+      "element_type": "Paragraph",
+      "raw_text": "Algorithm and Data Structure算法与数据结构",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_2.txt",
+      "offset": 2381467167184
+    },
+    {
+      "id": 3,
+      "element_type": "Paragraph",
+      "raw_text": "主讲：刘晓芳",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_3.txt",
+      "offset": 2381479961360
+    },
+    {
+      "id": 4,
+      "element_type": "Paragraph",
+      "raw_text": "电话：13805798311",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_4.txt",
+      "offset": 2381420822208
+    },
+    {
+      "id": 5,
+      "element_type": "Paragraph",
+      "raw_text": "⚫算法：指令的集合",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_5.txt",
+      "offset": 2381479961648
+    },
+    {
+      "id": 6,
+      "element_type": "Paragraph",
+      "raw_text": "⚫数据结构： 计算机中存储、组织数据",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_6.txt",
+      "offset": 2381467453904
+    },
+    {
+      "id": 7,
+      "element_type": "Paragraph",
+      "raw_text": "的方式（逻辑结构、物理结构、运算",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_7.txt",
+      "offset": 2381467465776
+    },
+    {
+      "id": 8,
+      "element_type": "Paragraph",
+      "raw_text": "/操作）",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_1_para_8.txt",
+      "offset": 2381479961552
+    },
+    {
+      "id": 9,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_2_para_1.txt",
+      "offset": 2381467170352
+    },
+    {
+      "id": 10,
+      "element_type": "Paragraph",
+      "raw_text": "期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_2_para_2.txt",
+      "offset": 2381479962416
+    },
+    {
+      "id": 11,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_1.txt",
+      "offset": 2381467171648
+    },
+    {
+      "id": 12,
+      "element_type": "Paragraph",
+      "raw_text": "一算法复杂度分析",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_2.txt",
+      "offset": 2381479963184
+    },
+    {
+      "id": 13,
+      "element_type": "Paragraph",
+      "raw_text": "1.设n是描述问题规模的非负整数 ，下面的程序片段的时间复杂度是 （）。A",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_3.txt",
+      "offset": 2381467843952
+    },
+    {
+      "id": 14,
+      "element_type": "Paragraph",
+      "raw_text": "x=2;",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_4.txt",
+      "offset": 2381482905456
+    },
+    {
+      "id": 15,
+      "element_type": "Paragraph",
+      "raw_text": "while(x<n/ 2)",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_5.txt",
+      "offset": 2381482913456
+    },
+    {
+      "id": 16,
+      "element_type": "Paragraph",
+      "raw_text": "x=2*x;",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_6.txt",
+      "offset": 2381482914800
+    },
+    {
+      "id": 17,
+      "element_type": "Paragraph",
+      "raw_text": "A.O(log2n) B.O(n) C.O(nlog2n) D.O(n2)",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_7.txt",
+      "offset": 2381479963376
+    },
+    {
+      "id": 18,
+      "element_type": "Paragraph",
+      "raw_text": "2.设n是描述问题规模的非负整数 ，下面的程序片段的时间复杂度是 （）。B",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_8.txt",
+      "offset": 2381467592272
+    },
+    {
+      "id": 19,
+      "element_type": "Paragraph",
+      "raw_text": "x=0;",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_9.txt",
+      "offset": 2381482915248
+    },
+    {
+      "id": 20,
+      "element_type": "Paragraph",
+      "raw_text": "for(n>=(x+ 1)*(x+ 1))",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_10.txt",
+      "offset": 2381487361760
+    },
+    {
+      "id": 21,
+      "element_type": "Paragraph",
+      "raw_text": "x=x+ 1;",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_11.txt",
+      "offset": 2381482915632
+    },
+    {
+      "id": 22,
+      "element_type": "Paragraph",
+      "raw_text": "A.O(log2n) B.O(n1/2) C.O(n) D.O(n2)",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_12.txt",
+      "offset": 2381479963472
+    },
+    {
+      "id": 23,
+      "element_type": "Paragraph",
+      "raw_text": "解答：第 k次判断时 :  x=k -1.  k2>n",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_3_para_13.txt",
+      "offset": 2381483934384
+    },
+    {
+      "id": 24,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_1.txt",
+      "offset": 2381467164880
+    },
+    {
+      "id": 25,
+      "element_type": "Paragraph",
+      "raw_text": "二基本数据结构",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_2.txt",
+      "offset": 2381479964816
+    },
+    {
+      "id": 26,
+      "element_type": "Paragraph",
+      "raw_text": "1.线性结构 （线性表）向量（顺序表），列表（链表），栈，队列",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_3.txt",
+      "offset": 2381467163872
+    },
+    {
+      "id": 27,
+      "element_type": "Paragraph",
+      "raw_text": "（1）单向列表",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_4.txt",
+      "offset": 2381479964912
+    },
+    {
+      "id": 28,
+      "element_type": "Paragraph",
+      "raw_text": "（2）循环队列",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_5.txt",
+      "offset": 2381479965008
+    },
+    {
+      "id": 29,
+      "element_type": "Paragraph",
+      "raw_text": "【练习题】若希望循环队列中的元素都能得到利用，则需设置一个标志域 tag，并以 tag的值",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_6.txt",
+      "offset": 2381467686448
+    },
+    {
+      "id": 30,
+      "element_type": "Paragraph",
+      "raw_text": "为0或1来区分队首指针 front和队尾指针 rear相同时的队列状态是“空”还是“满”。试编写",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_7.txt",
+      "offset": 2381467686272
+    },
+    {
+      "id": 31,
+      "element_type": "Paragraph",
+      "raw_text": "与此结果相应得入队和出队算法。【练习题】在一个单向列表中，其节点结构为，其中 succ是指向其直接后继节点的指针。",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_8.txt",
+      "offset": 2381467478000
+    },
+    {
+      "id": 32,
+      "element_type": "Paragraph",
+      "raw_text": "已知 q所指节点是 p所指节点的前驱节点，若在 q和p之间插入节点 s，则执行 (       )。",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_9.txt",
+      "offset": 2381467686624
+    },
+    {
+      "id": 33,
+      "element_type": "Paragraph",
+      "raw_text": "A. s→succ =p→succ ; p→succ =s;                                      B. p→succ =s→succ ; s→succ =p;",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_10.txt",
+      "offset": 2381488116560
+    },
+    {
+      "id": 34,
+      "element_type": "Paragraph",
+      "raw_text": "C. q→succ =s; s→succ =p;                                                 D. p→succ =s; s→succ =q;",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_4_para_11.txt",
+      "offset": 2381488117104
+    },
+    {
+      "id": 35,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_1.txt",
+      "offset": 2381467171792
+    },
+    {
+      "id": 36,
+      "element_type": "Paragraph",
+      "raw_text": "二基本数据结构",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_2.txt",
+      "offset": 2381479965392
+    },
+    {
+      "id": 37,
+      "element_type": "Paragraph",
+      "raw_text": "2.树结构 二叉树",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_3.txt",
+      "offset": 2381479965488
+    },
+    {
+      "id": 38,
+      "element_type": "Paragraph",
+      "raw_text": "【例题】已知某二叉树的中序遍历序列是： HDMIBJNEAFKCG ；后序遍历序",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_4.txt",
+      "offset": 2381425078672
+    },
+    {
+      "id": 39,
+      "element_type": "Paragraph",
+      "raw_text": "列是： HMIDNJEBKFGCA 。画出该二叉树并写出先序遍历序列 。【例题】设一棵非空完全二叉树 T得所有叶结点均位于同一层 ，且每个非叶结点都有 2",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_5.txt",
+      "offset": 2381467301280
+    },
+    {
+      "id": 40,
+      "element_type": "Paragraph",
+      "raw_text": "个子结点 。若T有k个叶结点 ，则T的结点总数是 （）。",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_6.txt",
+      "offset": 2381467172656
+    },
+    {
+      "id": 41,
+      "element_type": "Paragraph",
+      "raw_text": "A.2k-1 B.2k-1 C.k2 D.2k-1",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_5_para_7.txt",
+      "offset": 2381487842896
+    },
+    {
+      "id": 42,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_1.txt",
+      "offset": 2381467172512
+    },
+    {
+      "id": 43,
+      "element_type": "Paragraph",
+      "raw_text": "二基本数据结构",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_2.txt",
+      "offset": 2381479965584
+    },
+    {
+      "id": 44,
+      "element_type": "Paragraph",
+      "raw_text": "3.图结构",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_3.txt",
+      "offset": 2381479965776
+    },
+    {
+      "id": 45,
+      "element_type": "Paragraph",
+      "raw_text": "【例题】设图的邻接矩阵 A如下所示 ，各顶点的度依次是 （ ）。",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_4.txt",
+      "offset": 2381467172368
+    },
+    {
+      "id": 46,
+      "element_type": "Paragraph",
+      "raw_text": "0 1 0 1",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_5.txt",
+      "offset": 2381485994032
+    },
+    {
+      "id": 47,
+      "element_type": "Paragraph",
+      "raw_text": "0 0 1 1",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_6.txt",
+      "offset": 2381485990640
+    },
+    {
+      "id": 48,
+      "element_type": "Paragraph",
+      "raw_text": "0 1 0 0",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_7.txt",
+      "offset": 2381485994992
+    },
+    {
+      "id": 49,
+      "element_type": "Paragraph",
+      "raw_text": "1 0 0 0",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_8.txt",
+      "offset": 2381479965872
+    },
+    {
+      "id": 50,
+      "element_type": "Paragraph",
+      "raw_text": "",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_9.txt",
+      "offset": 2381467778496
+    },
+    {
+      "id": 51,
+      "element_type": "Paragraph",
+      "raw_text": "",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_10.txt",
+      "offset": 2381467778896
+    },
+    {
+      "id": 52,
+      "element_type": "Paragraph",
+      "raw_text": "",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_11.txt",
+      "offset": 2381467777296
+    },
+    {
+      "id": 53,
+      "element_type": "Paragraph",
+      "raw_text": "",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_12.txt",
+      "offset": 2381467778416
+    },
+    {
+      "id": 54,
+      "element_type": "Paragraph",
+      "raw_text": "",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_13.txt",
+      "offset": 2381467778976
+    },
+    {
+      "id": 55,
+      "element_type": "Paragraph",
+      "raw_text": "A.1,2,1,2 B.2,2,1,1 C.3,4,2,3 D.4,4,2,2",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_14.txt",
+      "offset": 2381479956944
+    },
+    {
+      "id": 56,
+      "element_type": "Paragraph",
+      "raw_text": "图的操作：遍历（搜索）",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_15.txt",
+      "offset": 2381479965968
+    },
+    {
+      "id": 57,
+      "element_type": "Paragraph",
+      "raw_text": "图的应用拓扑排序，最小生成树，最短路径",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_6_para_16.txt",
+      "offset": 2381479537536
+    },
+    {
+      "id": 58,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_7_para_1.txt",
+      "offset": 2381467172224
+    },
+    {
+      "id": 59,
+      "element_type": "Paragraph",
+      "raw_text": "三查找（搜索）",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_7_para_2.txt",
+      "offset": 2381479966352
+    },
+    {
+      "id": 60,
+      "element_type": "Paragraph",
+      "raw_text": "基本数据结构的查找，二分查找 ,   搜索二叉树， A VL，B-树，红黑树，散列表",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_7_para_3.txt",
+      "offset": 2381467971664
+    },
+    {
+      "id": 61,
+      "element_type": "Paragraph",
+      "raw_text": "【例】已知一棵 3阶B树，如下图所示。删除关键字 78得到一棵新 B树，其最",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_7_para_4.txt",
+      "offset": 2381467970384
+    },
+    {
+      "id": 62,
+      "element_type": "Paragraph",
+      "raw_text": "右叶节点中的关键字是（ ）。",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_7_para_5.txt",
+      "offset": 2381479537648
+    },
+    {
+      "id": 63,
+      "element_type": "Paragraph",
+      "raw_text": "A. 60                           B. 60 ，62                               C. 62 ，65                            D. 65",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_7_para_6.txt",
+      "offset": 2381467334960
+    },
+    {
+      "id": 64,
+      "element_type": "Paragraph",
+      "raw_text": "中国计量大学信息工程学院 刘晓芳 算法与数据结构 期末复习",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_1.txt",
+      "offset": 2381467172080
+    },
+    {
+      "id": 65,
+      "element_type": "Paragraph",
+      "raw_text": "四排序",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_2.txt",
+      "offset": 2381467776976
+    },
+    {
+      "id": 66,
+      "element_type": "Paragraph",
+      "raw_text": "算法名 平均情况 最坏情况 是否稳定",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_3.txt",
+      "offset": 2381479538208
+    },
+    {
+      "id": 67,
+      "element_type": "Paragraph",
+      "raw_text": "冒泡排序 O(n2) O(n2) 是",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_4.txt",
+      "offset": 2381479541008
+    },
+    {
+      "id": 68,
+      "element_type": "Paragraph",
+      "raw_text": "选择排序 O(n2) O(n2) 否",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_5.txt",
+      "offset": 2381479537424
+    },
+    {
+      "id": 69,
+      "element_type": "Paragraph",
+      "raw_text": "插入排序 O(n2) O(n2) 是",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_6.txt",
+      "offset": 2381479537312
+    },
+    {
+      "id": 70,
+      "element_type": "Paragraph",
+      "raw_text": "希尔排序 —— O(nlog2n) 否",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_7.txt",
+      "offset": 2381479537200
+    },
+    {
+      "id": 71,
+      "element_type": "Paragraph",
+      "raw_text": "归并排序 O(nlogn ) O(nlogn ) 是",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_8.txt",
+      "offset": 2381469285552
+    },
+    {
+      "id": 72,
+      "element_type": "Paragraph",
+      "raw_text": "堆排序 O(nlogn ) O(nlogn ) 否",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_9.txt",
+      "offset": 2381469285296
+    },
+    {
+      "id": 73,
+      "element_type": "Paragraph",
+      "raw_text": "快速排序 O(nlogn ) O(n2) 否",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_10.txt",
+      "offset": 2381469285808
+    },
+    {
+      "id": 74,
+      "element_type": "Paragraph",
+      "raw_text": "用某种排序方法对线性表 {25，84，21，47，15，27，68，35，20}进行排序时，元素序列的变化情况如下：",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_11.txt",
+      "offset": 2381467481456
+    },
+    {
+      "id": 75,
+      "element_type": "Paragraph",
+      "raw_text": "1）25，84，21，47，15，27，68，35，20",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_12.txt",
+      "offset": 2381467171936
+    },
+    {
+      "id": 76,
+      "element_type": "Paragraph",
+      "raw_text": "2）20，15，21，25，47，27，68，35，84",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_13.txt",
+      "offset": 2381467171360
+    },
+    {
+      "id": 77,
+      "element_type": "Paragraph",
+      "raw_text": "3）15，20，21，25，35，27，47，68，84",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_14.txt",
+      "offset": 2381467171216
+    },
+    {
+      "id": 78,
+      "element_type": "Paragraph",
+      "raw_text": "4）15，20，21，25，27，35，47，68，84",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_15.txt",
+      "offset": 2381467171072
+    },
+    {
+      "id": 79,
+      "element_type": "Paragraph",
+      "raw_text": "则所采用的排序方法是（ ）。",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_16.txt",
+      "offset": 2381479537088
+    },
+    {
+      "id": 80,
+      "element_type": "Paragraph",
+      "raw_text": "A. 选择排序 B.插入排序 C. 堆排序 D.快速排序",
+      "formatting": {
+        "element-type": "pdf-text",
+        "font-size": "12pt",
+        "font-family": "Arial",
+        "font-weight": "normal"
+      },
+      "xml_path": "page_8_para_17.txt",
+      "offset": 2381467170928
+    }
+  ],
+  "positions": {
+    "1": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "2": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "3": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "4": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "5": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "6": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "7": {
+      "x": 50.0,
+      "y": 170.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "8": {
+      "x": 50.0,
+      "y": 190.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 1
+    },
+    "9": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 2
+    },
+    "10": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 2
+    },
+    "11": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "12": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "13": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "14": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "15": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "16": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "17": {
+      "x": 50.0,
+      "y": 170.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "18": {
+      "x": 50.0,
+      "y": 190.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "19": {
+      "x": 50.0,
+      "y": 210.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "20": {
+      "x": 50.0,
+      "y": 230.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "21": {
+      "x": 50.0,
+      "y": 250.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "22": {
+      "x": 50.0,
+      "y": 270.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "23": {
+      "x": 50.0,
+      "y": 290.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 3
+    },
+    "24": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "25": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "26": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "27": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "28": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "29": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "30": {
+      "x": 50.0,
+      "y": 170.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "31": {
+      "x": 50.0,
+      "y": 190.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "32": {
+      "x": 50.0,
+      "y": 210.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "33": {
+      "x": 50.0,
+      "y": 230.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "34": {
+      "x": 50.0,
+      "y": 250.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 4
+    },
+    "35": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "36": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "37": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "38": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "39": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "40": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "41": {
+      "x": 50.0,
+      "y": 170.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 5
+    },
+    "42": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "43": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "44": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "45": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "46": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "47": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "48": {
+      "x": 50.0,
+      "y": 170.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "49": {
+      "x": 50.0,
+      "y": 190.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "50": {
+      "x": 50.0,
+      "y": 210.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "51": {
+      "x": 50.0,
+      "y": 230.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "52": {
+      "x": 50.0,
+      "y": 250.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "53": {
+      "x": 50.0,
+      "y": 270.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "54": {
+      "x": 50.0,
+      "y": 290.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "55": {
+      "x": 50.0,
+      "y": 310.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "56": {
+      "x": 50.0,
+      "y": 330.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "57": {
+      "x": 50.0,
+      "y": 350.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 6
+    },
+    "58": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 7
+    },
+    "59": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 7
+    },
+    "60": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 7
+    },
+    "61": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 7
+    },
+    "62": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 7
+    },
+    "63": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 7
+    },
+    "64": {
+      "x": 50.0,
+      "y": 50.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "65": {
+      "x": 50.0,
+      "y": 70.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "66": {
+      "x": 50.0,
+      "y": 90.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "67": {
+      "x": 50.0,
+      "y": 110.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "68": {
+      "x": 50.0,
+      "y": 130.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "69": {
+      "x": 50.0,
+      "y": 150.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "70": {
+      "x": 50.0,
+      "y": 170.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "71": {
+      "x": 50.0,
+      "y": 190.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "72": {
+      "x": 50.0,
+      "y": 210.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "73": {
+      "x": 50.0,
+      "y": 230.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "74": {
+      "x": 50.0,
+      "y": 250.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "75": {
+      "x": 50.0,
+      "y": 270.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "76": {
+      "x": 50.0,
+      "y": 290.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "77": {
+      "x": 50.0,
+      "y": 310.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "78": {
+      "x": 50.0,
+      "y": 330.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "79": {
+      "x": 50.0,
+      "y": 350.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    },
+    "80": {
+      "x": 50.0,
+      "y": 370.0,
+      "width": 500.0,
+      "height": 15.0,
+      "page_number": 8
+    }
+  },
+  "metadata": {
+    "title": null,
+    "total_pages": 8,
+    "file_path": "data\\input\\算法与数据结构2025-2026-1_复习.pdf",
+    "file_size": 503435,
+    "creation_date": null,
+    "modification_date": null
+  }
+}
