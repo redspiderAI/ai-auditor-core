@@ -7,15 +7,25 @@ on:
     branches: [ main ]
 
 jobs:
-  # 成员 A: Rust 检查 (语法、性能、安全性)
-  rust-audit:
+  # 成员 A: Parser-Py 检查 (解析引擎、静态规则)
+  parser-py-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Rust Check
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
         run: |
-          cd services/parser-rs
-          cargo check --release
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Parser Lint
+        working-directory: services/parser-py
+        run: |
+          uv venv --python 3.11
+          uv sync --extra dev
+          uv run --extra dev ruff check .
 
   # 成员 B: Java 检查 (规则逻辑、依赖扫描)
   java-audit:
