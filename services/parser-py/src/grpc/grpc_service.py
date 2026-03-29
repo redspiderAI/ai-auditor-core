@@ -63,6 +63,19 @@ class DocumentAuditorServicer(auditor_pb2_grpc.DocumentAuditorServicer):
             # 添加属性
             for key, value in section.formatting.items():
                 section_proto.props[key] = value
+
+            # 回写定位：保留 xml_path 与 offset，供 Go 网关和后续批注使用
+            section_proto.props['xml_path'] = section.xml_path
+            section_proto.props['offset'] = str(section.offset)
+
+            # 位置坐标（来自解析阶段计算的 positions 映射）
+            position = result.get('positions', {}).get(section.id)
+            if position:
+                section_proto.props['position.x'] = str(position.get('x', ''))
+                section_proto.props['position.y'] = str(position.get('y', ''))
+                section_proto.props['position.width'] = str(position.get('width', ''))
+                section_proto.props['position.height'] = str(position.get('height', ''))
+                section_proto.props['position.page_number'] = str(position.get('page_number', ''))
         
         return parsed_data
     
