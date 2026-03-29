@@ -8,20 +8,22 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - RUST_PARSER_ADDR=parser-rs:52051
+      - RUST_PARSER_ADDR=parser-py:50051
       - JAVA_ENGINE_ADDR=engine-java:9191
       - PY_INFERENCE_ADDR=inference-py:8123
-      - EMERGENCY_MODE=true  # 启用应急模式
+      - EMERGENCY_MODE=false  # 全量模式
       - QUICK_AUDIT_URL=http://inference-py:8123/v1/quick-audit
       - REDIS_ADDR=redis:6379
       - REDIS_STREAM=audit_tasks
       - REDIS_GROUP=gateway_group
       - REDIS_CONSUMER=gateway_consumer
+    mem_limit: 256m
+    cpus: "0.8"
     depends_on:
       redis:
         condition: service_started
-      inference-py:
-        condition: service_started
+      parser-py:
+        condition: service_healthy
     networks:
       - audit-network
 
@@ -34,23 +36,30 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    mem_limit: 128m
+    cpus: "0.3"
     networks:
       - audit-network
 
-  # 成员 A: Rust 高性能解析模块 (应急模式下可选)
-  parser-rs:
-    build: ./services/parser-rs
-    container_name: audit-parser
+  # 成员 A: Python 解析模块（默认启用，适配 2c2g）
+  parser-py:
+    build:
+      context: .
+      dockerfile: services/parser-py/Dockerfile
+    container_name: audit-parser-py
     volumes:
       - ./temp_docs:/app/data  # 共享文档存储
-    networks:
-      - audit-network
+    environment:
+      - PARSER_DATA_DIR=/app/data
+    mem_limit: 256m
+    cpus: "0.7"
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      test: ["CMD", "python", "-c", "import socket,sys; s=socket.socket(); s.settimeout(2); s.connect(('localhost',50051))"]
       interval: 10s
       timeout: 5s
       retries: 3
-    profiles: ["normal"]  # 只在正常模式下启动
+    networks:
+      - audit-network
 
   # 成员 B: Java 业务规则引擎 (应急模式下可选)
   engine-java:
@@ -58,24 +67,19 @@ services:
     container_name: audit-engine
     environment:
       - JAVA_OPTS=-Xmx2g -Xms2g
+    mem_limit: 512m
+    cpus: "0.8"
     networks:
       - audit-network
     depends_on:
-      - parser-rs
-    profiles: ["normal"]  # 只在正常模式下启动
+      - parser-py
+    # 全量模式默认启动
 
   # 成员 C: Python Qwen 模型推理中台
   inference-py:
     build: ./services/inference-py
     container_name: audit-inference
     command: ["uv", "run", "main.py", "--rest", "--rest-host", "0.0.0.0", "--rest-port", "8123"]
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
     environment:
       - QWEN_API_KEY=${QWEN_API_KEY}
       - MODEL_PATH=/app/models/qwen2.5
@@ -87,6 +91,8 @@ services:
       - ./models:/app/models # 映射本地预下载的模型
     ports:
       - "8123:8123"
+    mem_limit: 512m
+    cpus: "1.0"
 
 networks:
   audit-network:
