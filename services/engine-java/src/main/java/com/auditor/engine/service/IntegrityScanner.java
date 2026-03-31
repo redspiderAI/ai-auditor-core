@@ -15,6 +15,9 @@ import java.util.List;
 @Service
 public class IntegrityScanner {
 
+    /** section 预过滤服务（停止检测 + 白名单） */
+    private final SectionFilterService sectionFilterService = new SectionFilterService();
+
     private static final Logger logger = LoggerFactory.getLogger(IntegrityScanner.class);
     private KieContainer kieContainer;
 
@@ -29,15 +32,20 @@ public class IntegrityScanner {
         }
     }
 
-    public List<Issue> scanIntegrity(ParsedData data) {
+    public List<Issue> scanIntegrity(ParsedData rawData) {
         List<Issue> issues = new ArrayList<>();
 
-        if (data == null || !data.hasMetadata()) {
+        if (rawData == null || !rawData.hasMetadata()) {
             logger.warn("输入数据为空或缺少元数据");
             issues.add(createErrorIssue("ERR_INTEGRITY_NULL",
                     "无法识别文档类型：输入数据为空或缺少元数据", 0, Severity.CRITICAL));
             return issues;
         }
+
+        // ── 预过滤：截断「学位论文数据集」及后续 sections ──
+        ParsedData data = sectionFilterService.filterSections(rawData);
+        logger.info("完整性检查 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+                rawData.getSectionsCount(), data.getSectionsCount());
 
         logger.info("开始完整性检查，文档ID: {}, 标题: {}",
                 data.getDocId(), data.getMetadata().getTitle());
@@ -85,13 +93,18 @@ public class IntegrityScanner {
     /**
      * 检查章节完整性
      */
-    public List<Issue> checkIntegrity(ParsedData data) {
+    public List<Issue> checkIntegrity(ParsedData rawData) {
         List<Issue> issues = new ArrayList<>();
 
-        if (data == null || data.getSectionsCount() == 0) {
+        if (rawData == null || rawData.getSectionsCount() == 0) {
             logger.warn("输入数据为空或没有章节");
             return issues;
         }
+
+        // ── 预过滤 ──
+        ParsedData data = sectionFilterService.filterSections(rawData);
+        logger.info("章节完整性检查 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+                rawData.getSectionsCount(), data.getSectionsCount());
 
         try {
             checkSectionNumbering(data, issues);
@@ -111,17 +124,20 @@ public class IntegrityScanner {
     }
 
     private void checkSectionNumbering(ParsedData data, List<Issue> issues) {
-        int expectedSectionId = 1;
+        // section_id 是 Rust 解析器分配的内部 ID，允许跳号（如目录页占用部分 ID），
+        // 只要求 section_id 单调递增（不允许乱序或重复），不要求严格连续。
+        int lastSectionId = -1;
         for (Section section : data.getSectionsList()) {
-            if (section.getSectionId() != expectedSectionId) {
+            int currentId = section.getSectionId();
+            if (currentId <= lastSectionId) {
                 Issue issue = createIntegrityIssue("ERR_INT_NUM_001",
-                        "章节编号不连续: 应为 " + expectedSectionId + "，实际为 " + section.getSectionId(),
-                        section.getSectionId(),
-                        "重新排列章节编号",
+                        "章节 ID 乱序或重复: 前一个 ID 为 " + lastSectionId + "，当前 ID 为 " + currentId,
+                        currentId,
+                        "检查文档解析结果，确保章节顺序正确",
                         section.getText());
                 issues.add(issue);
             }
-            expectedSectionId++;
+            lastSectionId = currentId;
         }
     }
 

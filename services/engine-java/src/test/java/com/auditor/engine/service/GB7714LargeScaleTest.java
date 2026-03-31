@@ -116,14 +116,58 @@ public class GB7714LargeScaleTest {
 
     private ParsedData generateFormattingTestData() {
         ParsedData.Builder builder = ParsedData.newBuilder().setDocId("F-200");
+        // 生成 200 个 section，每种类型循环覆盖 5 种格式错误
+        // 规则引擎使用 getPropsMap().get(key) 读取 props，key 为连字符格式
         for (int i = 1; i <= 200; i++) {
-            builder.addSections(Section.newBuilder()
+            int errorType = (i - 1) % 5;
+            Section.Builder sb = Section.newBuilder()
                     .setSectionId(i)
-                    .setType(i % 10 == 0 ? "heading" : "paragraph")
-                    .setText("测试排版段落 " + i)
-                    .putProps("font-family", "Arial") 
-                    .putProps("font-size", "14")
-                    .build());
+                    .setText("测试排版段落 " + i);
+            switch (errorType) {
+                case 0:
+                    // 行距不符合标准（应为 1.5，给 2.0 触发 FMT_LINE_HEIGHT_001）
+                    sb.setType("paragraph")
+                      .putProps("line-height", "2.0")
+                      .putProps("font-family", "SimSun")
+                      .putProps("font-size", "12");
+                    break;
+                case 1:
+                    // 正文字体错误（应为 SimSun，给 Arial 触发字体规则）
+                    sb.setType("paragraph")
+                      .putProps("line-height", "1.5")
+                      .putProps("font-family", "Arial")
+                      .putProps("font-size", "12");
+                    break;
+                case 2:
+                    // 正文字号错误（应为 12，给 14 触发字号规则）
+                    sb.setType("paragraph")
+                      .putProps("line-height", "1.5")
+                      .putProps("font-family", "SimSun")
+                      .putProps("font-size", "14");
+                    break;
+                case 3:
+                    // 对齐方式错误（应为 LEFT，给 CENTER 触发对齐规则）
+                    sb.setType("paragraph")
+                      .putProps("line-height", "1.5")
+                      .putProps("font-family", "SimSun")
+                      .putProps("font-size", "12")
+                      .putProps("alignment", "CENTER");
+                    break;
+                case 4:
+                    // 标题字体错误（应为 SimHei，给 Arial）
+                    sb.setType("heading")
+                      .setLevel(1)
+                      .putProps("line-height", "1.5")
+                      .putProps("font-family", "Arial")
+                      .putProps("font-size", "15");
+                    break;
+                default:
+                    sb.setType("paragraph")
+                      .putProps("line-height", "2.0")
+                      .putProps("font-family", "Arial")
+                      .putProps("font-size", "14");
+            }
+            builder.addSections(sb.build());
         }
         return builder.build();
     }

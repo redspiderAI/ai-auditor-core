@@ -145,6 +145,12 @@
             <artifactId>grpc-stub</artifactId>
             <version>1.56.0</version>
         </dependency>
+        <!-- gRPC Server Reflection: 让 grpcurl list 可用 -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-services</artifactId>
+            <version>1.56.0</version>
+        </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>

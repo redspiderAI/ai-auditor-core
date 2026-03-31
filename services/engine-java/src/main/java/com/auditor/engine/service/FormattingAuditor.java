@@ -18,6 +18,9 @@ public class FormattingAuditor {
     private static final Logger logger = LoggerFactory.getLogger(FormattingAuditor.class);
     private KieContainer kieContainer;
 
+    /** section 预过滤服务（停止检测 + 白名单） */
+    private final SectionFilterService sectionFilterService = new SectionFilterService();
+
     public FormattingAuditor() {
         try {
             KieServices kieServices = KieServices.Factory.get();
@@ -29,14 +32,19 @@ public class FormattingAuditor {
         }
     }
 
-    public List<Issue> checkFormatting(ParsedData data) {
+    public List<Issue> checkFormatting(ParsedData rawData) {
         List<Issue> issues = new ArrayList<>();
 
-        if (data == null || data.getSectionsCount() == 0) {
+        if (rawData == null || rawData.getSectionsCount() == 0) {
             logger.warn("输入数据为空或没有章节");
             return issues;
         }
-        
+
+        // ── 预过滤：截断「学位论文数据集」及后续 sections ──
+        ParsedData data = sectionFilterService.filterSections(rawData);
+        logger.info("排版检查 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+                rawData.getSectionsCount(), data.getSectionsCount());
+
         // 如果 Drools 可用，使用 Drools；否则使用模拟引擎
         if (kieContainer != null) {
             return checkFormattingWithDrools(data, issues);

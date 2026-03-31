@@ -1,5 +1,6 @@
 package com.auditor.engine.grpc;
 
+import com.auditor.engine.service.SectionFilterService;
 import com.auditor.grpc.*;
 import io.grpc.stub.StreamObserver;
 import org.kie.api.KieServices;
@@ -21,6 +22,9 @@ public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditor
     private static final Logger logger = LoggerFactory.getLogger(DocumentAuditorServiceImpl.class);
     private final KieContainer kieContainer;
 
+    /** section 预过滤服务（停止检测 + 白名单） */
+    private final SectionFilterService sectionFilterService = new SectionFilterService();
+
     public DocumentAuditorServiceImpl() {
         KieServices kieServices = KieServices.Factory.get();
         this.kieContainer = kieServices.getKieClasspathContainer();
@@ -36,14 +40,19 @@ public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditor
         List<Issue> allIssues = new ArrayList<>();
 
         try {
+            // ── 预过滤：截断「学位论文数据集」及后续 sections ──
+            ParsedData filteredData = sectionFilterService.filterSections(data);
+            logger.info("gRPC 入口 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+                    data.getSectionsCount(), filteredData.getSectionsCount());
+
             // 1. 执行排版规则 (formattingSession)
-            auditWithSession("formattingSession", data, allIssues);
+            auditWithSession("formattingSession", filteredData, allIssues);
 
             // 2. 执行完整性规则 (integritySession)
-            auditWithSession("integritySession", data, allIssues);
+            auditWithSession("integritySession", filteredData, allIssues);
 
             // 3. 执行参考文献规则 (referenceSession)
-            auditWithSession("referenceSession", data, allIssues);
+            auditWithSession("referenceSession", filteredData, allIssues);
 
             // 构建响应
             AuditResponse response = AuditResponse.newBuilder()

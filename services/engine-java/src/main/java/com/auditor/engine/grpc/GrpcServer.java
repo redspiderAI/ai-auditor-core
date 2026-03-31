@@ -2,6 +2,7 @@ package com.auditor.engine.grpc;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,10 @@ import java.util.concurrent.Executors;
 /**
  * gRPC 服务器启动器
  * 监听端口: 9191
+ *
+ * 已启用功能：
+ *   - Java 21 虚拟线程（newVirtualThreadPerTaskExecutor）
+ *   - gRPC Server Reflection（ProtoReflectionService）：让 grpcurl list 可用
  */
 @Component
 public class GrpcServer {
@@ -30,12 +35,15 @@ public class GrpcServer {
         // Java 21 虚拟线程：每个 gRPC 请求使用独立虚拟线程，支持高并发审计
         server = ServerBuilder.forPort(port)
                 .addService(new DocumentAuditorServiceImpl())
+                // gRPC Server Reflection：注册后 grpcurl list localhost:9191 可以列出所有服务
+                .addService(ProtoReflectionService.newInstance())
                 .executor(Executors.newVirtualThreadPerTaskExecutor())
                 .build()
                 .start();
 
         logger.info("gRPC Server 已成功启动，监听端口: {}", port);
         logger.info("已启用 Java 21 虚拟线程池，支持高并发审计请求");
+        logger.info("已启用 gRPC Server Reflection，可使用 grpcurl list localhost:{} 查看服务列表", port);
     }
 
     /**

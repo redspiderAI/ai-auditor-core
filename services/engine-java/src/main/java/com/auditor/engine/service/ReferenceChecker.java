@@ -22,6 +22,9 @@ public class ReferenceChecker {
     private static final Logger logger = LoggerFactory.getLogger(ReferenceChecker.class);
     private KieContainer kieContainer;
 
+    /** section 预过滤服务（停止检测 + 白名单） */
+    private final SectionFilterService sectionFilterService = new SectionFilterService();
+
     public ReferenceChecker() {
         try {
             KieServices kieServices = KieServices.Factory.get();
@@ -37,10 +40,10 @@ public class ReferenceChecker {
      * 检查参考文献
      * 所有检查逻辑都由 reference.drl 中的规则处理
      */
-    public List<Issue> checkReferences(ParsedData data) {
+    public List<Issue> checkReferences(ParsedData rawData) {
         List<Issue> issues = new ArrayList<>();
 
-        if (data == null) {
+        if (rawData == null) {
             logger.error("输入数据为空");
             return issues;
         }
@@ -55,6 +58,11 @@ public class ReferenceChecker {
             issues.add(errorIssue);
             return issues;
         }
+
+        // ── 预过滤：截断「学位论文数据集」及后续 sections ──
+        ParsedData data = sectionFilterService.filterSections(rawData);
+        logger.info("参考文献检查 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+                rawData.getSectionsCount(), data.getSectionsCount());
 
         // 使用 Drools 进行所有参考文献检查
         return checkReferencesWithDrools(data, issues);
