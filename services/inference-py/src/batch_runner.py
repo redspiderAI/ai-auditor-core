@@ -1,4 +1,4 @@
-"""Offline/batch runner that pulls parsed data from parser-rs via gRPC
+"""Offline/batch runner that pulls parsed data from parser-py via gRPC
 and writes inference results to data/output. Only processes files whose
 name ends with "毕业论文.docx" under data/input.
 """
@@ -94,7 +94,7 @@ def run_batch(parser_addr: str, input_root: Path, output_root: Path) -> None:
         stub = auditor_pb2_grpc.DocumentAuditorStub(channel)
 
         for doc_path in docs:
-            logging.info("parsing %s via parser-rs @ %s", doc_path, parser_addr)
+            logging.info("parsing %s via parser-py @ %s", doc_path, parser_addr)
             try:
                 parsed = stub.ParseDocument(
                     auditor_pb2.ParseRequest(file_path=str(doc_path), template_type="")
@@ -128,7 +128,7 @@ def _default_paths():
 
 def _cli():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--parser-addr", default=os.environ.get("PARSER_GRPC_ADDR") or "127.0.0.1:52051")
+    parser.add_argument("--parser-addr", default=os.environ.get("PARSER_GRPC_ADDR") or "127.0.0.1:50051")
     parser.add_argument("--input-root", default=None, help="Override input root (default repo data/input)")
     parser.add_argument("--output-root", default=None, help="Override output root (default repo data/output)")
     args = parser.parse_args()

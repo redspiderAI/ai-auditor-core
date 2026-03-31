@@ -3,13 +3,14 @@ name = "inference-py"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.128.0",
     "python-multipart>=0.0.9",
     "grpcio-tools>=1.76.0",
     "langgraph>=1.0.6",
     "pymilvus>=2.3.9",
+    "sentence-transformers>=2.2.2",
     "numpy>=2.4.1",
     "torch>=2.9.1",
     "dashscope>=1.25.8",

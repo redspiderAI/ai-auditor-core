@@ -114,12 +114,13 @@ class DocumentAuditorServicer(auditor_pb2_grpc.DocumentAuditorServicer):
             context.set_details("Failed to inject annotations")
             return auditor_pb2.InjectResponse()
 
-def serve():
+def serve(host: str = '0.0.0.0', port: int = 50051):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     auditor_pb2_grpc.add_DocumentAuditorServicer_to_server(DocumentAuditorServicer(), server)
-    server.add_insecure_port('[::]:50051')  # 监听所有网络接口
+    bind = f"{host}:{port}"
+    server.add_insecure_port(bind)  # 监听所有网络接口
     server.start()
-    print("🚀 Starting gRPC server on [::]:50051")
+    print(f"🚀 Starting gRPC server on {bind}")
     try:
         while True:
             time.sleep(86400)  # 一天

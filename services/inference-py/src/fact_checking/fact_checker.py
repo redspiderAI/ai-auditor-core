@@ -6,6 +6,7 @@ import os
 import re
 import logging
 import traceback
+import asyncio
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
@@ -87,6 +88,9 @@ class ReferenceFactChecker:
         # 延迟加载嵌入模型，减少启动开销
         self._embedder = None
         self._embedder_name = "all-MiniLM-L6-v2"
+        # 并发限制与单条参考超时（秒）
+        self._concurrency = int(os.environ.get("FACT_CHECK_CONCURRENCY", "5"))
+        self._per_ref_timeout = int(os.environ.get("FACT_CHECK_TIMEOUT_S", "30"))
 
     def _milvus_uri_from_config(self) -> str:
         host = self.milvus_config.get("host", "127.0.0.1")
@@ -127,47 +131,64 @@ class ReferenceFactChecker:
         Returns:
             List[ReferenceCheckResult]: 检查结果列表
         """
-        results = []
+        results: List[ReferenceCheckResult] = []
 
-        for reference in references or []:
-            # 跳过 None / 空字符串，避免无意义高危错误
-            if reference is None:
-                continue
-            if isinstance(reference, str) and not reference.strip():
-                continue
+        if not references:
+            return results
 
-            try:
-                result = await self._check_single_reference(reference)
-            except Exception as e:  # 防御性兜底，避免单条参考导致整体中断
-                tb = traceback.format_exc()
-                self._logger.error(
-                    "Reference fact check failed with unhandled exception",
-                    extra={
-                        "reference_preview": str(reference)[:200] if reference is not None else None,
-                        "reference_type": str(type(reference)),
-                        "error": str(e),
-                        "traceback": tb,
-                    },
-                )
+        # 并发执行参考文献校验，限制最大并发量并为每条设置超时
+        sem = asyncio.Semaphore(self._concurrency)
 
+        async def _run_one(ref: str) -> ReferenceCheckResult:
+            # 过滤空
+            if ref is None:
                 issue = Issue()
                 issue.code = "FACT_CHECK_ERROR"
-                issue.message = f"文献真实性检查出错: {str(e)}"
+                issue.message = "文献真实性检查出错: 输入为空"
                 issue.severity = Severity.HIGH
+                return ReferenceCheckResult(is_valid=False, issues=[issue], confidence_score=0.0, details={"error": "reference is None"})
 
-                result = ReferenceCheckResult(
-                    is_valid=False,
-                    issues=[issue],
-                    confidence_score=0.0,
-                    details={
-                        "error": str(e),
-                        "reference": reference,
-                        "traceback": tb,
-                    },
-                )
+            if isinstance(ref, str) and not ref.strip():
+                issue = Issue()
+                issue.code = "FACT_CHECK_ERROR"
+                issue.message = "文献真实性检查出错: 输入为空字符串"
+                issue.severity = Severity.HIGH
+                return ReferenceCheckResult(is_valid=False, issues=[issue], confidence_score=0.0, details={"error": "reference empty string"})
 
-            results.append(result)
+            async with sem:
+                try:
+                    return await asyncio.wait_for(self._check_single_reference(ref), timeout=self._per_ref_timeout)
+                except asyncio.TimeoutError:
+                    tb = "timeout"
+                    self._logger.error("Reference fact check timed out", extra={"reference_preview": str(ref)[:200]})
+                    issue = Issue()
+                    issue.code = "FACT_CHECK_TIMEOUT"
+                    issue.message = f"文献真实性检查超时（>{self._per_ref_timeout}s）"
+                    issue.severity = Severity.HIGH
+                    return ReferenceCheckResult(is_valid=False, issues=[issue], confidence_score=0.0, details={"error": "timeout", "reference": ref})
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    self._logger.error(
+                        "Reference fact check failed with unhandled exception",
+                        extra={
+                            "reference_preview": str(ref)[:200],
+                            "error": str(e),
+                            "traceback": tb,
+                        },
+                    )
+                    issue = Issue()
+                    issue.code = "FACT_CHECK_ERROR"
+                    issue.message = f"文献真实性检查出错: {str(e)}"
+                    issue.severity = Severity.HIGH
+                    return ReferenceCheckResult(
+                        is_valid=False,
+                        issues=[issue],
+                        confidence_score=0.0,
+                        details={"error": str(e), "reference": ref, "traceback": tb},
+                    )
 
+        coros = [_run_one(ref) for ref in references]
+        results = await asyncio.gather(*coros)
         return results
 
     async def _check_single_reference(self, reference: str) -> ReferenceCheckResult:
@@ -261,7 +282,10 @@ class ReferenceFactChecker:
         reference = re.sub(r"\s+", " ", reference)
 
         # 提取标题（通常在引号或书名号内，也包括句点后的标题）
-        title_match = re.search(r'[""''"'']([^""''"'']+)[""''"'']|\[([^]]+)\]|《([^》]+)》', reference)
+        title_match = re.search(
+            r'["\'“”‘’]([^"\'“”‘’]+)["\'“”‘’]|\[([^]]+)\]|《([^》]+)》',
+            reference,
+        )
         if title_match:
             info["title"] = (
                 title_match.group(1) or title_match.group(2) or title_match.group(3)
@@ -405,6 +429,29 @@ class ReferenceFactChecker:
         except Exception as e:
             print(f"生成嵌入失败: {e}")
             return None
+
+    def preheat(self, preheat_text: str = "preheat") -> None:
+        """预热 Milvus 连接与嵌入模型，减少首次请求延迟。"""
+        # 尝试确保 Milvus 已连接/集合已创建
+        try:
+            if MILVUS_AVAILABLE and not self.milvus_connected:
+                self.milvus_connected = self._init_milvus()
+        except Exception as e:
+            self._logger.warning("Milvus preheat failed: %s", e)
+
+        # 预热嵌入模型
+        if SENTENCE_TRANSFORMERS_AVAILABLE:
+            try:
+                if self._embedder is None:
+                    self._embedder = SentenceTransformer(self._embedder_name)
+                # 尝试编码一段短文本以完成模型加载
+                try:
+                    _ = self._embedder.encode([preheat_text], normalize_embeddings=True)
+                except Exception:
+                    # 忽略单次编码失败，但模型对象已加载
+                    pass
+            except Exception as e:
+                self._logger.warning("Embedder preheat failed: %s", e)
 
     async def _analyze_with_llm(
         self, reference: str, retrieved_docs: List[Dict[str, Any]]

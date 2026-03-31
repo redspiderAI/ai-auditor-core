@@ -45,6 +45,8 @@ uv add torch fastapi langgraph
 curl -X POST "http://127.0.0.1:8000/audit" -F "file=@E:\github\ai-auditor-core\data\input\18通信2_1800301208_李良循\18通信2_李良循_毕业论文.docx"
 ```
 
+- 或由 parser-py 直接推送解析结果：启动 parser-py FastAPI 后，调用 inference-py 的 `/audit/parsed`，body 为 parser-py `/parse` 的 JSON 返回值。
+
 - 或直接传已存在的文件路径（无需上传）：
 
 ```powershell

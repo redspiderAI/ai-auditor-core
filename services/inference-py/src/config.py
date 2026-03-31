@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     milvus_port: str = "19530"
     milvus_user: Optional[str] = None
     milvus_password: Optional[str] = None
+    # 控制是否禁用内置 Milvus Lite（Windows 默认置 1 以避免嵌入式启动）
+    milvus_lite_disabled: bool = True
 
     # 模型配置
     model_name: str = "qwen-max"

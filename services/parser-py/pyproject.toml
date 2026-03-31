@@ -15,7 +15,10 @@ dependencies = [
     "PyPDF2==3.0.1",
     "grpcio==1.60.0",
     "grpcio-tools==1.60.0",
-    "lxml==4.9.3"
+    "lxml==4.9.3",
+    "fastapi>=0.112.0",
+    "uvicorn>=0.30.0",
+    "python-multipart>=0.0.9"
 ]
 
 [project.optional-dependencies]

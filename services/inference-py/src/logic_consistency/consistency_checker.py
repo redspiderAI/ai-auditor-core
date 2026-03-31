@@ -76,8 +76,10 @@ class LogicConsistencyChecker:
                 self.conclusion_section = sec_text
         
         # 1. 检查术语一致性
-        term_issues = self._check_term_consistency(section_texts)
-        issues.extend(term_issues)
+        # NOTE: 术语一致性检测在实际使用中产生了大量误报（例如将人名/函数名识别为缩写或术语）。
+        # 按用户要求临时禁用此功能：直接跳过术语一致性检测以避免误报。
+        # term_issues = self._check_term_consistency(section_texts)
+        # issues.extend(term_issues)
         
         # 2. 检查摘要-结论对齐
         alignment_issues = await self._check_summary_conclusion_alignment()

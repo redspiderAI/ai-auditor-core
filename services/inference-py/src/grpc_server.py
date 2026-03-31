@@ -10,6 +10,7 @@ uv run -m src.grpc_server
 """
 from concurrent import futures
 import logging
+import os
 import time
 
 import grpc
@@ -35,18 +36,11 @@ class DocumentAuditorServicer(auditor_pb2_grpc.DocumentAuditorServicer):
         self.consistency_checker = LogicConsistencyChecker(api_key=api_key)
 
     def ParseDocument(self, request, context):
-        """解析文档（保留原有功能）"""
-        metadata = auditor_pb2.DocumentMetadata(
-            title=f"parsed:{request.file_path}",
-            page_count=0,
-            margin_top=0.0,
-            margin_bottom=0.0,
-        )
-        parsed = auditor_pb2.ParsedData(
-            doc_id=(request.file_path or "unknown"),
-            metadata=metadata,
-        )
-        return parsed
+        """解析文档：转发到 parser-py 服务"""
+        parser_addr = os.environ.get("PARSER_GRPC_ADDR", "127.0.0.1:50051")
+        with grpc.insecure_channel(parser_addr) as channel:
+            stub = auditor_pb2_grpc.DocumentAuditorStub(channel)
+            return stub.ParseDocument(request)
 
     def AuditRules(self, request, context):
         """规则审计（增强功能）"""
@@ -182,4 +176,6 @@ def serve(host: str = "0.0.0.0", port: int = 50051) -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    serve()
+    host = os.environ.get("INFERENCE_HOST", "0.0.0.0")
+    port = int(os.environ.get("INFERENCE_PORT", "50051"))
+    serve(host=host, port=port)
