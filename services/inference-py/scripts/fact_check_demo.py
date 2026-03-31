@@ -26,7 +26,7 @@ except Exception:
     load_dotenv = None
 
 try:
-    from pymilvus import connections, utility, Collection
+    from pymilvus import connections, Collection
     MILVUS_PY_AVAILABLE = True
 except Exception:
     MILVUS_PY_AVAILABLE = False
