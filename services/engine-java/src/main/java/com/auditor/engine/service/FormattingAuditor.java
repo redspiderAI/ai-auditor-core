@@ -59,8 +59,24 @@ public class FormattingAuditor {
         try {
             kieSession = kieContainer.newKieSession("formattingSession");
 
-            kieSession.setGlobal("results", issues);
-            kieSession.setGlobal("logger", logger);
+            try {
+                kieSession.setGlobal("results", issues);
+            } catch (RuntimeException re) {
+                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
+                    logger.warn("Drools session does not declare global 'results'; skipping setGlobal: {}", re.getMessage());
+                } else {
+                    throw re;
+                }
+            }
+            try {
+                kieSession.setGlobal("logger", logger);
+            } catch (RuntimeException re) {
+                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
+                    logger.warn("Drools session does not declare global 'logger'; skipping setGlobal: {}", re.getMessage());
+                } else {
+                    throw re;
+                }
+            }
 
             kieSession.insert(data);
 

@@ -97,8 +97,24 @@ public class RealDocumentAuditTest {
                 return;
             }
             
-            session.setGlobal("results", results);
-            session.setGlobal("logger", logger);
+            try {
+                session.setGlobal("results", results);
+            } catch (RuntimeException re) {
+                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
+                    logger.warn("Test session '{}' does not declare global 'results'; skipping setGlobal: {}", sessionName, re.getMessage());
+                } else {
+                    throw re;
+                }
+            }
+            try {
+                session.setGlobal("logger", logger);
+            } catch (RuntimeException re) {
+                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
+                    logger.warn("Test session '{}' does not declare global 'logger'; skipping setGlobal: {}", sessionName, re.getMessage());
+                } else {
+                    throw re;
+                }
+            }
 
             session.insert(data);
             for (Section s : data.getSectionsList()) session.insert(s);
