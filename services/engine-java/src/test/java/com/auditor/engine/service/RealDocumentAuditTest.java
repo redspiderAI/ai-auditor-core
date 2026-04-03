@@ -21,8 +21,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Windows 环境适配版：真实文档全面审计测试类
- * 修复了路径转义导致的 [ERROR] 非法逃逸符 错误
+ * Windows environment adaptation version: Real document comprehensive audit test class
+ * Fixed path escape causing [ERROR] illegal escape character error
  */
 public class RealDocumentAuditTest {
 
@@ -35,46 +35,46 @@ public class RealDocumentAuditTest {
         try {
             KieServices kieServices = KieServices.Factory.get();
             kieContainer = kieServices.getKieClasspathContainer();
-            logger.info("Drools 规则容器初始化成功，准备加载 56 条规则");
+            logger.info("Drools rule container initialized successfully, preparing to load 56 rules");
         } catch (Exception e) {
-            logger.error("Drools 初始化失败，请检查规则路径或依赖: {}", e.getMessage());
+            logger.error("Drools initialization failed, please check rule path or dependencies: {}", e.getMessage());
         }
     }
 
     @Test
     public void testFullDocumentAudit() throws IOException {
-        // --- 修复点 1: 使用正斜杠 '/' 替换反斜杠 '\'，避免转义错误 ---
-        // 跨平台路径：从 classpath 加载真实测试数据文件
+        // --- Fix point 1: Use forward slash '/' instead of backslash '\' to avoid escape errors ---
+        // Cross-platform path: load real test data file from classpath
         java.net.URL resourceUrl = getClass().getClassLoader().getResource("data/audit_results_final.json");
         String jsonPath = resourceUrl != null ? resourceUrl.getFile() : 
             "src/test/resources/data/audit_results_final.json";
         
         File jsonFile = new File(jsonPath);
         if (!jsonFile.exists()) {
-            logger.error("解析后的 JSON 文件不存在: {}", jsonPath);
+            logger.error("Parsed JSON file does not exist: {}", jsonPath);
             return;
         }
 
         JsonNode rootNode = objectMapper.readTree(jsonFile);
         ParsedData data = convertJsonToParsedData(rootNode);
 
-        // 2. 收集所有规则检出的问题
+        // 2. Collect all issues detected by rules
         List<Issue> allIssues = new ArrayList<>();
 
-        // 依次执行三个会话，覆盖 56 条规则
+        // Execute three sessions in sequence, covering 56 rules
         auditWithSession("formattingSession", data, allIssues);
         auditWithSession("integritySession", data, allIssues);
         auditWithSession("referenceSession", data, allIssues);
 
-        // 3. 构建严格对齐的 AuditResponse JSON 结构
+        // 3. Build strictly aligned AuditResponse JSON structure
         ObjectNode responseNode = buildAuditResponse(allIssues);
         
-        // --- 修复点 2: 同样使用正斜杠，并将输出路径指向 target 目录 ---
+        // --- Fix point 2: Also use forward slash and output path points to target directory ---
         String outputPath = "target/audit_results_final.json";
         
         String outputJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(responseNode);
         
-        // 确保输出目录存在
+        // Ensure output directory exists
         File outputFile = new File(outputPath);
         if (outputFile.getParentFile() != null) {
             outputFile.getParentFile().mkdirs();
@@ -82,8 +82,8 @@ public class RealDocumentAuditTest {
 
         Files.write(Paths.get(outputPath), outputJson.getBytes(StandardCharsets.UTF_8));
         
-        logger.info("全面审计完成，共检出 {} 个问题", allIssues.size());
-        logger.info("报告已生成至: {}", outputPath);
+        logger.info("Comprehensive audit completed, total {} issues detected", allIssues.size());
+        logger.info("Report generated at: {}", outputPath);
         System.out.println(outputJson);
     }
 
@@ -93,7 +93,7 @@ public class RealDocumentAuditTest {
         try {
             session = kieContainer.newKieSession(sessionName);
             if (session == null) {
-                logger.warn("无法创建会话: {}，请检查 kmodule.xml 配置", sessionName);
+                logger.warn("Cannot create session: {}, please check kmodule.xml configuration", sessionName);
                 return;
             }
             
@@ -106,9 +106,9 @@ public class RealDocumentAuditTest {
             if (data.hasMetadata()) session.insert(data.getMetadata());
 
             int fired = session.fireAllRules();
-            logger.info("会话 [{}] 执行完成，触发 {} 条规则", sessionName, fired);
+            logger.info("Session [{}] executed, triggered {} rules", sessionName, fired);
         } catch (Exception e) {
-            logger.error("会话 [{}] 执行异常: {}", sessionName, e.getMessage());
+            logger.error("Session [{}] execution exception: {}", sessionName, e.getMessage());
         } finally {
             if (session != null) session.dispose();
         }

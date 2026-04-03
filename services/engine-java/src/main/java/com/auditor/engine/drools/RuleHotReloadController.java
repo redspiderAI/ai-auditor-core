@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Drools 规则热更新 REST 控制器
+ * Drools Rule Hot Reload REST Controller
  *
- * 提供以下接口：
- *   GET  /api/rules/status              - 查询当前规则版本和热更新历史
- *   POST /api/rules/reload              - 从 classpath 重新加载所有规则（恢复出厂设置）
- *   POST /api/rules/update/{ruleName}   - 更新单条规则（传入新的 DRL 内容）
- *   POST /api/rules/update/batch        - 批量更新多条规则（原子操作）
- *   GET  /api/rules/history             - 查询最近 20 条热更新历史
+ * Provides the following interfaces:
+ *   GET  /api/rules/status              - Query current rule version and hot reload history
+ *   POST /api/rules/reload              - Reload all rules from classpath (factory reset)
+ *   POST /api/rules/update/{ruleName}   - Update a single rule (pass in new DRL content)
+ *   POST /api/rules/update/batch        - Batch update multiple rules (atomic operation)
+ *   GET  /api/rules/history             - Query the latest 20 hot reload histories
  *
- * 典型使用场景（成员 B 修改规则后，无需重启服务）：
- *   1. 修改本地 formatting.drl
- *   2. 调用 POST /api/rules/update/formatting/formatting.drl，传入新内容
- *   3. 服务在 < 500ms 内切换到新规则，正在处理的请求不受影响
+ * Typical usage scenario (member B modifies rules without restarting the service):
+ *   1. Modify local formatting.drl
+ *   2. Call POST /api/rules/update/formatting/formatting.drl with new content
+ *   3. The service switches to the new rules within < 500ms, ongoing requests are unaffected
  */
 @RestController
 @RequestMapping("/api/rules")
@@ -30,9 +30,9 @@ public class RuleHotReloadController {
     private DroolsHotReloadService hotReloadService;
 
     /**
-     * 查询当前规则状态
+     * Query current rule status
      *
-     * 响应示例：
+     * Response example:
      * {
      *   "containerActive": true,
      *   "totalReloads": 3,
@@ -49,9 +49,9 @@ public class RuleHotReloadController {
     }
 
     /**
-     * 从 classpath 重新加载所有规则（恢复出厂设置）
+     * Reload all rules from classpath (factory reset)
      *
-     * 使用场景：规则文件已通过 CI/CD 部署到 jar 包，需要重新加载
+     * Use case: rule files have been deployed to the jar via CI/CD and need to be reloaded
      */
     @PostMapping("/reload")
     public ResponseEntity<DroolsHotReloadService.HotReloadResult> reloadFromClasspath() {
@@ -62,25 +62,25 @@ public class RuleHotReloadController {
     }
 
     /**
-     * 更新单条规则文件（运行时热更新）
+     * Update a single rule file (runtime hot reload)
      *
-     * @param ruleName 规则文件名（URL 编码），如 "formatting%2Fformatting.drl"
-     * @param body     请求体，包含 "content" 字段（DRL 文件内容）
+     * @param ruleName Rule file name (URL encoded), e.g. "formatting%2Fformatting.drl"
+     * @param body     Request body containing "content" field (DRL file content)
      *
-     * 请求示例：
+     * Request example:
      *   POST /api/rules/update/formatting%2Fformatting.drl
      *   Content-Type: application/json
-     *   { "content": "package rules.formatting;\n\nrule \"检查字体\" ..." }
+     *   { "content": "package rules.formatting;\n\nrule \"Check Font\" ..." }
      *
-     * 响应示例（成功）：
+     * Response example (success):
      *   { "success": true, "changed": true, "ruleName": "formatting/formatting.drl",
      *     "oldHash": "a1b2...", "newHash": "c3d4...", "elapsedMs": 312 }
      *
-     * 响应示例（内容未变化）：
+     * Response example (no content change):
      *   { "success": true, "changed": false, "ruleName": "...", "elapsedMs": 0 }
      *
-     * 响应示例（编译失败，自动回滚）：
-     *   { "success": false, "errorMessage": "DRL 编译错误: ..." }
+     * Response example (compilation failure, auto rollback):
+     *   { "success": false, "errorMessage": "DRL compilation error: ..." }
      */
     @PostMapping("/update/{ruleName}")
     public ResponseEntity<DroolsHotReloadService.HotReloadResult> updateRule(
@@ -90,10 +90,10 @@ public class RuleHotReloadController {
         String content = body.get("content");
         if (content == null || content.isBlank()) {
             return ResponseEntity.badRequest().body(
-                DroolsHotReloadService.HotReloadResult.failure(ruleName, "请求体中缺少 'content' 字段"));
+                DroolsHotReloadService.HotReloadResult.failure(ruleName, "Missing 'content' field in request body"));
         }
 
-        // URL 解码规则名（支持路径中的 /）
+        // URL decode rule name (supporting / in path)
         String decodedName = ruleName.replace("%2F", "/").replace("%2f", "/");
 
         DroolsHotReloadService.HotReloadResult result = hotReloadService.reloadRule(decodedName, content);
@@ -103,9 +103,9 @@ public class RuleHotReloadController {
     }
 
     /**
-     * 批量更新多条规则（原子操作：全部成功才切换，任一失败则全部回滚）
+     * Batch update multiple rules (atomic operation: switch only if all succeed, rollback all if any fail)
      *
-     * 请求示例：
+     * Request example:
      *   POST /api/rules/update/batch
      *   Content-Type: application/json
      *   {
@@ -119,7 +119,7 @@ public class RuleHotReloadController {
 
         if (rules == null || rules.isEmpty()) {
             return ResponseEntity.badRequest().body(
-                DroolsHotReloadService.HotReloadResult.failure("batch", "请求体不能为空"));
+                DroolsHotReloadService.HotReloadResult.failure("batch", "Request body cannot be empty"));
         }
 
         DroolsHotReloadService.HotReloadResult result = hotReloadService.reloadRules(rules);
@@ -129,7 +129,7 @@ public class RuleHotReloadController {
     }
 
     /**
-     * 查询最近 20 条热更新历史
+     * Query the latest 20 hot reload histories
      */
     @GetMapping("/history")
     public ResponseEntity<List<DroolsHotReloadService.ReloadRecord>> getHistory(

@@ -8,91 +8,91 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 /**
- * 文档类型验证器
+ * Document Type Validator
  * 
- * 功能：根据文档类型检查必选项是否完整
- * 支持的文档类型：
- *   - thesis: 学位论文
- *   - journal: 期刊论文
- *   - conference: 会议论文
- *   - book: 专著
+ * Function: Check if required fields are complete based on document type
+ * Supported document types:
+ *   - thesis: Academic thesis
+ *   - journal: Journal article
+ *   - conference: Conference paper
+ *   - book: Monograph
  */
 @Component
 public class DocumentTypeValidator {
     
     private static final Logger logger = LoggerFactory.getLogger(DocumentTypeValidator.class);
     
-    // 定义不同文档类型的必选项
+    // Define required fields for different document types
     private static final Map<String, String[]> REQUIRED_FIELDS = new HashMap<>();
     
     static {
-        // 学位论文：需要学位、学校、导师等信息
+        // Thesis: requires degree, school, advisor, etc.
         REQUIRED_FIELDS.put("thesis", new String[]{
             "title", "author", "school", "advisor", "year", "degree", "abstract"
         });
         
-        // 期刊论文：需要期刊名、卷号、期号、页码等
+        // Journal article: requires journal name, volume, issue, pages, etc.
         REQUIRED_FIELDS.put("journal", new String[]{
             "title", "author", "journal", "volume", "issue", "pages", "year", "doi"
         });
         
-        // 会议论文：需要会议名、地点、日期等
+        // Conference paper: requires conference name, location, date, etc.
         REQUIRED_FIELDS.put("conference", new String[]{
             "title", "author", "conference", "location", "date", "pages", "year"
         });
         
-        // 专著：需要版本、印刷次数等
+        // Monograph: requires edition, print count, etc.
         REQUIRED_FIELDS.put("book", new String[]{
             "title", "author", "publisher", "year", "edition", "isbn"
         });
     }
     
     /**
-     * 验证文档类型和必选项
+     * Validate document type and required fields
      * 
-     * @param data 解析后的文档数据
-     * @return 发现的问题列表
+     * @param data Parsed document data
+     * @return List of found issues
      */
     public List<Issue> validateDocumentType(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
         
         if (data == null || !data.hasMetadata()) {
-            logger.warn("输入数据为空或缺少元数据");
+            logger.warn("Input data is null or missing metadata");
             return issues;
         }
         
         try {
             DocumentMetadata metadata = data.getMetadata();
             
-            // 从 title 字段推断文档类型（由于 proto 中没有 documentType 字段）
+            // Infer document type from title field (since proto has no documentType field)
             String title = metadata.getTitle();
             String docType = inferDocumentType(title);
             
-            logger.debug("推断文档类型: {}", docType);
+            logger.debug("Inferred document type: {}", docType);
             
-            // 检查文档类型是否被支持
+            // Check if document type is supported
             if (!REQUIRED_FIELDS.containsKey(docType)) {
                 Issue issue = Issue.newBuilder()
                         .setCode("INT_TYPE_UNKNOWN")
-                        .setMessage("未知的文档类型: " + docType)
+                        .setMessage("Unknown document type: " + docType)
                         .setSeverity(Severity.MEDIUM)
-                        .setSuggestion("请指定有效的文档类型: thesis, journal, conference, book")
+                        .setSuggestion("Please specify a valid document type: thesis, journal, conference, book")
                         .build();
                 issues.add(issue);
-                logger.warn("未知的文档类型: {}", docType);
+                logger.warn("Unknown document type: {}", docType);
                 return issues;
             }
             
-            // 获取该文档类型的必选项
+            // Get required fields for this document type
             String[] requiredFields = REQUIRED_FIELDS.get(docType);
             
-            // 检查基本必选项
+            // Check basic required fields
             if (title.isEmpty()) {
                 Issue issue = Issue.newBuilder()
                         .setCode("INT_TYPE_MISSING_TITLE")
-                        .setMessage("文档缺少标题")
+                        .setMessage("Document is missing a title")
                         .setSeverity(Severity.HIGH)
-                        .setSuggestion("请填写文档标题")
+                        .setSuggestion("Please provide a document title")
                         .build();
                 issues.add(issue);
             }
@@ -100,23 +100,23 @@ public class DocumentTypeValidator {
             if (metadata.getPageCount() <= 0) {
                 Issue issue = Issue.newBuilder()
                         .setCode("INT_TYPE_MISSING_PAGES")
-                        .setMessage("文档页数无效")
+                        .setMessage("Invalid document page count")
                         .setSeverity(Severity.MEDIUM)
-                        .setSuggestion("请确保文档有有效的页数")
+                        .setSuggestion("Please ensure the document has a valid page count")
                         .build();
                 issues.add(issue);
             }
             
-            // 根据文档类型进行额外检查
+            // Perform additional checks based on document type
             checkDocumentTypeSpecificRules(docType, metadata, issues);
             
-            logger.info("文档类型验证完成，发现 {} 个问题", issues.size());
+            logger.info("Document type validation completed, found {} issues", issues.size());
             
         } catch (Exception e) {
-            logger.error("文档类型验证异常", e);
+            logger.error("Document type validation exception", e);
             Issue errorIssue = Issue.newBuilder()
                     .setCode("ERR_TYPE_VALIDATION")
-                    .setMessage("文档类型验证异常: " + e.getMessage())
+                    .setMessage("Document type validation exception: " + e.getMessage())
                     .setSeverity(Severity.HIGH)
                     .build();
             issues.add(errorIssue);
@@ -126,7 +126,7 @@ public class DocumentTypeValidator {
     }
     
     /**
-     * 从标题推断文档类型
+     * Infer document type from title
      */
     private String inferDocumentType(String title) {
         if (title.isEmpty()) {
@@ -148,11 +148,11 @@ public class DocumentTypeValidator {
             return "book";
         }
         
-        return "thesis"; // 默认为学位论文
+        return "thesis"; // Default to thesis
     }
     
     /**
-     * 根据文档类型进行额外检查
+     * Perform additional checks based on document type
      */
     private void checkDocumentTypeSpecificRules(String docType, DocumentMetadata metadata, List<Issue> issues) {
         switch (docType) {
@@ -172,64 +172,64 @@ public class DocumentTypeValidator {
     }
     
     /**
-     * 学位论文特定规则
+     * Thesis specific rules
      */
     private void checkThesisSpecificRules(DocumentMetadata metadata, List<Issue> issues) {
-        // 学位论文应该有足够的页数
+        // Thesis should have sufficient pages
         if (metadata.getPageCount() < 20) {
             Issue issue = Issue.newBuilder()
                     .setCode("INT_THESIS_PAGES")
-                    .setMessage("学位论文页数过少，至少应为 20 页")
+                    .setMessage("Thesis page count is too low, should be at least 20 pages")
                     .setSeverity(Severity.MEDIUM)
-                    .setSuggestion("增加论文内容")
+                    .setSuggestion("Add more content to the thesis")
                     .build();
             issues.add(issue);
         }
     }
     
     /**
-     * 期刊论文特定规则
+     * Journal article specific rules
      */
     private void checkJournalSpecificRules(DocumentMetadata metadata, List<Issue> issues) {
-        // 期刊论文通常较短
+        // Journal articles are usually shorter
         if (metadata.getPageCount() > 50) {
             Issue issue = Issue.newBuilder()
                     .setCode("INT_JOURNAL_PAGES_LONG")
-                    .setMessage("期刊论文页数较多，请确认是否为期刊论文")
+                    .setMessage("Journal article has many pages, please confirm if it is a journal article")
                     .setSeverity(Severity.LOW)
-                    .setSuggestion("检查文档类型是否正确")
+                    .setSuggestion("Check if the document type is correct")
                     .build();
             issues.add(issue);
         }
     }
     
     /**
-     * 会议论文特定规则
+     * Conference paper specific rules
      */
     private void checkConferenceSpecificRules(DocumentMetadata metadata, List<Issue> issues) {
-        // 会议论文通常为 4-8 页
+        // Conference papers are usually 4-8 pages
         if (metadata.getPageCount() < 4) {
             Issue issue = Issue.newBuilder()
                     .setCode("INT_CONF_PAGES_SHORT")
-                    .setMessage("会议论文页数过少，通常应为 4-8 页")
+                    .setMessage("Conference paper page count is too low, usually 4-8 pages")
                     .setSeverity(Severity.LOW)
-                    .setSuggestion("检查文档是否完整")
+                    .setSuggestion("Check if the document is complete")
                     .build();
             issues.add(issue);
         }
     }
     
     /**
-     * 专著特定规则
+     * Monograph specific rules
      */
     private void checkBookSpecificRules(DocumentMetadata metadata, List<Issue> issues) {
-        // 专著通常较厚
+        // Monographs are usually thick
         if (metadata.getPageCount() < 50) {
             Issue issue = Issue.newBuilder()
                     .setCode("INT_BOOK_PAGES_SHORT")
-                    .setMessage("专著页数过少，通常应超过 50 页")
+                    .setMessage("Monograph page count is too low, usually over 50 pages")
                     .setSeverity(Severity.LOW)
-                    .setSuggestion("检查文档是否完整")
+                    .setSuggestion("Check if the document is complete")
                     .build();
             issues.add(issue);
         }

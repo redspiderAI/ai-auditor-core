@@ -9,75 +9,75 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 页边距检查器
+ * Page Margin Checker
  * 
- * 功能：检查页面边距是否符合标准（上下左右各 2.5cm）
- * 规则：页边距必须为 2.5cm
- * 严重程度：MEDIUM
+ * Function: Check whether the page margins meet the standard (2.5cm on all sides)
+ * Rule: Page margins must be 2.5cm
+ * Severity: MEDIUM
  */
 @Component
 public class PageMarginChecker {
     
     private static final Logger logger = LoggerFactory.getLogger(PageMarginChecker.class);
     private static final float EXPECTED_MARGIN = 2.5f; // cm
-    private static final float TOLERANCE = 0.1f; // 容差 0.1cm
+    private static final float TOLERANCE = 0.1f; // Tolerance 0.1cm
     
     /**
-     * 检查页边距
+     * Check page margins
      * 
-     * @param data 解析后的文档数据
-     * @return 发现的问题列表
+     * @param data Parsed document data
+     * @return List of detected issues
      */
     public List<Issue> checkPageMargins(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
         
         if (data == null || !data.hasMetadata()) {
-            logger.warn("输入数据为空或缺少元数据");
+            logger.warn("Input data is null or missing metadata");
             return issues;
         }
         
         try {
             DocumentMetadata metadata = data.getMetadata();
             
-            // 从 proto 中直接获取页边距
+            // Get margins directly from proto
             float topMargin = metadata.getMarginTop();
             float bottomMargin = metadata.getMarginBottom();
             
-            // 如果 proto 中没有左右边距，使用默认值
+            // If proto does not have left and right margins, use default values
             float leftMargin = EXPECTED_MARGIN;
             float rightMargin = EXPECTED_MARGIN;
             
-            // 检查上边距
+            // Check top margin
             if (topMargin > 0 && !isMarginValid(topMargin)) {
                 Issue issue = Issue.newBuilder()
                         .setCode("FMT_MARGIN_001")
-                        .setMessage("上边距应为 2.5cm，当前为 " + String.format("%.2f", topMargin) + "cm")
+                        .setMessage("Top margin should be 2.5cm, current is " + String.format("%.2f", topMargin) + "cm")
                         .setSeverity(Severity.MEDIUM)
-                        .setSuggestion("将上边距调整为 2.5cm")
+                        .setSuggestion("Adjust the top margin to 2.5cm")
                         .build();
                 issues.add(issue);
-                logger.debug("发现上边距问题");
+                logger.debug("Top margin issue found");
             }
             
-            // 检查下边距
+            // Check bottom margin
             if (bottomMargin > 0 && !isMarginValid(bottomMargin)) {
                 Issue issue = Issue.newBuilder()
                         .setCode("FMT_MARGIN_002")
-                        .setMessage("下边距应为 2.5cm，当前为 " + String.format("%.2f", bottomMargin) + "cm")
+                        .setMessage("Bottom margin should be 2.5cm, current is " + String.format("%.2f", bottomMargin) + "cm")
                         .setSeverity(Severity.MEDIUM)
-                        .setSuggestion("将下边距调整为 2.5cm")
+                        .setSuggestion("Adjust the bottom margin to 2.5cm")
                         .build();
                 issues.add(issue);
-                logger.debug("发现下边距问题");
+                logger.debug("Bottom margin issue found");
             }
             
-            logger.info("页边距检查完成，发现 {} 个问题", issues.size());
+            logger.info("Page margin check completed, found {} issues", issues.size());
             
         } catch (Exception e) {
-            logger.error("页边距检查异常", e);
+            logger.error("Page margin check exception", e);
             Issue errorIssue = Issue.newBuilder()
                     .setCode("ERR_MARGIN_CHECK")
-                    .setMessage("页边距检查异常: " + e.getMessage())
+                    .setMessage("Page margin check exception: " + e.getMessage())
                     .setSeverity(Severity.HIGH)
                     .build();
             issues.add(errorIssue);
@@ -87,7 +87,7 @@ public class PageMarginChecker {
     }
     
     /**
-     * 检查边距是否有效（在容差范围内）
+     * Check if margin is valid (within tolerance)
      */
     private boolean isMarginValid(float margin) {
         return Math.abs(margin - EXPECTED_MARGIN) <= TOLERANCE;

@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * gRPC 集成测试
- * 验证 GrpcServer 在 9191 端口启动后，客户端能否成功调用 AuditRules 接口
+ * gRPC Integration Test
+ * Verify that after GrpcServer starts on port 9191, the client can successfully call the AuditRules interface
  */
 public class GrpcIntegrationTest {
 
@@ -28,16 +28,16 @@ public class GrpcIntegrationTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        // 1. 启动服务器
+        // 1. Start the server
         grpcServer = new GrpcServer();
         grpcServer.start();
 
-        // 2. 创建客户端通道，连接 9191 端口
+        // 2. Create client channel, connect to port 9191
         channel = ManagedChannelBuilder.forAddress("localhost", 9191)
                 .usePlaintext()
                 .build();
 
-        // 3. 创建阻塞存根
+        // 3. Create blocking stub
         blockingStub = DocumentAuditorGrpc.newBlockingStub(channel);
     }
 
@@ -53,7 +53,7 @@ public class GrpcIntegrationTest {
 
     @Test
     public void testAuditRulesRpc() {
-        // 构造一个简单的请求
+        // Construct a simple request
         ParsedData data = ParsedData.newBuilder()
                 .setDocId("test-doc-001")
                 .setMetadata(DocumentMetadata.newBuilder().setTitle("测试文档").build())
@@ -62,7 +62,7 @@ public class GrpcIntegrationTest {
                         .setType("heading")
                         .setLevel(1)
                         .setText("1. 错误标题")
-                        .putProps("font-family", "SimSun") // 故意设错，一级标题应为黑体
+                        .putProps("font-family", "SimSun") // Intentionally wrong, level 1 heading should be Heiti
                         .build())
                 .build();
 
@@ -71,18 +71,18 @@ public class GrpcIntegrationTest {
                 .setTargetRuleSet("GB/T7714")
                 .build();
 
-        // 发起 RPC 调用
-        logger.info("客户端发起 AuditRules RPC 调用 (Port: 9191)...");
+        // Initiate RPC call
+        logger.info("Client initiates AuditRules RPC call (Port: 9191)...");
         AuditResponse response = blockingStub.auditRules(request);
 
-        // 验证响应
+        // Verify response
         assertNotNull(response);
-        logger.info("收到 RPC 响应，问题数量: {}, 扣分: {}", response.getIssuesCount(), response.getScoreImpact());
+        logger.info("Received RPC response, number of issues: {}, score impact: {}", response.getIssuesCount(), response.getScoreImpact());
         
-        // 验证是否检出了排版错误
+        // Verify if typography error was detected
         boolean foundFontError = response.getIssuesList().stream()
                 .anyMatch(issue -> issue.getCode().contains("FMT_HEADING_FONT"));
         
-        assertTrue(foundFontError, "应当检出一级标题字体错误");
+        assertTrue(foundFontError, "Level 1 heading font error should be detected");
     }
 }

@@ -22,7 +22,7 @@ public class FormattingAuditorTest {
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
         assertNotNull(issues);
-        // 有效数据应该能够被检查
+        // Valid data should be checkable
         assertTrue(issues != null);
     }
 
@@ -47,8 +47,8 @@ public class FormattingAuditorTest {
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
         assertNotNull(issues);
-        // 应该至少发现一个问题
-        assertTrue(issues.size() > 0, "应该发现问题");
+        // At least one issue should be found
+        assertTrue(issues.size() > 0, "Issue should be found");
     }
 
     @Test
@@ -72,8 +72,8 @@ public class FormattingAuditorTest {
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
         assertNotNull(issues);
-        // 应该至少发现一个问题
-        assertTrue(issues.size() > 0, "应该发现问题");
+        // At least one issue should be found
+        assertTrue(issues.size() > 0, "Issue should be found");
     }
 
     @Test
@@ -113,7 +113,7 @@ public class FormattingAuditorTest {
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
         assertNotNull(issues);
-        // 应该能够处理多个章节
+        // Should be able to handle multiple sections
         assertTrue(issues.size() >= 0);
     }
 
@@ -130,7 +130,7 @@ public class FormattingAuditorTest {
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
         assertNotNull(issues);
-        // 空数据应该没有问题或只有低级别问题
+        // Empty data should have no issues or only low severity issues
         assertTrue(issues.isEmpty() || issues.stream().allMatch(i -> i.getSeverity() == Severity.LOW));
     }
 
@@ -140,9 +140,9 @@ public class FormattingAuditorTest {
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
         for (Issue issue : issues) {
-            assertNotNull(issue.getCode(), "Issue code 不能为空");
-            assertNotNull(issue.getMessage(), "Issue message 不能为空");
-            assertNotNull(issue.getSeverity(), "Issue severity 不能为空");
+            assertNotNull(issue.getCode(), "Issue code cannot be null");
+            assertNotNull(issue.getMessage(), "Issue message cannot be null");
+            assertNotNull(issue.getSeverity(), "Issue severity cannot be null");
         }
     }
 

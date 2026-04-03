@@ -5,13 +5,13 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * 模拟 Drools 引擎实现
- * 用于在 Drools 无法初始化时提供基本的规则检查功能
+ * Mock Drools engine implementation
+ * Provides basic rule checking functionality when Drools cannot be initialized
  */
 public class MockDroolsEngine {
     
     /**
-     * 检查排版规则
+     * Check formatting rules
      */
     public static List<Issue> checkFormattingRules(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
@@ -20,21 +20,21 @@ public class MockDroolsEngine {
             return issues;
         }
         
-        // 规则 1: 一级标题必须使用黑体
+        // Rule 1: Level 1 headings must use SimHei font
         for (Section section : data.getSectionsList()) {
             if ("heading".equals(section.getType()) && section.getLevel() == 1) {
                 String fontFamily = section.getPropsMap().get("font-family");
                 if (fontFamily == null || (!fontFamily.contains("黑体") && !fontFamily.contains("SimHei") && !fontFamily.equals("黑体"))) {
                     issues.add(Issue.newBuilder()
                             .setCode("ERR_FONT_001")
-                            .setMessage("一级标题必须使用黑体")
+                            .setMessage("Level 1 headings must use SimHei font")
                             .setSectionId(section.getSectionId())
                             .setSeverity(Severity.MEDIUM)
                             .build());
                 }
             }
             
-            // 规则 2: 一级标题字号应该在 16-18pt
+            // Rule 2: Level 1 heading font size should be between 14-20pt
             if ("heading".equals(section.getType()) && section.getLevel() == 1) {
                 String fontSize = section.getPropsMap().get("font-size");
                 if (fontSize != null) {
@@ -43,18 +43,18 @@ public class MockDroolsEngine {
                         if (size < 14 || size > 20) {
                             issues.add(Issue.newBuilder()
                                     .setCode("ERR_SIZE_001")
-                                    .setMessage("一级标题字号应该在 14-20pt")
+                                    .setMessage("Level 1 heading font size should be between 14-20pt")
                                     .setSectionId(section.getSectionId())
                                     .setSeverity(Severity.MEDIUM)
                                     .build());
                         }
                     } catch (NumberFormatException e) {
-                        // 忽略无法解析的字号
+                        // Ignore unparseable font size
                     }
                 }
             }
             
-            // 规则 3: 二级标题字号应该在 14-16pt
+            // Rule 3: Level 2 heading font size should be between 12-18pt
             if ("heading".equals(section.getType()) && section.getLevel() == 2) {
                 String fontSize = section.getPropsMap().get("font-size");
                 if (fontSize != null) {
@@ -63,18 +63,18 @@ public class MockDroolsEngine {
                         if (size < 12 || size > 18) {
                             issues.add(Issue.newBuilder()
                                     .setCode("ERR_SIZE_002")
-                                    .setMessage("二级标题字号应该在 12-18pt")
+                                    .setMessage("Level 2 heading font size should be between 12-18pt")
                                     .setSectionId(section.getSectionId())
                                     .setSeverity(Severity.LOW)
                                     .build());
                         }
                     } catch (NumberFormatException e) {
-                        // 忽略
+                        // Ignore
                     }
                 }
             }
             
-            // 规则 4: 正文字号应该是 12pt
+            // Rule 4: Body text font size should be 12pt
             if ("paragraph".equals(section.getType())) {
                 String fontSize = section.getPropsMap().get("font-size");
                 if (fontSize != null) {
@@ -83,33 +83,33 @@ public class MockDroolsEngine {
                         if (size != 12) {
                             issues.add(Issue.newBuilder()
                                     .setCode("ERR_SIZE_003")
-                                    .setMessage("正文字号应该是 12pt")
+                                    .setMessage("Body text font size should be 12pt")
                                     .setSectionId(section.getSectionId())
                                     .setSeverity(Severity.LOW)
                                     .build());
                         }
                     } catch (NumberFormatException e) {
-                        // 忽略
+                        // Ignore
                     }
                 }
             }
             
-            // 规则 9: 检查行距 - 修复逻辑，行距应该 >= 1.5
+            // Rule 9: Check line spacing - fixed logic, line spacing should be >= 1.5
             String lineHeight = section.getPropsMap().get("line-height");
             if (lineHeight != null && !lineHeight.isEmpty()) {
                 try {
                     float lineHeightValue = Float.parseFloat(lineHeight);
-                    // 行距应该不小于 1.5，如果小于 1.5 就是问题
+                    // Line spacing should not be less than 1.5, if less than 1.5 it's an issue
                     if (lineHeightValue < 1.5) {
                         issues.add(Issue.newBuilder()
                                 .setCode("FMT_LINE_SPACING_001")
-                                .setMessage("行距应不小于1.5倍")
+                                .setMessage("Line spacing should not be less than 1.5 times")
                                 .setSectionId(section.getSectionId())
                                 .setSeverity(Severity.LOW)
                                 .build());
                     }
                 } catch (NumberFormatException e) {
-                    // 忽略无法解析的行距
+                    // Ignore unparseable line spacing
                 }
             }
         }
@@ -118,7 +118,7 @@ public class MockDroolsEngine {
     }
     
     /**
-     * 检查参考文献规则
+     * Check reference rules
      */
     public static List<Issue> checkReferenceRules(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
@@ -127,7 +127,7 @@ public class MockDroolsEngine {
             return issues;
         }
         
-        // 提取正文中的所有引用
+        // Extract all citations in the main text
         Set<String> citedReferences = new HashSet<>();
         Pattern refPattern = Pattern.compile("\\[(\\d+)\\]");
         
@@ -140,29 +140,29 @@ public class MockDroolsEngine {
             }
         }
         
-        // 获取参考文献列表
+        // Get the list of references
         Set<String> definedReferences = new HashSet<>();
         for (Reference ref : data.getReferencesList()) {
             definedReferences.add(ref.getRefId());
         }
         
-        // 规则 1: 检查缺失的参考文献
+        // Rule 1: Check missing references
         for (String cited : citedReferences) {
             if (!definedReferences.contains(cited)) {
                 issues.add(Issue.newBuilder()
                         .setCode("ERR_REF_MISSING")
-                        .setMessage("参考文献 " + cited + " 在文末未定义")
+                        .setMessage("Reference " + cited + " is not defined at the end of the document")
                         .setSeverity(Severity.CRITICAL)
                         .build());
             }
         }
         
-        // 规则 2: 检查未使用的参考文献
+        // Rule 2: Check unused references
         for (String defined : definedReferences) {
             if (!citedReferences.contains(defined)) {
                 issues.add(Issue.newBuilder()
                         .setCode("ERR_REF_UNUSED")
-                        .setMessage("参考文献 " + defined + " 在正文中未被引用")
+                        .setMessage("Reference " + defined + " is not cited in the main text")
                         .setSeverity(Severity.LOW)
                         .build());
             }
@@ -172,7 +172,7 @@ public class MockDroolsEngine {
     }
     
     /**
-     * 检查完整性规则
+     * Check integrity rules
      */
     public static List<Issue> checkIntegrityRules(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
@@ -181,17 +181,17 @@ public class MockDroolsEngine {
             return issues;
         }
         
-        // 提取所有章节标题
+        // Extract all chapter titles
         Set<String> chapters = new HashSet<>();
         int prevLevel = 0;
         Set<Integer> seenIds = new HashSet<>();
         
         for (Section section : data.getSectionsList()) {
-            // 规则 1: 检查重复的 section ID
+            // Rule 1: Check duplicate section IDs
             if (seenIds.contains(section.getSectionId())) {
                 issues.add(Issue.newBuilder()
                         .setCode("ERR_INTEGRITY_DUPLICATE")
-                        .setMessage("重复的 section ID: " + section.getSectionId())
+                        .setMessage("Duplicate section ID: " + section.getSectionId())
                         .setSectionId(section.getSectionId())
                         .setSeverity(Severity.CRITICAL)
                         .build());
@@ -201,11 +201,11 @@ public class MockDroolsEngine {
             if ("heading".equals(section.getType())) {
                 chapters.add(section.getText());
                 
-                // 规则 2: 检查标题层级跳跃
+                // Rule 2: Check heading level jumps
                 if (prevLevel > 0 && section.getLevel() > prevLevel + 1) {
                     issues.add(Issue.newBuilder()
                             .setCode("ERR_INTEGRITY_HIER")
-                            .setMessage("标题层级跳跃: 从 " + prevLevel + " 级跳到 " + section.getLevel() + " 级")
+                            .setMessage("Heading level jump: from level " + prevLevel + " to level " + section.getLevel())
                             .setSectionId(section.getSectionId())
                             .setSeverity(Severity.MEDIUM)
                             .build());
@@ -214,7 +214,7 @@ public class MockDroolsEngine {
             }
         }
         
-        // 规则 3: 检查必备章节
+        // Rule 3: Check required chapters
         String[] requiredChapters = {"摘要", "引言", "正文", "结论", "参考文献"};
         int foundCount = 0;
         for (String required : requiredChapters) {
@@ -229,7 +229,7 @@ public class MockDroolsEngine {
             if (!found) {
                 issues.add(Issue.newBuilder()
                         .setCode("ERR_INTEGRITY_REQ_" + required)
-                        .setMessage("缺失必备章节: " + required)
+                        .setMessage("Missing required chapter: " + required)
                         .setSeverity(Severity.CRITICAL)
                         .build());
             }

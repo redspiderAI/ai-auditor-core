@@ -10,13 +10,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 引用排序校验器
+ * Reference Ordering Validator
  * 
- * 功能：检查参考文献是否按照正文中的出现顺序排列（顺序编码制）
- * 规则：
- *   1. 参考文献应按照正文中的引用顺序排列
- *   2. 参考文献编号应连续（不能跳号）
- * 严重程度：MEDIUM / HIGH
+ * Function: Check whether the references are arranged in the order they appear in the main text (sequential numbering system)
+ * Rules:
+ *   1. References should be arranged in the order they are cited in the main text
+ *   2. Reference numbers should be continuous (no skipping numbers)
+ * Severity: MEDIUM / HIGH
  */
 @Component
 public class ReferenceOrderingValidator {
@@ -25,41 +25,41 @@ public class ReferenceOrderingValidator {
     private static final Pattern CITATION_PATTERN = Pattern.compile("\\[(\\d+)\\]");
     
     /**
-     * 验证引用排序
+     * Validate reference ordering
      * 
-     * @param data 解析后的文档数据
-     * @return 发现的问题列表
+     * @param data Parsed document data
+     * @return List of detected issues
      */
     public List<Issue> validateReferenceOrdering(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
         
         if (data == null) {
-            logger.warn("输入数据为空");
+            logger.warn("Input data is null");
             return issues;
         }
         
         try {
-            // 1. 按照正文出现顺序收集引用
+            // 1. Collect citations in the order they appear in the main text
             List<Integer> citationOrder = extractCitationOrder(data);
-            logger.debug("正文中的引用顺序: {}", citationOrder);
+            logger.debug("Citation order in main text: {}", citationOrder);
             
-            // 2. 从参考文献中提取引用顺序
+            // 2. Extract citation order from references
             List<Integer> referenceOrder = extractReferenceOrder(data);
-            logger.debug("参考文献中的引用顺序: {}", referenceOrder);
+            logger.debug("Citation order in references: {}", referenceOrder);
             
-            // 3. 检查是否按照引用顺序排列
+            // 3. Check if arranged according to citation order
             checkOrderingConsistency(citationOrder, referenceOrder, issues);
             
-            // 4. 检查编号连续性
+            // 4. Check numbering continuity
             checkNumberingContinuity(referenceOrder, issues);
             
-            logger.info("引用排序验证完成，发现 {} 个问题", issues.size());
+            logger.info("Reference ordering validation completed, found {} issues", issues.size());
             
         } catch (Exception e) {
-            logger.error("引用排序验证异常", e);
+            logger.error("Reference ordering validation exception", e);
             Issue errorIssue = Issue.newBuilder()
                     .setCode("ERR_REFERENCE_ORDER")
-                    .setMessage("引用排序验证异常: " + e.getMessage())
+                    .setMessage("Reference ordering validation exception: " + e.getMessage())
                     .setSeverity(Severity.HIGH)
                     .build();
             issues.add(errorIssue);
@@ -69,7 +69,7 @@ public class ReferenceOrderingValidator {
     }
     
     /**
-     * 按照正文出现顺序提取引用
+     * Extract citations in the order they appear in the main text
      */
     private List<Integer> extractCitationOrder(ParsedData data) {
         List<Integer> citationOrder = new ArrayList<>();
@@ -85,7 +85,7 @@ public class ReferenceOrderingValidator {
                         seen.add(id);
                     }
                 } catch (NumberFormatException e) {
-                    logger.warn("无法解析引用 ID: {}", matcher.group(1));
+                    logger.warn("Unable to parse citation ID: {}", matcher.group(1));
                 }
             }
         }
@@ -94,7 +94,7 @@ public class ReferenceOrderingValidator {
     }
     
     /**
-     * 从参考文献中提取引用顺序
+     * Extract citation order from references
      */
     private List<Integer> extractReferenceOrder(ParsedData data) {
         List<Integer> referenceOrder = new ArrayList<>();
@@ -105,7 +105,7 @@ public class ReferenceOrderingValidator {
                 int id = Integer.parseInt(refId.replaceAll("[\\[\\]]", ""));
                 referenceOrder.add(id);
             } catch (NumberFormatException e) {
-                logger.warn("无法解析参考文献 ID: {}", refId);
+                logger.warn("Unable to parse reference ID: {}", refId);
             }
         }
         
@@ -113,14 +113,14 @@ public class ReferenceOrderingValidator {
     }
     
     /**
-     * 检查排序一致性
+     * Check ordering consistency
      */
     private void checkOrderingConsistency(List<Integer> citationOrder, List<Integer> referenceOrder, List<Issue> issues) {
         if (citationOrder.isEmpty() || referenceOrder.isEmpty()) {
             return;
         }
         
-        // 只比较存在的引用
+        // Compare only existing citations
         List<Integer> expectedOrder = new ArrayList<>();
         for (Integer id : citationOrder) {
             if (referenceOrder.contains(id)) {
@@ -128,7 +128,7 @@ public class ReferenceOrderingValidator {
             }
         }
         
-        // 从参考文献中提取对应的顺序
+        // Extract corresponding order from references
         List<Integer> actualOrder = new ArrayList<>();
         for (Integer id : referenceOrder) {
             if (expectedOrder.contains(id)) {
@@ -139,18 +139,18 @@ public class ReferenceOrderingValidator {
         if (!expectedOrder.equals(actualOrder)) {
             Issue issue = Issue.newBuilder()
                     .setCode("REF_ORDER_001")
-                    .setMessage("参考文献顺序应与正文引用顺序一致")
+                    .setMessage("Reference order should be consistent with citation order in the main text")
                     .setSeverity(Severity.MEDIUM)
-                    .setSuggestion("重新排列参考文献，使其与正文中的引用顺序一致")
-                    .setOriginalSnippet("期望顺序: " + expectedOrder + ", 实际顺序: " + actualOrder)
+                    .setSuggestion("Rearrange references to match the citation order in the main text")
+                    .setOriginalSnippet("Expected order: " + expectedOrder + ", Actual order: " + actualOrder)
                     .build();
             issues.add(issue);
-            logger.debug("发现排序不一致");
+            logger.debug("Detected ordering inconsistency");
         }
     }
     
     /**
-     * 检查编号连续性
+     * Check numbering continuity
      */
     private void checkNumberingContinuity(List<Integer> referenceOrder, List<Issue> issues) {
         if (referenceOrder.isEmpty()) {
@@ -164,13 +164,13 @@ public class ReferenceOrderingValidator {
             if (actualId != expectedId) {
                 Issue issue = Issue.newBuilder()
                         .setCode("REF_ORDER_002")
-                        .setMessage("参考文献编号不连续: 期望 [" + expectedId + "]，实际 [" + actualId + "]")
+                        .setMessage("Reference numbering is not continuous: expected [" + expectedId + "], actual [" + actualId + "]")
                         .setSeverity(Severity.HIGH)
-                        .setSuggestion("重新编号参考文献，确保编号从 1 开始连续")
+                        .setSuggestion("Renumber references to ensure numbering starts from 1 and is continuous")
                         .build();
                 issues.add(issue);
-                logger.debug("发现编号不连续: 期望 [{}]，实际 [{}]", expectedId, actualId);
-                break; // 只报告第一个不连续的位置
+                logger.debug("Detected numbering discontinuity: expected [{}], actual [{}]", expectedId, actualId);
+                break; // Report only the first discontinuity
             }
         }
     }

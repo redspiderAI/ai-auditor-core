@@ -44,9 +44,9 @@ public class IntegrityScannerTest {
         List<Issue> issues = integrityScanner.scanIntegrity(data);
         
         assertNotNull(issues);
-        assertTrue(issues.size() > 0, "应该发现缺失的必备章节");
+        assertTrue(issues.size() > 0, "Should detect missing required chapters");
         assertTrue(issues.stream().anyMatch(i -> i.getCode().contains("REQ")), 
-                   "应该有 REQ 相关的问题");
+                   "Should have REQ related issues");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class IntegrityScannerTest {
         
         assertNotNull(issues);
         assertFalse(issues.stream().anyMatch(i -> i.getCode().contains("REQ")), 
-                    "不应该有缺失必备章节的问题");
+                    "Should not have missing required chapters issues");
     }
 
     @Test
@@ -122,7 +122,7 @@ public class IntegrityScannerTest {
         
         assertNotNull(issues);
         assertTrue(issues.stream().anyMatch(i -> i.getCode().contains("HIER")), 
-                   "应该发现标题层级问题");
+                   "Should detect heading hierarchy issues");
     }
 
     @Test
@@ -151,7 +151,7 @@ public class IntegrityScannerTest {
         
         assertNotNull(issues);
         assertTrue(issues.stream().anyMatch(i -> i.getCode().contains("DUPLICATE")), 
-                   "应该发现重复章节问题");
+                   "Should detect duplicate chapter issues");
     }
 
     @Test
@@ -160,9 +160,9 @@ public class IntegrityScannerTest {
         List<Issue> issues = integrityScanner.scanIntegrity(data);
         
         for (Issue issue : issues) {
-            assertNotNull(issue.getCode(), "Issue code 不能为空");
-            assertNotNull(issue.getMessage(), "Issue message 不能为空");
-            assertNotNull(issue.getSeverity(), "Issue severity 不能为空");
+            assertNotNull(issue.getCode(), "Issue code cannot be null");
+            assertNotNull(issue.getMessage(), "Issue message cannot be null");
+            assertNotNull(issue.getSeverity(), "Issue severity cannot be null");
         }
     }
 

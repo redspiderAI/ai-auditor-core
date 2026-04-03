@@ -10,59 +10,59 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 双向引用追溯器（BitSet 位图优化版）
+ * Bidirectional Reference Tracer (BitSet Bitmap Optimized Version)
  *
- * 核心算法升级：HashMap/HashSet → BitSet 位图
+ * Core Algorithm Upgrade: HashMap/HashSet → BitSet Bitmap
  *
- * 算法原理：
- *   将引用编号（如 [1], [42], [1000]）映射到位图的对应位（bit index）。
- *   - 正文中出现 [i]  → citedBitmap.set(i)
- *   - 参考文献有 [i]  → refBitmap.set(i)
+ * Algorithm Principle:
+ *   Map citation numbers (e.g., [1], [42], [1000]) to corresponding bits in the bitmap (bit index).
+ *   - Citation appears in text [i]  → citedBitmap.set(i)
+ *   - Reference list has [i]        → refBitmap.set(i)
  *
- *   集合运算（O(n/64) 级别，比 HashSet 快 6-7 倍）：
- *   - 缺失引用（正文有，参考文献没有）：citedBitmap.andNot(refBitmap) → 差集
- *   - 冗余引用（参考文献有，正文没有）：refBitmap.andNot(citedBitmap) → 差集
- *   - 正确引用（双向都有）：           citedBitmap.and(refBitmap)    → 交集
+ *   Set operations (O(n/64) level, 6-7 times faster than HashSet):
+ *   - Missing citations (in text but not in references): citedBitmap.andNot(refBitmap) → difference set
+ *   - Redundant citations (in references but not in text): refBitmap.andNot(citedBitmap) → difference set
+ *   - Correct citations (both sides have): citedBitmap.and(refBitmap) → intersection
  *
- * 性能对比（10000 条引用的大文档）：
- *   HashSet 方案：~12ms（散列计算 + 装箱 Integer 对象）
- *   BitSet 方案：  ~1.8ms（位运算，无对象分配，CPU 缓存友好）
- *   提升：约 6.7 倍
+ * Performance Comparison (large document with 10,000 citations):
+ *   HashSet approach: ~12ms (hash calculation + boxing Integer objects)
+ *   BitSet approach:  ~1.8ms (bit operations, no object allocation, CPU cache friendly)
+ *   Improvement: about 6.7 times
  *
- * 内存对比（10000 条引用）：
- *   HashSet<Integer>：约 400KB（每个 Integer 对象 16 字节 + 引用 8 字节）
- *   BitSet(10000)：   约 1.2KB（10000 位 = 1250 字节）
- *   节省：约 99.7%
+ * Memory Comparison (10,000 citations):
+ *   HashSet<Integer>: about 400KB (each Integer object 16 bytes + reference 8 bytes)
+ *   BitSet(10000):   about 1.2KB (10,000 bits = 1250 bytes)
+ *   Savings: about 99.7%
  */
 @Component
 public class BidirectionalReferenceTracer {
 
     private static final Logger logger = LoggerFactory.getLogger(BidirectionalReferenceTracer.class);
 
-    // 支持的最大引用编号（超出范围的引用用 fallback HashSet 处理）
+    // Maximum supported citation number (citations beyond this range are handled by fallback HashSet)
     private static final int MAX_REF_ID = 10000;
 
-    // 引用编号提取正则：匹配 [1], [42], [999] 等格式
+    // Citation number extraction regex: matches [1], [42], [999] formats
     private static final Pattern CITATION_PATTERN = Pattern.compile("\\[(\\d+)\\]");
 
     /**
-     * 追溯双向引用关系（BitSet 位图算法）
+     * Trace bidirectional citation relationships (BitSet bitmap algorithm)
      *
-     * @param data 解析后的文档数据
-     * @return 发现的问题列表
+     * @param data Parsed document data
+     * @return List of detected issues
      */
     public List<Issue> traceBidirectionalReferences(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
 
         if (data == null) {
-            logger.warn("输入数据为空");
+            logger.warn("Input data is null");
             return issues;
         }
 
         long startTime = System.currentTimeMillis();
 
         try {
-            // ── 第一步：构建两个位图 ──────────────────────────────────────
+            // ── Step 1: Build two bitmaps ──────────────────────────────────────
             BitSet citedBitmap = new BitSet(MAX_REF_ID);
             BitSet refBitmap = new BitSet(MAX_REF_ID);
             Set<Integer> citedOverflow = new HashSet<>();
@@ -71,35 +71,35 @@ public class BidirectionalReferenceTracer {
             extractCitationsIntoBitmap(data, citedBitmap, citedOverflow);
             extractReferencesIntoBitmap(data, refBitmap, refOverflow);
 
-            logger.debug("位图统计 - 正文引用数: {}, 参考文献数: {}",
+            logger.debug("Bitmap statistics - Text citations: {}, Reference citations: {}",
                 citedBitmap.cardinality(), refBitmap.cardinality());
 
-            // ── 第二步：位图差集运算（核心算法，O(n/64)）──────────────────
-            // 缺失引用 = 正文有 AND NOT 参考文献有
+            // ── Step 2: Bitmap difference operations (core algorithm, O(n/64)) ────────────────
+            // Missing citations = in text AND NOT in references
             BitSet missingBitmap = (BitSet) citedBitmap.clone();
             missingBitmap.andNot(refBitmap);
 
-            // 冗余引用 = 参考文献有 AND NOT 正文有
+            // Redundant citations = in references AND NOT in text
             BitSet unusedBitmap = (BitSet) refBitmap.clone();
             unusedBitmap.andNot(citedBitmap);
 
-            // ── 第三步：将位图结果转换为 Issue 列表 ─────────────────────────
+            // ── Step 3: Convert bitmap results to Issue list ────────────────────────────────
             generateMissingIssues(missingBitmap, issues);
             generateUnusedIssues(unusedBitmap, issues);
 
-            // 处理溢出的大编号引用（降级到 HashSet）
+            // Handle overflow large-number citations (fallback to HashSet)
             if (!citedOverflow.isEmpty() || !refOverflow.isEmpty()) {
                 handleOverflowReferences(citedOverflow, refOverflow, issues);
             }
 
             long elapsed = System.currentTimeMillis() - startTime;
-            logger.info("双向引用追溯完成（BitSet算法），耗时 {}ms，发现 {} 个问题", elapsed, issues.size());
+            logger.info("Bidirectional reference tracing completed (BitSet algorithm), took {}ms, found {} issues", elapsed, issues.size());
 
         } catch (Exception e) {
-            logger.error("双向引用追溯异常", e);
+            logger.error("Bidirectional reference tracing exception", e);
             issues.add(Issue.newBuilder()
                 .setCode("ERR_REFERENCE_TRACE")
-                .setMessage("双向引用追溯异常: " + e.getMessage())
+                .setMessage("Bidirectional reference tracing exception: " + e.getMessage())
                 .setSeverity(Severity.HIGH)
                 .build());
         }
@@ -108,15 +108,15 @@ public class BidirectionalReferenceTracer {
     }
 
     /**
-     * 性能基准对比：BitSet vs HashSet
+     * Performance benchmark comparison: BitSet vs HashSet
      *
-     * @param data 测试文档数据
-     * @return 性能对比报告字符串
+     * @param data Test document data
+     * @return Performance comparison report string
      */
     public String benchmarkBitSetVsHashSet(ParsedData data) {
         final int ROUNDS = 10;
 
-        // ── 测试 HashSet 方案 ──
+        // ── Test HashSet approach ──
         long hashSetTotal = 0;
         for (int r = 0; r < ROUNDS; r++) {
             long start = System.nanoTime();
@@ -141,7 +141,7 @@ public class BidirectionalReferenceTracer {
             hashSetTotal += System.nanoTime() - start;
         }
 
-        // ── 测试 BitSet 方案 ──
+        // ── Test BitSet approach ──
         long bitSetTotal = 0;
         for (int r = 0; r < ROUNDS; r++) {
             long start = System.nanoTime();
@@ -178,10 +178,10 @@ public class BidirectionalReferenceTracer {
         long bitSetMemBytes = MAX_REF_ID / 8;
 
         return String.format(
-            "BitSet vs HashSet 性能基准对比\n" +
-            "文档引用数量: %d | 测试轮次: %d\n" +
-            "HashSet 平均: %.3fms | BitSet 平均: %.3fms | 速度提升: %.1fx\n" +
-            "HashSet 内存: %dB | BitSet 内存: %dB | 内存节省: %.1f%%",
+            "BitSet vs HashSet Performance Benchmark\n" +
+            "Document citation count: %d | Test rounds: %d\n" +
+            "HashSet average: %.3fms | BitSet average: %.3fms | Speedup: %.1fx\n" +
+            "HashSet memory: %dB | BitSet memory: %dB | Memory savings: %.1f%%",
             refCount, ROUNDS,
             hashSetAvgMs, bitSetAvgMs, speedup,
             hashSetMemBytes, bitSetMemBytes,
@@ -189,7 +189,7 @@ public class BidirectionalReferenceTracer {
         );
     }
 
-    // ==================== 私有方法 ====================
+    // ==================== Private methods ====================
 
     private void extractCitationsIntoBitmap(ParsedData data, BitSet bitmap, Set<Integer> overflow) {
         for (Section section : data.getSectionsList()) {
@@ -203,7 +203,7 @@ public class BidirectionalReferenceTracer {
                         overflow.add(id);
                     }
                 } catch (NumberFormatException e) {
-                    logger.warn("无法解析正文引用: {}", matcher.group(0));
+                    logger.warn("Unable to parse text citation: {}", matcher.group(0));
                 }
             }
         }
@@ -220,7 +220,7 @@ public class BidirectionalReferenceTracer {
                     overflow.add(id);
                 }
             } catch (NumberFormatException e) {
-                logger.warn("无法解析参考文献 ID: {}", refId);
+                logger.warn("Unable to parse reference ID: {}", refId);
             }
         }
     }
@@ -229,9 +229,9 @@ public class BidirectionalReferenceTracer {
         for (int i = missingBitmap.nextSetBit(0); i >= 0; i = missingBitmap.nextSetBit(i + 1)) {
             issues.add(Issue.newBuilder()
                 .setCode("REF_MISSING_001")
-                .setMessage("正文引用 [" + i + "] 在参考文献中未找到")
+                .setMessage("Text citation [" + i + "] not found in references")
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("在参考文献中添加 [" + i + "] 的条目，或删除正文中的引用")
+                .setSuggestion("Add entry [" + i + "] to references, or remove citation from text")
                 .build());
         }
     }
@@ -240,9 +240,9 @@ public class BidirectionalReferenceTracer {
         for (int i = unusedBitmap.nextSetBit(0); i >= 0; i = unusedBitmap.nextSetBit(i + 1)) {
             issues.add(Issue.newBuilder()
                 .setCode("REF_UNUSED_001")
-                .setMessage("参考文献 [" + i + "] 在正文中未被引用")
+                .setMessage("Reference [" + i + "] not cited in text")
                 .setSeverity(Severity.MEDIUM)
-                .setSuggestion("删除未被引用的参考文献 [" + i + "]，或在正文中添加引用")
+                .setSuggestion("Remove unused reference [" + i + "], or add citation in text")
                 .build());
         }
     }
@@ -255,7 +255,7 @@ public class BidirectionalReferenceTracer {
         for (Integer id : missingOverflow) {
             issues.add(Issue.newBuilder()
                 .setCode("REF_MISSING_001")
-                .setMessage("正文引用 [" + id + "] 在参考文献中未找到（大编号）")
+                .setMessage("Text citation [" + id + "] not found in references (large number)")
                 .setSeverity(Severity.HIGH)
                 .build());
         }
@@ -264,7 +264,7 @@ public class BidirectionalReferenceTracer {
         for (Integer id : unusedOverflow) {
             issues.add(Issue.newBuilder()
                 .setCode("REF_UNUSED_001")
-                .setMessage("参考文献 [" + id + "] 在正文中未被引用（大编号）")
+                .setMessage("Reference [" + id + "] not cited in text (large number)")
                 .setSeverity(Severity.MEDIUM)
                 .build());
         }

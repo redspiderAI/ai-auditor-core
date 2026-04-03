@@ -4,15 +4,15 @@ import com.auditor.grpc.Reference;
 import java.util.*;
 
 /**
- * 真实多样化参考文献数据生成器
- * 包含 [J]、[M]、[D]、[C] 四种类型
- * 每条文献包含 1-3 个随机错误
+ * Real diversified reference data generator
+ * Includes four types: [J], [M], [D], [C]
+ * Each reference contains 1-3 random errors
  */
 public class RealReferenceDataGenerator {
     
-    private static final Random random = new Random(42); // 固定种子保证可重现
+    private static final Random random = new Random(42); // Fixed seed for reproducibility
     
-    // 真实期刊名
+    // Real journal names
     private static final String[] JOURNALS = {
         "中国学术期刊网络出版总库",
         "计算机学报",
@@ -31,7 +31,7 @@ public class RealReferenceDataGenerator {
         "Science Advances"
     };
     
-    // 真实出版社
+    // Real publishers
     private static final String[] PUBLISHERS = {
         "清华大学出版社",
         "机械工业出版社",
@@ -45,63 +45,63 @@ public class RealReferenceDataGenerator {
         "IEEE Press"
     };
     
-    // 中文作者
+    // Chinese authors
     private static final String[] CN_AUTHORS = {
         "张三", "李四", "王五", "赵六", "孙七", "周八", "吴九", "郑十",
         "刘明", "陈浩", "杨洋", "黄金", "何平", "罗军", "高峰", "林涛"
     };
     
-    // 英文作者
+    // English authors
     private static final String[] EN_AUTHORS = {
         "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
         "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas"
     };
     
-    // 错误类型枚举
+    // Error type enumeration
     enum ErrorType {
-        FULL_COMMA,           // 全角逗号
-        FULL_PERIOD,          // 全角句号
-        YEAR_EXCEED,          // 年份超出范围
-        YEAR_EARLY,           // 年份过早
-        YEAR_TWO_DIGIT,       // 年份两位数
-        NO_DOT_AFTER_TYPE,    // [J] 后无点号
-        NO_AUTHOR,            // 缺少作者
-        NO_VOLUME,            // 缺少卷号
-        NO_PAGE,              // 缺少页码
-        NO_PUBLISHER,         // 缺少出版社
-        MULTI_AUTHOR_NO_ET,   // 多作者无"等"
-        LOWERCASE_TYPE        // 小写类型标记
+        FULL_COMMA,           // Full-width comma
+        FULL_PERIOD,          // Full-width period
+        YEAR_EXCEED,          // Year out of range
+        YEAR_EARLY,           // Year too early
+        YEAR_TWO_DIGIT,       // Two-digit year
+        NO_DOT_AFTER_TYPE,    // No dot after [J]
+        NO_AUTHOR,            // Missing author
+        NO_VOLUME,            // Missing volume number
+        NO_PAGE,              // Missing page number
+        NO_PUBLISHER,         // Missing publisher
+        MULTI_AUTHOR_NO_ET,   // Multiple authors without "et al."
+        LOWERCASE_TYPE        // Lowercase type marker
     }
     
     /**
-     * 生成 200 条真实多样化的参考文献
+     * Generate 200 real diversified references
      */
     public static List<Reference> generateReferences() {
         List<Reference> references = new ArrayList<>();
         
-        int journalCount = 50;   // [J] 期刊
-        int monoCount = 50;      // [M] 专著
-        int thesisCount = 50;    // [D] 学位论文
-        int confCount = 50;      // [C] 会议录
+        int journalCount = 50;   // [J] Journals
+        int monoCount = 50;      // [M] Monographs
+        int thesisCount = 50;    // [D] Theses
+        int confCount = 50;      // [C] Conference proceedings
         
         int id = 1;
         
-        // 生成期刊文献
+        // Generate journal references
         for (int i = 0; i < journalCount; i++) {
             references.add(generateJournalReference(id++));
         }
         
-        // 生成专著
+        // Generate monographs
         for (int i = 0; i < monoCount; i++) {
             references.add(generateMonographReference(id++));
         }
         
-        // 生成学位论文
+        // Generate theses
         for (int i = 0; i < thesisCount; i++) {
             references.add(generateThesisReference(id++));
         }
         
-        // 生成会议录
+        // Generate conference proceedings
         for (int i = 0; i < confCount; i++) {
             references.add(generateConferenceReference(id++));
         }
@@ -110,7 +110,7 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 生成期刊文献 [J]
+     * Generate journal reference [J]
      */
     private static Reference generateJournalReference(int id) {
         Set<ErrorType> errors = selectRandomErrors();
@@ -129,7 +129,7 @@ public class RealReferenceDataGenerator {
         sb.append(author).append(". ");
         sb.append(title);
         
-        // 处理 [J] 标记
+        // Handle [J] marker
         if (errors.contains(ErrorType.NO_DOT_AFTER_TYPE)) {
             if (errors.contains(ErrorType.LOWERCASE_TYPE)) {
                 sb.append("[j]");
@@ -147,7 +147,7 @@ public class RealReferenceDataGenerator {
         sb.append(" ");
         sb.append(journal);
         
-        // 处理逗号
+        // Handle comma
         if (errors.contains(ErrorType.FULL_COMMA)) {
             sb.append("，");
         } else {
@@ -156,18 +156,18 @@ public class RealReferenceDataGenerator {
         
         sb.append(year);
         
-        // 处理卷号
+        // Handle volume number
         if (!errors.contains(ErrorType.NO_VOLUME)) {
             sb.append(", ").append(volume);
             sb.append("(").append(issue).append(")");
         }
         
-        // 处理页码
+        // Handle page numbers
         if (!errors.contains(ErrorType.NO_PAGE)) {
             sb.append(": ").append(startPage).append("-").append(endPage);
         }
         
-        // 处理句号
+        // Handle period
         if (errors.contains(ErrorType.FULL_PERIOD)) {
             sb.append("。");
         } else {
@@ -181,7 +181,7 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 生成专著 [M]
+     * Generate monograph [M]
      */
     private static Reference generateMonographReference(int id) {
         Set<ErrorType> errors = selectRandomErrors();
@@ -197,7 +197,7 @@ public class RealReferenceDataGenerator {
         sb.append(author).append(". ");
         sb.append(title);
         
-        // 处理 [M] 标记
+        // Handle [M] marker
         if (errors.contains(ErrorType.NO_DOT_AFTER_TYPE)) {
             if (errors.contains(ErrorType.LOWERCASE_TYPE)) {
                 sb.append("[m]");
@@ -214,14 +214,14 @@ public class RealReferenceDataGenerator {
         
         sb.append(" ");
         
-        // 处理出版地和出版社
+        // Handle place of publication and publisher
         if (!errors.contains(ErrorType.NO_PUBLISHER)) {
             sb.append(city).append(": ").append(publisher);
         }
         
         sb.append(", ").append(year);
         
-        // 处理句号
+        // Handle period
         if (errors.contains(ErrorType.FULL_PERIOD)) {
             sb.append("。");
         } else {
@@ -235,7 +235,7 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 生成学位论文 [D]
+     * Generate thesis [D]
      */
     private static Reference generateThesisReference(int id) {
         Set<ErrorType> errors = selectRandomErrors();
@@ -251,7 +251,7 @@ public class RealReferenceDataGenerator {
         sb.append(author).append(". ");
         sb.append(title);
         
-        // 处理 [D] 标记
+        // Handle [D] marker
         if (errors.contains(ErrorType.NO_DOT_AFTER_TYPE)) {
             if (errors.contains(ErrorType.LOWERCASE_TYPE)) {
                 sb.append("[d]");
@@ -271,7 +271,7 @@ public class RealReferenceDataGenerator {
         sb.append(university).append(", ");
         sb.append(year);
         
-        // 处理句号
+        // Handle period
         if (errors.contains(ErrorType.FULL_PERIOD)) {
             sb.append("。");
         } else {
@@ -285,7 +285,7 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 生成会议录 [C]
+     * Generate conference proceedings [C]
      */
     private static Reference generateConferenceReference(int id) {
         Set<ErrorType> errors = selectRandomErrors();
@@ -301,7 +301,7 @@ public class RealReferenceDataGenerator {
         sb.append(author).append(". ");
         sb.append(title);
         
-        // 处理 [C] 标记
+        // Handle [C] marker
         if (errors.contains(ErrorType.NO_DOT_AFTER_TYPE)) {
             if (errors.contains(ErrorType.LOWERCASE_TYPE)) {
                 sb.append("[c]");
@@ -319,7 +319,7 @@ public class RealReferenceDataGenerator {
         sb.append(" ");
         sb.append(conference);
         
-        // 处理逗号
+        // Handle comma
         if (errors.contains(ErrorType.FULL_COMMA)) {
             sb.append("，");
         } else {
@@ -329,7 +329,7 @@ public class RealReferenceDataGenerator {
         sb.append(city).append(", ");
         sb.append(year);
         
-        // 处理句号
+        // Handle period
         if (errors.contains(ErrorType.FULL_PERIOD)) {
             sb.append("。");
         } else {
@@ -343,11 +343,11 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 随机选择 1-3 个错误
+     * Randomly select 1-3 errors
      */
     private static Set<ErrorType> selectRandomErrors() {
         Set<ErrorType> errors = new HashSet<>();
-        int errorCount = random.nextInt(3) + 1; // 1-3 个错误
+        int errorCount = random.nextInt(3) + 1; // 1-3 errors
         
         ErrorType[] allErrors = ErrorType.values();
         List<ErrorType> errorList = Arrays.asList(allErrors);
@@ -361,7 +361,7 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 生成作者名
+     * Generate author names
      */
     private static String generateAuthors(int count, boolean noAuthor) {
         if (noAuthor) {
@@ -375,15 +375,15 @@ public class RealReferenceDataGenerator {
             }
             
             if (random.nextBoolean()) {
-                // 中文作者
+                // Chinese author
                 sb.append(CN_AUTHORS[random.nextInt(CN_AUTHORS.length)]);
             } else {
-                // 英文作者
+                // English author
                 sb.append(EN_AUTHORS[random.nextInt(EN_AUTHORS.length)]);
             }
         }
         
-        // 多作者添加"等"
+        // Add "et al." for multiple authors
         if (count > 1 && random.nextBoolean()) {
             sb.append("等");
         }
@@ -392,28 +392,28 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 生成年份（可能包含错误）
+     * Generate year (may contain errors)
      */
     private static int generateYear(Set<ErrorType> errors) {
         if (errors.contains(ErrorType.YEAR_EXCEED)) {
-            return 2027; // 超出范围
+            return 2027; // Out of range
         } else if (errors.contains(ErrorType.YEAR_EARLY)) {
-            return 1800 + random.nextInt(50); // 过早
+            return 1800 + random.nextInt(50); // Too early
         } else if (errors.contains(ErrorType.YEAR_TWO_DIGIT)) {
-            return 20 + random.nextInt(10); // 两位数
+            return 20 + random.nextInt(10); // Two-digit year
         } else {
-            return 2000 + random.nextInt(26); // 正常年份
+            return 2000 + random.nextInt(26); // Normal year
         }
     }
     
     /**
-     * 生成 builder 代码格式
+     * Generate builder code format
      */
     public static String generateBuilderCode() {
         List<Reference> references = generateReferences();
         StringBuilder code = new StringBuilder();
         
-        code.append("// 生成 200 条真实多样化的参考文献\n");
+        code.append("// Generate 200 real diversified references\n");
         code.append("ParsedData.Builder dataBuilder = ParsedData.newBuilder();\n\n");
         
         for (Reference ref : references) {
@@ -429,7 +429,7 @@ public class RealReferenceDataGenerator {
     }
     
     /**
-     * 转义字符串中的特殊字符
+     * Escape special characters in string
      */
     private static String escapeString(String str) {
         return str.replace("\\", "\\\\")
@@ -441,15 +441,15 @@ public class RealReferenceDataGenerator {
     public static void main(String[] args) {
         List<Reference> references = generateReferences();
         
-        System.out.println("生成的参考文献统计:");
-        System.out.println("总数: " + references.size());
-        System.out.println("期刊 [J]: 50");
-        System.out.println("专著 [M]: 50");
-        System.out.println("学位论文 [D]: 50");
-        System.out.println("会议录 [C]: 50");
+        System.out.println("Generated reference statistics:");
+        System.out.println("Total: " + references.size());
+        System.out.println("Journals [J]: 50");
+        System.out.println("Monographs [M]: 50");
+        System.out.println("Theses [D]: 50");
+        System.out.println("Conference proceedings [C]: 50");
         
-        // 输出前 5 条示例
-        System.out.println("\n前 5 条参考文献示例:");
+        // Output first 5 examples
+        System.out.println("\nFirst 5 reference examples:");
         for (int i = 0; i < Math.min(5, references.size()); i++) {
             Reference ref = references.get(i);
             System.out.println(ref.getRefId() + " " + ref.getRawText());

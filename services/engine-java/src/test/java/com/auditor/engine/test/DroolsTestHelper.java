@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * Drools 测试辅助类，用于在测试环境中初始化 Drools 规则引擎
+ * Drools test helper class, used to initialize the Drools rule engine in the test environment
  */
 public class DroolsTestHelper {
     
@@ -22,7 +22,7 @@ public class DroolsTestHelper {
     private static KieContainer kieContainer;
     
     /**
-     * 初始化 Drools 规则引擎
+     * Initialize Drools rule engine
      */
     public static synchronized KieContainer initializeDrools() {
         if (kieContainer != null) {
@@ -34,33 +34,33 @@ public class DroolsTestHelper {
             KieRepository kieRepository = kieServices.getRepository();
             KieFileSystem kfs = kieServices.newKieFileSystem();
             
-            // 加载所有规则文件
+            // Load all rule files
             loadRuleFiles(kfs);
             
-            // 构建 KieModule
+            // Build KieModule
             KieBuilder kieBuilder = kieServices.newKieBuilder(kfs);
             kieBuilder.buildAll();
             
             if (kieBuilder.getResults().hasMessages()) {
-                logger.error("Drools 规则构建失败:");
+                logger.error("Drools rule build failed:");
                 kieBuilder.getResults().getMessages().forEach(msg -> 
                     logger.error("  - {}", msg.toString())
                 );
-                throw new RuntimeException("Drools 规则构建失败");
+                throw new RuntimeException("Drools rule build failed");
             }
             
             kieContainer = kieServices.newKieContainer(kieRepository.getDefaultReleaseId());
-            logger.info("Drools 规则引擎初始化成功");
+            logger.info("Drools rule engine initialized successfully");
             return kieContainer;
             
         } catch (Exception e) {
-            logger.error("Drools 初始化失败", e);
-            throw new RuntimeException("无法初始化 Drools", e);
+            logger.error("Drools initialization failed", e);
+            throw new RuntimeException("Unable to initialize Drools", e);
         }
     }
     
     /**
-     * 加载规则文件
+     * Load rule files
      */
     private static void loadRuleFiles(KieFileSystem kfs) throws IOException {
         String[] rulePaths = {
@@ -74,15 +74,15 @@ public class DroolsTestHelper {
                 String content = new String(Files.readAllBytes(Paths.get(rulePath)));
                 String resourcePath = "src/main/resources/" + rulePath.substring(rulePath.lastIndexOf("/") + 1);
                 kfs.write(resourcePath, content);
-                logger.debug("已加载规则文件: {}", rulePath);
+                logger.debug("Rule file loaded: {}", rulePath);
             } catch (IOException e) {
-                logger.warn("无法加载规则文件 {}: {}", rulePath, e.getMessage());
+                logger.warn("Unable to load rule file {}: {}", rulePath, e.getMessage());
             }
         }
     }
     
     /**
-     * 创建 KieSession
+     * Create KieSession
      */
     public static KieSession createKieSession(String sessionName) {
         if (kieContainer == null) {
@@ -92,7 +92,7 @@ public class DroolsTestHelper {
     }
     
     /**
-     * 关闭 KieContainer
+     * Shutdown KieContainer
      */
     public static void shutdown() {
         if (kieContainer != null) {

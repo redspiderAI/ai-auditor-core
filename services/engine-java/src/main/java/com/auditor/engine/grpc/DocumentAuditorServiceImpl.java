@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 成员 B (Java): 执行格式与规则审查的 gRPC 服务实现
+ * Member B (Java): gRPC service implementation for executing formatting and rule audits
  */
 @Service
 public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditorGrpc.DocumentAuditorImplBase {
@@ -22,39 +22,39 @@ public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditor
     private static final Logger logger = LoggerFactory.getLogger(DocumentAuditorServiceImpl.class);
     private final KieContainer kieContainer;
 
-    /** section 预过滤服务（停止检测 + 白名单） */
+    /** section pre-filter service (stop detection + whitelist) */
     private final SectionFilterService sectionFilterService = new SectionFilterService();
 
     public DocumentAuditorServiceImpl() {
         KieServices kieServices = KieServices.Factory.get();
         this.kieContainer = kieServices.getKieClasspathContainer();
-        logger.info("Drools 规则引擎已加载，gRPC 审计服务准备就绪");
+        logger.info("Drools rule engine loaded, gRPC audit service ready");
     }
 
     @Override
     public void auditRules(AuditRequest request, StreamObserver<AuditResponse> responseObserver) {
         ParsedData data = request.getData();
         String targetRuleSet = request.getTargetRuleSet();
-        logger.info("收到审计请求，文档ID: {}, 目标规则集: {}", data.getDocId(), targetRuleSet);
+        logger.info("Received audit request, Document ID: {}, Target rule set: {}", data.getDocId(), targetRuleSet);
 
         List<Issue> allIssues = new ArrayList<>();
 
         try {
-            // ── 预过滤：截断「学位论文数据集」及后续 sections ──
+            // ── Pre-filter: truncate "Thesis dataset" and subsequent sections ──
             ParsedData filteredData = sectionFilterService.filterSections(data);
-            logger.info("gRPC 入口 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+            logger.info("gRPC entry section pre-filter: original {} → filtered {}",
                     data.getSectionsCount(), filteredData.getSectionsCount());
 
-            // 1. 执行排版规则 (formattingSession)
+            // 1. Execute formatting rules (formattingSession)
             auditWithSession("formattingSession", filteredData, allIssues);
 
-            // 2. 执行完整性规则 (integritySession)
+            // 2. Execute integrity rules (integritySession)
             auditWithSession("integritySession", filteredData, allIssues);
 
-            // 3. 执行参考文献规则 (referenceSession)
+            // 3. Execute reference rules (referenceSession)
             auditWithSession("referenceSession", filteredData, allIssues);
 
-            // 构建响应
+            // Build response
             AuditResponse response = AuditResponse.newBuilder()
                     .addAllIssues(allIssues)
                     .setScoreImpact(calculateTotalScore(allIssues))
@@ -62,12 +62,12 @@ public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditor
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
-            logger.info("审计完成，共检出 {} 个问题", allIssues.size());
+            logger.info("Audit completed, total issues found: {}", allIssues.size());
 
         } catch (Exception e) {
-            logger.error("审计执行异常: {}", e.getMessage(), e);
+            logger.error("Audit execution error: {}", e.getMessage(), e);
             responseObserver.onError(io.grpc.Status.INTERNAL
-                    .withDescription("审计执行异常: " + e.getMessage())
+                    .withDescription("Audit execution error: " + e.getMessage())
                     .asRuntimeException());
         }
     }
@@ -77,22 +77,22 @@ public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditor
         try {
             session = kieContainer.newKieSession(sessionName);
             if (session == null) {
-                logger.warn("无法创建会话: {}，请检查 kmodule.xml 配置", sessionName);
+                logger.warn("Unable to create session: {}, please check kmodule.xml configuration", sessionName);
                 return;
             }
             session.setGlobal("results", results);
             session.setGlobal("logger", logger);
 
-            // 插入数据对象以触发 DRL 规则
+            // Insert data objects to trigger DRL rules
             session.insert(data);
             for (Section s : data.getSectionsList()) session.insert(s);
             for (Reference r : data.getReferencesList()) session.insert(r);
             if (data.hasMetadata()) session.insert(data.getMetadata());
 
             int fired = session.fireAllRules();
-            logger.info("会话 [{}] 执行完成，触发 {} 条规则", sessionName, fired);
+            logger.info("Session [{}] executed, fired {} rules", sessionName, fired);
         } catch (Exception e) {
-            logger.error("会话 [{}] 执行异常: {}", sessionName, e.getMessage());
+            logger.error("Session [{}] execution error: {}", sessionName, e.getMessage());
         } finally {
             if (session != null) session.dispose();
         }

@@ -10,7 +10,7 @@ import java.util.*
 global java.util.List results
 global Logger logger
 
-// ==================== 辅助函数 ====================
+// ==================== Helper Functions ====================
 
 function Issue createFormatIssue(String code, String message, int sectionId, Severity severity, String suggestion) {
     return Issue.newBuilder()
@@ -23,10 +23,10 @@ function Issue createFormatIssue(String code, String message, int sectionId, Sev
         .build();
 }
 
-// ==================== 规则定义 ====================
+// ==================== Rule Definitions ====================
 
-// 规则1: 精准行距检查 (1.5 ± 0.05)
-rule "精准行距检查"
+// Rule 1: Precise Line Spacing Check (1.5 ± 0.05)
+rule "Precise Line Spacing Check"
 when
     $section: Section(type == "paragraph" || type == "heading")
 then
@@ -38,20 +38,20 @@ then
             if (Math.abs(lineHeight - 1.5) > 0.05) {
                 results.add(createFormatIssue(
                     "FMT_LINE_HEIGHT_001",
-                    "Section " + $section.getSectionId() + " 行距不符合标准：" + lineHeight + "，应为 1.5 (容差 ±0.05)",
+                    "Section " + $section.getSectionId() + " line spacing does not meet the standard: " + lineHeight + ", should be 1.5 (tolerance ±0.05)",
                     (int)$section.getSectionId(),
                     Severity.MEDIUM,
-                    "请将行距调整为 1.5 倍"
+                    "Please adjust the line spacing to 1.5 times"
                 ));
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析行距值: {}", lineHeightStr);
+            logger.warn("Unable to parse line spacing value: {}", lineHeightStr);
         }
     }
 end
 
-// 规则2: 层级检测 - 标题序列验证
-rule "标题序列层级检测"
+// Rule 2: Hierarchy Check - Heading Sequence Verification
+rule "Heading Sequence Hierarchy Check"
 when
     $data: ParsedData()
 then
@@ -65,33 +65,33 @@ then
             int currentLevel = current.getLevel();
             int nextLevel = next.getLevel();
             
-            // 检查层级是否合理（不能跳级）
+            // Check if hierarchy is reasonable (no skipping levels)
             if (nextLevel > currentLevel + 1) {
                 results.add(createFormatIssue(
                     "FMT_HEADING_LEVEL_JUMP",
-                    "Section " + next.getSectionId() + " 标题层级跳跃：从 " + currentLevel + " 级跳到 " + nextLevel + " 级",
+                    "Section " + next.getSectionId() + " heading level jump: from level " + currentLevel + " to level " + nextLevel,
                     (int)next.getSectionId(),
                     Severity.HIGH,
-                    "请按顺序使用标题层级"
+                    "Please use heading levels in order"
                 ));
             }
             
-            // 检查是否出现倒序（如 2 级后直接是 1 级，除非是新章节）
+            // Check for reverse order (e.g., level 2 followed directly by level 1, unless it's a new chapter)
             if (nextLevel < currentLevel && nextLevel != 1) {
                 results.add(createFormatIssue(
                     "FMT_HEADING_LEVEL_REVERSE",
-                    "Section " + next.getSectionId() + " 标题层级倒序：从 " + currentLevel + " 级降到 " + nextLevel + " 级",
+                    "Section " + next.getSectionId() + " heading level reverse order: from level " + currentLevel + " down to level " + nextLevel,
                     (int)next.getSectionId(),
                     Severity.MEDIUM,
-                    "请检查标题层级顺序"
+                    "Please check the heading level order"
                 ));
             }
         }
     }
 end
 
-// 规则3: 表格跨页检查
-rule "表格跨页检查"
+// Rule 3: Table Page Break Check
+rule "Table Page Break Check"
 when
     $section: Section(type == "table")
 then
@@ -102,17 +102,17 @@ then
         if (!"true".equals(continueTableFlag)) {
             results.add(createFormatIssue(
                 "FMT_TABLE_PAGE_BREAK",
-                "Section " + $section.getSectionId() + " 表格跨页但未设置'续表'标志",
+                "Section " + $section.getSectionId() + " table breaks across pages but 'continue table' flag is not set",
                 (int)$section.getSectionId(),
                 Severity.MEDIUM,
-                "请设置'续表'标志或调整表格位置"
+                "Please set the 'continue table' flag or adjust the table position"
             ));
         }
     }
 end
 
-// 规则4: 公式对齐检查
-rule "公式对齐检查"
+// Rule 4: Formula Alignment Check
+rule "Formula Alignment Check"
 when
     $section: Section(type == "formula")
 then
@@ -121,16 +121,16 @@ then
     if (alignment == null || !alignment.equals("right")) {
         results.add(createFormatIssue(
             "FMT_FORMULA_ALIGNMENT",
-            "Section " + $section.getSectionId() + " 公式未右对齐，当前对齐方式：" + (alignment == null ? "未设置" : alignment),
+            "Section " + $section.getSectionId() + " formula is not right-aligned, current alignment: " + (alignment == null ? "not set" : alignment),
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请将公式对齐方式设置为右对齐"
+            "Please set the formula alignment to right"
         ));
     }
 end
 
-// 规则5: 一级标题字体检查
-rule "一级标题字体检查"
+// Rule 5: Level 1 Heading Font Check
+rule "Level 1 Heading Font Check"
 when
     $section: Section(level == 1, type == "heading")
 then
@@ -138,16 +138,16 @@ then
     if (fontFamily == null || !fontFamily.contains("黑体")) {
         results.add(createFormatIssue(
             "FMT_HEADING_FONT_001",
-            "Section " + $section.getSectionId() + " 一级标题必须使用黑体",
+            "Section " + $section.getSectionId() + " level 1 heading must use Heiti font",
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请将一级标题字体修改为黑体"
+            "Please change the level 1 heading font to Heiti"
         ));
     }
 end
 
-// 规则6: 一级标题字号检查 (应为 18pt)
-rule "一级标题字号检查"
+// Rule 6: Level 1 Heading Font Size Check (should be 18pt)
+rule "Level 1 Heading Font Size Check"
 when
     $section: Section(level == 1, type == "heading")
 then
@@ -158,20 +158,20 @@ then
             if (Math.abs(size - 18) > 1) {
                 results.add(createFormatIssue(
                     "FMT_HEADING_SIZE_001",
-                    "Section " + $section.getSectionId() + " 一级标题字号应为 18pt，当前为 " + size + "pt",
+                    "Section " + $section.getSectionId() + " level 1 heading font size should be 18pt, current is " + size + "pt",
                     (int)$section.getSectionId(),
                     Severity.MEDIUM,
-                    "请将一级标题字号修改为 18pt"
+                    "Please change the level 1 heading font size to 18pt"
                 ));
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析字号: {}", fontSize);
+            logger.warn("Unable to parse font size: {}", fontSize);
         }
     }
 end
 
-// 规则7: 二级标题字体检查
-rule "二级标题字体检查"
+// Rule 7: Level 2 Heading Font Check
+rule "Level 2 Heading Font Check"
 when
     $section: Section(level == 2, type == "heading")
 then
@@ -179,16 +179,16 @@ then
     if (fontFamily == null || !fontFamily.contains("黑体")) {
         results.add(createFormatIssue(
             "FMT_HEADING_FONT_002",
-            "Section " + $section.getSectionId() + " 二级标题必须使用黑体",
+            "Section " + $section.getSectionId() + " level 2 heading must use Heiti font",
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请将二级标题字体修改为黑体"
+            "Please change the level 2 heading font to Heiti"
         ));
     }
 end
 
-// 规则8: 二级标题字号检查 (应为 16pt)
-rule "二级标题字号检查"
+// Rule 8: Level 2 Heading Font Size Check (should be 16pt)
+rule "Level 2 Heading Font Size Check"
 when
     $section: Section(level == 2, type == "heading")
 then
@@ -199,20 +199,20 @@ then
             if (Math.abs(size - 16) > 1) {
                 results.add(createFormatIssue(
                     "FMT_HEADING_SIZE_002",
-                    "Section " + $section.getSectionId() + " 二级标题字号应为 16pt，当前为 " + size + "pt",
+                    "Section " + $section.getSectionId() + " level 2 heading font size should be 16pt, current is " + size + "pt",
                     (int)$section.getSectionId(),
                     Severity.MEDIUM,
-                    "请将二级标题字号修改为 16pt"
+                    "Please change the level 2 heading font size to 16pt"
                 ));
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析字号: {}", fontSize);
+            logger.warn("Unable to parse font size: {}", fontSize);
         }
     }
 end
 
-// 规则9: 三级标题字体检查
-rule "三级标题字体检查"
+// Rule 9: Level 3 Heading Font Check
+rule "Level 3 Heading Font Check"
 when
     $section: Section(level == 3, type == "heading")
 then
@@ -220,16 +220,16 @@ then
     if (fontFamily == null || !fontFamily.contains("黑体")) {
         results.add(createFormatIssue(
             "FMT_HEADING_FONT_003",
-            "Section " + $section.getSectionId() + " 三级标题必须使用黑体",
+            "Section " + $section.getSectionId() + " level 3 heading must use Heiti font",
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请将三级标题字体修改为黑体"
+            "Please change the level 3 heading font to Heiti"
         ));
     }
 end
 
-// 规则10: 三级标题字号检查 (应为 14pt)
-rule "三级标题字号检查"
+// Rule 10: Level 3 Heading Font Size Check (should be 14pt)
+rule "Level 3 Heading Font Size Check"
 when
     $section: Section(level == 3, type == "heading")
 then
@@ -240,20 +240,20 @@ then
             if (Math.abs(size - 14) > 1) {
                 results.add(createFormatIssue(
                     "FMT_HEADING_SIZE_003",
-                    "Section " + $section.getSectionId() + " 三级标题字号应为 14pt，当前为 " + size + "pt",
+                    "Section " + $section.getSectionId() + " level 3 heading font size should be 14pt, current is " + size + "pt",
                     (int)$section.getSectionId(),
                     Severity.MEDIUM,
-                    "请将三级标题字号修改为 14pt"
+                    "Please change the level 3 heading font size to 14pt"
                 ));
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析字号: {}", fontSize);
+            logger.warn("Unable to parse font size: {}", fontSize);
         }
     }
 end
 
-// 规则11: 正文字体检查
-rule "正文字体检查"
+// Rule 11: Body Text Font Check
+rule "Body Text Font Check"
 when
     $section: Section(type == "paragraph")
 then
@@ -261,16 +261,16 @@ then
     if (fontFamily == null || (!fontFamily.contains("宋体") && !fontFamily.contains("仿宋"))) {
         results.add(createFormatIssue(
             "FMT_BODY_FONT_001",
-            "Section " + $section.getSectionId() + " 正文必须使用宋体或仿宋",
+            "Section " + $section.getSectionId() + " body text must use SimSun or FangSong font",
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请将正文字体修改为宋体或仿宋"
+            "Please change the body text font to SimSun or FangSong"
         ));
     }
 end
 
-// 规则12: 正文字号检查 (应为 12pt)
-rule "正文字号检查"
+// Rule 12: Body Text Font Size Check (should be 12pt)
+rule "Body Text Font Size Check"
 when
     $section: Section(type == "paragraph")
 then
@@ -281,20 +281,20 @@ then
             if (Math.abs(size - 12) > 1) {
                 results.add(createFormatIssue(
                     "FMT_BODY_SIZE_001",
-                    "Section " + $section.getSectionId() + " 正文字号应为 12pt，当前为 " + size + "pt",
+                    "Section " + $section.getSectionId() + " body text font size should be 12pt, current is " + size + "pt",
                     (int)$section.getSectionId(),
                     Severity.MEDIUM,
-                    "请将正文字号修改为 12pt"
+                    "Please change the body text font size to 12pt"
                 ));
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析字号: {}", fontSize);
+            logger.warn("Unable to parse font size: {}", fontSize);
         }
     }
 end
 
-// 规则13: 段落缩进检查 (应为 2 字符)
-rule "段落缩进检查"
+// Rule 13: Paragraph Indentation Check (should be 2 characters)
+rule "Paragraph Indentation Check"
 when
     $section: Section(type == "paragraph")
 then
@@ -305,20 +305,20 @@ then
             if (indentValue < 0.4 || indentValue > 0.6) {
                 results.add(createFormatIssue(
                     "FMT_INDENT_001",
-                    "Section " + $section.getSectionId() + " 段落缩进不符合标准，应为 2 字符缩进",
+                    "Section " + $section.getSectionId() + " paragraph indentation does not meet the standard, should be 2 characters",
                     (int)$section.getSectionId(),
                     Severity.LOW,
-                    "请将段落缩进调整为 2 字符"
+                    "Please adjust the paragraph indentation to 2 characters"
                 ));
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析缩进值: {}", indent);
+            logger.warn("Unable to parse indentation value: {}", indent);
         }
     }
 end
 
-// 规则14: 页码位置检查 (应居中)
-rule "页码位置检查"
+// Rule 14: Page Number Position Check (should be centered)
+rule "Page Number Position Check"
 when
     $section: Section(type == "page-number")
 then
@@ -327,16 +327,16 @@ then
     if (alignment == null || !alignment.equals("center")) {
         results.add(createFormatIssue(
             "FMT_PAGE_NUMBER_001",
-            "Section " + $section.getSectionId() + " 页码未居中，当前对齐方式：" + (alignment == null ? "未设置" : alignment),
+            "Section " + $section.getSectionId() + " page number is not centered, current alignment: " + (alignment == null ? "not set" : alignment),
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请将页码对齐方式设置为居中 (center)"
+            "Please set the page number alignment to center"
         ));
     }
 end
 
-// 规则15: 空行审计 (检查多余空行)
-rule "空行审计"
+// Rule 15: Empty Line Audit (check for redundant empty lines)
+rule "Empty Line Audit"
 when
     $section: Section(type == "paragraph")
 then
@@ -344,16 +344,16 @@ then
     if (text != null && text.trim().isEmpty()) {
         results.add(createFormatIssue(
             "FMT_EMPTY_LINE_001",
-            "Section " + $section.getSectionId() + " 为多余空行",
+            "Section " + $section.getSectionId() + " is a redundant empty line",
             (int)$section.getSectionId(),
             Severity.LOW,
-            "请删除多余的空行"
+            "Please delete redundant empty lines"
         ));
     }
 end
 
-// 规则16: 表格标题检查
-rule "表格标题检查"
+// Rule 16: Table Caption Check
+rule "Table Caption Check"
 when
     $section: Section(type == "table")
 then
@@ -361,16 +361,16 @@ then
     if (caption == null || caption.isEmpty()) {
         results.add(createFormatIssue(
             "FMT_TABLE_CAPTION",
-            "Section " + $section.getSectionId() + " 表格缺少标题",
+            "Section " + $section.getSectionId() + " table is missing a caption",
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请为表格添加标题"
+            "Please add a caption to the table"
         ));
     }
 end
 
-// 规则17: 图片标题检查
-rule "图片标题检查"
+// Rule 17: Image Caption Check
+rule "Image Caption Check"
 when
     $section: Section(type == "image")
 then
@@ -378,16 +378,16 @@ then
     if (caption == null || caption.isEmpty()) {
         results.add(createFormatIssue(
             "FMT_IMAGE_CAPTION",
-            "Section " + $section.getSectionId() + " 图片缺少标题",
+            "Section " + $section.getSectionId() + " image is missing a caption",
             (int)$section.getSectionId(),
             Severity.MEDIUM,
-            "请为图片添加标题"
+            "Please add a caption to the image"
         ));
     }
 end
 
-// 规则18: 页边距检查 (上下左右各 2.5cm)
-rule "页边距检查"
+// Rule 18: Page Margin Check (2.5cm on all sides)
+rule "Page Margin Check"
 when
     $section: Section()
 then
@@ -412,23 +412,23 @@ then
                 }
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析页边距");
+            logger.warn("Unable to parse page margins");
         }
         
         if (marginError) {
             results.add(createFormatIssue(
                 "FMT_MARGIN_001",
-                "页边距不符合标准，应为上下左右各 2.5cm",
+                "Page margins do not meet the standard, should be 2.5cm on all sides",
                 1,
                 Severity.MEDIUM,
-                "请将页边距调整为上下左右各 2.5cm"
+                "Please adjust the page margins to 2.5cm on all sides"
             ));
         }
     }
 end
 
-// 规则19: 标题与正文间距检查
-rule "标题与正文间距检查"
+// Rule 19: Spacing Between Heading and Body Text Check
+rule "Spacing Between Heading and Body Text Check"
 when
     $data: ParsedData()
 then
@@ -446,22 +446,22 @@ then
                     if (spacingValue < 0.3 || spacingValue > 0.7) {
                         results.add(createFormatIssue(
                             "FMT_HEADING_SPACING_001",
-                            "Section " + next.getSectionId() + " 标题与正文间距不符合标准",
+                            "Section " + next.getSectionId() + " spacing between heading and body text does not meet the standard",
                             (int)next.getSectionId(),
                             Severity.LOW,
-                            "请调整标题与正文间距为 0.5 行"
+                            "Please adjust the spacing between heading and body text to 0.5 lines"
                         ));
                     }
                 } catch (NumberFormatException e) {
-                    logger.warn("无法解析间距值");
+                    logger.warn("Unable to parse spacing value");
                 }
             }
         }
     }
 end
 
-// 规则20: 列表项缩进检查
-rule "列表项缩进检查"
+// Rule 20: List Item Indentation Check
+rule "List Item Indentation Check"
 when
     $section: Section(type == "list-item")
 then
@@ -478,15 +478,15 @@ then
                 if (Math.abs(actualIndent - expectedIndent) > 0.1) {
                     results.add(createFormatIssue(
                         "FMT_LIST_INDENT",
-                        "Section " + $section.getSectionId() + " 列表项缩进不符合标准，应为 " + expectedIndent + " 英寸",
+                        "Section " + $section.getSectionId() + " list item indentation does not meet the standard, should be " + expectedIndent + " inches",
                         (int)$section.getSectionId(),
                         Severity.LOW,
-                        "请调整列表项缩进"
+                        "Please adjust the list item indentation"
                     ));
                 }
             }
         } catch (NumberFormatException e) {
-            logger.warn("无法解析列表缩进");
+            logger.warn("Unable to parse list indentation");
         }
     }
 end

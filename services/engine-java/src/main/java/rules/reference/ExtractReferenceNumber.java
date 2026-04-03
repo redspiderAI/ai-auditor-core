@@ -1,22 +1,22 @@
 package rules.reference;
 
 /**
- * 参考文献规则辅助类：提取参考文献列表中的编号
- * 供原始 26 条 reference.drl 规则调用
+ * Reference rule helper class: extract numbers from the reference list
+ * Called by the original 26 reference.drl rules
  */
 public class ExtractReferenceNumber {
     
     /**
-     * 从引用 ID 中提取数字编号
-     * @param refId 引用 ID (如 "[1]")
-     * @return 整数编号
+     * Extract numeric number from reference ID
+     * @param refId Reference ID (e.g. "[1]")
+     * @return Integer number
      */
     public static int extractReferenceNumber(String refId) {
         if (refId == null || refId.isEmpty()) {
             return 0;
         }
         try {
-            // 移除中括号并解析为整数
+            // Remove brackets and parse as integer
             String cleaned = refId.replaceAll("\\[|\\]", "").trim();
             return Integer.parseInt(cleaned);
         } catch (NumberFormatException e) {

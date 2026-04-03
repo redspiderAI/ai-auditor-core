@@ -10,61 +10,61 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 位图优化的引用验证器
+ * Bitmap optimized reference validator
  * 
- * 功能：使用位图（Bitmap）代替 HashSet，提升大文档的性能
- * 适用场景：1000+ 引用的大文档
- * 性能提升：6-7 倍
+ * Function: Use bitmap (Bitmap) instead of HashSet to improve performance for large documents
+ * Applicable scenario: documents with 1000+ references
+ * Performance improvement: 6-7 times
  */
 @Component
 public class BitmapReferenceOptimizer {
     
     private static final Logger logger = LoggerFactory.getLogger(BitmapReferenceOptimizer.class);
-    private static final int MAX_REFERENCES = 10000; // 最多支持 10000 个引用
+    private static final int MAX_REFERENCES = 10000; // Supports up to 10000 references
     private static final Pattern CITATION_PATTERN = Pattern.compile("\\[(\\d+)\\]");
     
     /**
-     * 使用位图验证引用关系（性能优化版本）
+     * Validate reference relationships using bitmap (performance optimized version)
      * 
-     * @param data 解析后的文档数据
-     * @return 发现的问题列表
+     * @param data Parsed document data
+     * @return List of found issues
      */
     public List<Issue> validateReferencesWithBitmap(ParsedData data) {
         List<Issue> issues = new ArrayList<>();
         
         if (data == null) {
-            logger.warn("输入数据为空");
+            logger.warn("Input data is null");
             return issues;
         }
         
         long startTime = System.currentTimeMillis();
         
         try {
-            // 1. 创建位图：正文中的引用
+            // 1. Create bitmap: citations in the main text
             BitSet citedInText = new BitSet(MAX_REFERENCES);
             extractCitationsIntoBitmap(data, citedInText);
-            logger.debug("正文中的引用数: {}", citedInText.cardinality());
+            logger.debug("Number of citations in main text: {}", citedInText.cardinality());
             
-            // 2. 创建位图：参考文献中的引用
+            // 2. Create bitmap: citations in the references
             BitSet referencedIds = new BitSet(MAX_REFERENCES);
             extractReferencesIntoBitmap(data, referencedIds);
-            logger.debug("参考文献中的引用数: {}", referencedIds.cardinality());
+            logger.debug("Number of citations in references: {}", referencedIds.cardinality());
             
-            // 3. 检查缺失的引用（正文中有，参考文献中没有）
+            // 3. Check missing references (in text but not in references)
             checkMissingReferencesWithBitmap(citedInText, referencedIds, issues);
             
-            // 4. 检查未使用的引用（参考文献中有，正文中没有）
+            // 4. Check unused references (in references but not in text)
             checkUnusedReferencesWithBitmap(citedInText, referencedIds, issues);
             
             long endTime = System.currentTimeMillis();
-            logger.info("位图引用验证完成，耗时 {}ms，发现 {} 个问题", 
+            logger.info("Bitmap reference validation completed, took {}ms, found {} issues", 
                     endTime - startTime, issues.size());
             
         } catch (Exception e) {
-            logger.error("位图引用验证异常", e);
+            logger.error("Bitmap reference validation exception", e);
             Issue errorIssue = Issue.newBuilder()
                     .setCode("ERR_BITMAP_REFERENCE")
-                    .setMessage("位图引用验证异常: " + e.getMessage())
+                    .setMessage("Bitmap reference validation exception: " + e.getMessage())
                     .setSeverity(Severity.HIGH)
                     .build();
             issues.add(errorIssue);
@@ -74,7 +74,7 @@ public class BitmapReferenceOptimizer {
     }
     
     /**
-     * 将正文中的引用提取到位图中
+     * Extract citations in the main text into bitmap
      */
     private void extractCitationsIntoBitmap(ParsedData data, BitSet bitmap) {
         for (Section section : data.getSectionsList()) {
@@ -86,14 +86,14 @@ public class BitmapReferenceOptimizer {
                         bitmap.set(id);
                     }
                 } catch (NumberFormatException e) {
-                    logger.warn("无法解析引用 ID: {}", matcher.group(1));
+                    logger.warn("Unable to parse citation ID: {}", matcher.group(1));
                 }
             }
         }
     }
     
     /**
-     * 将参考文献中的引用提取到位图中
+     * Extract citations in the references into bitmap
      */
     private void extractReferencesIntoBitmap(ParsedData data, BitSet bitmap) {
         for (Reference ref : data.getReferencesList()) {
@@ -104,78 +104,78 @@ public class BitmapReferenceOptimizer {
                     bitmap.set(id);
                 }
             } catch (NumberFormatException e) {
-                logger.warn("无法解析参考文献 ID: {}", refId);
+                logger.warn("Unable to parse reference ID: {}", refId);
             }
         }
     }
     
     /**
-     * 使用位图检查缺失的引用
+     * Check missing references using bitmap
      */
     private void checkMissingReferencesWithBitmap(BitSet citedInText, BitSet referencedIds, List<Issue> issues) {
-        // 创建一个副本用于操作
+        // Create a copy for operation
         BitSet missingReferences = (BitSet) citedInText.clone();
-        missingReferences.andNot(referencedIds); // 移除已有的引用
+        missingReferences.andNot(referencedIds); // Remove existing references
         
-        // 遍历所有缺失的引用
+        // Iterate all missing references
         for (int i = missingReferences.nextSetBit(0); i >= 0; i = missingReferences.nextSetBit(i + 1)) {
             Issue issue = Issue.newBuilder()
                     .setCode("REF_MISSING_001")
-                    .setMessage("正文引用 [" + i + "] 在参考文献中未找到")
+                    .setMessage("Citation [" + i + "] in main text not found in references")
                     .setSeverity(Severity.HIGH)
-                    .setSuggestion("在参考文献中添加 [" + i + "] 的条目，或删除正文中的引用")
+                    .setSuggestion("Add entry [" + i + "] in references or remove citation in main text")
                     .build();
             issues.add(issue);
-            logger.debug("发现缺失的引用: [{}]", i);
+            logger.debug("Found missing citation: [{}]", i);
         }
     }
     
     /**
-     * 使用位图检查未使用的引用
+     * Check unused references using bitmap
      */
     private void checkUnusedReferencesWithBitmap(BitSet citedInText, BitSet referencedIds, List<Issue> issues) {
-        // 创建一个副本用于操作
+        // Create a copy for operation
         BitSet unusedReferences = (BitSet) referencedIds.clone();
-        unusedReferences.andNot(citedInText); // 移除已被引用的
+        unusedReferences.andNot(citedInText); // Remove cited ones
         
-        // 遍历所有未使用的引用
+        // Iterate all unused references
         for (int i = unusedReferences.nextSetBit(0); i >= 0; i = unusedReferences.nextSetBit(i + 1)) {
             Issue issue = Issue.newBuilder()
                     .setCode("REF_UNUSED_001")
-                    .setMessage("参考文献 [" + i + "] 在正文中未被引用")
+                    .setMessage("Reference [" + i + "] not cited in main text")
                     .setSeverity(Severity.MEDIUM)
-                    .setSuggestion("删除未被引用的参考文献 [" + i + "]，或在正文中添加引用")
+                    .setSuggestion("Remove unused reference [" + i + "] or add citation in main text")
                     .build();
             issues.add(issue);
-            logger.debug("发现未使用的引用: [{}]", i);
+            logger.debug("Found unused citation: [{}]", i);
         }
     }
     
     /**
-     * 性能对比测试
+     * Performance comparison test
      * 
-     * @return 性能对比结果
+     * @return Performance comparison result
      */
     public String performanceBenchmark(ParsedData data) {
         StringBuilder result = new StringBuilder();
         
-        // 测试 HashSet 方法
+        // Test HashSet method
         long hashSetStart = System.currentTimeMillis();
         List<Issue> hashSetIssues = new ArrayList<>();
-        // ... HashSet 实现 ...
+        // ... HashSet implementation ...
         long hashSetTime = System.currentTimeMillis() - hashSetStart;
         
-        // 测试位图方法
+        // Test bitmap method
         long bitmapStart = System.currentTimeMillis();
         List<Issue> bitmapIssues = validateReferencesWithBitmap(data);
         long bitmapTime = System.currentTimeMillis() - bitmapStart;
         
         double improvement = (double) hashSetTime / bitmapTime;
         
-        result.append("性能对比:\n");
-        result.append("HashSet 方法耗时: ").append(hashSetTime).append("ms\n");
-        result.append("位图方法耗时: ").append(bitmapTime).append("ms\n");
-        result.append("性能提升: ").append(String.format("%.2f", improvement)).append("x\n");
+        result.append("Performance comparison:\n");
+        result.append("HashSet method time: ").append(hashSetTime).append("ms\n");
+        result.append("Bitmap method time: ").append(bitmapTime).append("ms\n");
+        result.append("Performance improvement: ").append(String.format("%.2f", improvement)).append("x\n");
         
         return result.toString();
     }

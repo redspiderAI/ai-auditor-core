@@ -12,14 +12,14 @@ import org.json.JSONException;
 public class RealFormattingDataGenerator {
     
     public static ParsedData generateRealFormattingData() throws JSONException, IOException {
-        // 支持 Windows 和 Linux 路径
+        // Support Windows and Linux paths
         String jsonContent = loadJsonFile();
         JSONObject data = new JSONObject(jsonContent);
         
         ParsedData.Builder builder = ParsedData.newBuilder();
         builder.setDocId("real-thesis");
         
-        // 设置元数据
+        // Set metadata
         DocumentMetadata.Builder metadataBuilder = DocumentMetadata.newBuilder();
         metadataBuilder.setTitle("虚拟现实三维全景仿真技术研究");
         metadataBuilder.setPageCount(26);
@@ -57,46 +57,46 @@ public class RealFormattingDataGenerator {
     }
     
     /**
-     * 加载 JSON 文件，支持 Windows 和 Linux 路径
+     * Load JSON file, support Windows and Linux paths
      */
     private static String loadJsonFile() throws IOException {
-        // 尝试多个可能的路径
+        // Try multiple possible paths
         String[] possiblePaths = {
-            // 相对路径（项目根目录）
+            // Relative path (project root directory)
             "src/test/resources/real_formatting_data.json",
-            // 绝对路径（Linux）
+            // Absolute path (Linux)
             "/tmp/real_formatting_data.json",
-            // 当前工作目录
+            // Current working directory
             "real_formatting_data.json",
-            // 用户主目录
+            // User home directory
             System.getProperty("user.home") + "/real_formatting_data.json"
         };
         
         for (String pathStr : possiblePaths) {
             Path path = Paths.get(pathStr);
             if (Files.exists(path)) {
-                System.out.println("✓ 找到测试数据文件: " + path.toAbsolutePath());
+                System.out.println("✓ Found test data file: " + path.toAbsolutePath());
                 return new String(Files.readAllBytes(path));
             }
         }
         
-        // 如果找不到文件，生成默认数据
-        System.out.println("⚠ 找不到 real_formatting_data.json，使用默认数据");
+        // If file not found, generate default data
+        System.out.println("⚠ real_formatting_data.json not found, using default data");
         try {
             return generateDefaultJsonData();
         } catch (JSONException e) {
-            throw new IOException("生成默认数据失败", e);
+            throw new IOException("Failed to generate default data", e);
         }
     }
     
     /**
-     * 生成默认的 JSON 测试数据
+     * Generate default JSON test data
      */
     private static String generateDefaultJsonData() throws JSONException {
         JSONObject data = new JSONObject();
         JSONArray sections = new JSONArray();
         
-        // 生成 26 个章节（模拟 26 页论文）
+        // Generate 26 sections (simulate 26-page thesis)
         for (int i = 1; i <= 26; i++) {
             JSONObject section = new JSONObject();
             section.put("id", i);
@@ -107,7 +107,7 @@ public class RealFormattingDataGenerator {
             JSONObject props = new JSONObject();
             props.put("font-family", i % 5 == 0 ? "黑体" : "宋体");
             props.put("font-size", i % 5 == 0 ? "16pt" : "12pt");
-            props.put("line-height", "1.83");  // 行距为 1.83
+            props.put("line-height", "1.83");  // Line height is 1.83
             props.put("color", "black");
             props.put("bold", i % 5 == 0);
             

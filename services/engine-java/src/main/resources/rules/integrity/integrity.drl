@@ -11,148 +11,148 @@ import java.util.Arrays
 global java.util.List results
 global Logger logger
 
-// 辅助函数：创建完整性检查 Issue
+// Helper function: Create integrity check Issue
 function Issue createIntegrityIssue(String code,String message,int sectionId,String suggestion,String originalSnippet){return Issue.newBuilder().setCode(code).setMessage(message).setSectionId(sectionId).setSeverity(Severity.MEDIUM).setSuggestion(suggestion).setOriginalSnippet(originalSnippet.length()>100?originalSnippet.substring(0,100)+"...":originalSnippet).build();}
 
-// 辅助函数：创建错误 Issue
-function Issue createErrorIssue(String code,String message,int sectionId,Severity severity){return Issue.newBuilder().setCode(code).setMessage(message).setSectionId(sectionId).setSeverity(severity).setSuggestion("请检查文档或联系管理员").setOriginalSnippet("").build();}
+// Helper function: Create error Issue
+function Issue createErrorIssue(String code,String message,int sectionId,Severity severity){return Issue.newBuilder().setCode(code).setMessage(message).setSectionId(sectionId).setSeverity(severity).setSuggestion("Please check the document or contact the administrator").setOriginalSnippet("").build();}
 
-// 规则1: 检查章节编号连续性
-rule "检查章节编号连续性"
+// Rule 1: Check section numbering continuity
+rule "Check section numbering continuity"
 when $data:ParsedData()
-then int expectedSectionId=1;for(Section section:$data.getSectionsList()){if(section.getSectionId()!=expectedSectionId){Issue issue=createIntegrityIssue("ERR_INT_NUM_001","章节编号不连续: 应为 "+expectedSectionId+"，实际为 "+section.getSectionId(),section.getSectionId(),"重新排列章节编号",section.getText());results.add(issue);}expectedSectionId++;}logger.debug("章节编号连续性检查完成");
+then int expectedSectionId=1;for(Section section:$data.getSectionsList()){if(section.getSectionId()!=expectedSectionId){Issue issue=createIntegrityIssue("ERR_INT_NUM_001","Section numbering is not continuous: expected "+expectedSectionId+", actual "+section.getSectionId(),section.getSectionId(),"Rearrange section numbering",section.getText());results.add(issue);}expectedSectionId++;}logger.debug("Section numbering continuity check completed");
 end
 
-// 规则2: 检查标题层级结构
-rule "检查标题层级结构"
+// Rule 2: Check heading hierarchy structure
+rule "Check heading hierarchy structure"
 when $data:ParsedData()
 then int lastLevel=0;int lastSectionId=0;
 
 for(Section section:$data.getSectionsList()){if("heading".equals(section.getType())){int currentLevel=section.getLevel();
 
-// 检查标题层级跳跃
-if(currentLevel>lastLevel+1){Issue issue=createIntegrityIssue("ERR_INT_HIER_001","标题层级跳跃: 从 "+lastLevel+" 级跳至 "+currentLevel+" 级",section.getSectionId(),"应逐级增加标题层级",section.getText());results.add(issue);}
+// Check heading level jump
+if(currentLevel>lastLevel+1){Issue issue=createIntegrityIssue("ERR_INT_HIER_001","Heading level jump: from level "+lastLevel+" to level "+currentLevel,section.getSectionId(),"Heading levels should increase stepwise",section.getText());results.add(issue);}
 
-// 检查同级标题顺序
-if(currentLevel==lastLevel&&section.getSectionId()<=lastSectionId){Issue issue=createIntegrityIssue("ERR_INT_HIER_002","同级标题顺序错误: 标题顺序混乱",section.getSectionId(),"调整同级标题的顺序",section.getText());results.add(issue);}
+// Check order of same-level headings
+if(currentLevel==lastLevel&&section.getSectionId()<=lastSectionId){Issue issue=createIntegrityIssue("ERR_INT_HIER_002","Same-level heading order error: heading order is confused",section.getSectionId(),"Adjust the order of same-level headings",section.getText());results.add(issue);}
 
-lastLevel=currentLevel;lastSectionId=section.getSectionId();}}logger.debug("标题层级结构检查完成");
+lastLevel=currentLevel;lastSectionId=section.getSectionId();}}logger.debug("Heading hierarchy structure check completed");
 end
 
-// 规则3: 检查必备章节
-rule "检查必备章节"
+// Rule 3: Check required sections
+rule "Check required sections"
 when $data:ParsedData()
 then
-// 学术论文必备章节
+// Required sections for academic papers
 String[]requiredSections={"摘要","引言","正文","结论","参考文献"};
 
 for(String requiredSection:requiredSections){boolean found=false;for(Section section:$data.getSectionsList()){if(section.getText().contains(requiredSection)){found=true;break;}}
 
-if(!found){Issue issue=createIntegrityIssue("ERR_INT_REQ_001","缺少必备章节: "+requiredSection,0, // 全局问题
-"添加"+requiredSection+"章节","");results.add(issue);}}logger.debug("必备章节检查完成");
+if(!found){Issue issue=createIntegrityIssue("ERR_INT_REQ_001","Missing required section: "+requiredSection,0, // Global issue
+"Add "+requiredSection+" section","");results.add(issue);}}logger.debug("Required sections check completed");
 end
 
-// 规则4: 检查图表编号连续性
-rule "检查图表编号连续性"
+// Rule 4: Check figure and table numbering continuity
+rule "Check figure and table numbering continuity"
 when $data:ParsedData()
 then int figureCount=1;int tableCount=1;
 
 for(Section section:$data.getSectionsList()){if("figure".equals(section.getType())){
-// 检查图表编号
-String sectionText=section.getText().toLowerCase();if(!sectionText.contains("图"+figureCount)&&!sectionText.contains("figure "+figureCount)){Issue issue=createIntegrityIssue("ERR_INT_FIG_001","图表编号不连续: 应为第 "+figureCount+" 个图",section.getSectionId(),"按顺序重新编号图表",section.getText());results.add(issue);}figureCount++;}else if("table".equals(section.getType())){String sectionText=section.getText().toLowerCase();if(!sectionText.contains("表"+tableCount)&&!sectionText.contains("table "+tableCount)){Issue issue=createIntegrityIssue("ERR_INT_TAB_001","表格编号不连续: 应为第 "+tableCount+" 个表",section.getSectionId(),"按顺序重新编号表格",section.getText());results.add(issue);}tableCount++;}}logger.debug("图表编号连续性检查完成，图: {} 个，表: {} 个",figureCount,tableCount);
+// Check figure numbering
+String sectionText=section.getText().toLowerCase();if(!sectionText.contains("图"+figureCount)&&!sectionText.contains("figure "+figureCount)){Issue issue=createIntegrityIssue("ERR_INT_FIG_001","Figure numbering is not continuous: should be figure number "+figureCount,section.getSectionId(),"Renumber figures in order",section.getText());results.add(issue);}figureCount++;}else if("table".equals(section.getType())){String sectionText=section.getText().toLowerCase();if(!sectionText.contains("表"+tableCount)&&!sectionText.contains("table "+tableCount)){Issue issue=createIntegrityIssue("ERR_INT_TAB_001","Table numbering is not continuous: should be table number "+tableCount,section.getSectionId(),"Renumber tables in order",section.getText());results.add(issue);}tableCount++;}}logger.debug("Figure and table numbering continuity check completed, figures: {} , tables: {}",figureCount,tableCount);
 end
 
-// 规则5: 检查文档结构完整性
-rule "检查文档结构完整性"
+// Rule 5: Check document structure integrity
+rule "Check document structure integrity"
 when $data:ParsedData()
 then boolean hasAbstract=false;boolean hasConclusion=false;boolean hasReferences=false;
 
 for(Section section:$data.getSectionsList()){String text=section.getText().toLowerCase();if(text.contains("摘要")||text.contains("abstract")){hasAbstract=true;}if(text.contains("结论")||text.contains("conclusion")){hasConclusion=true;}if(text.contains("参考文献")||text.contains("references")){hasReferences=true;}}
 
-// 检查文档结构顺序
+// Check document structure order
 if(hasAbstract&&hasConclusion){int abstractIndex=-1;int conclusionIndex=-1;
 
 for(int i=0;i<$data.getSectionsCount();i++){String text=$data.getSections(i).getText().toLowerCase();if(text.contains("摘要")||text.contains("abstract")){abstractIndex=i;}if(text.contains("结论")||text.contains("conclusion")){conclusionIndex=i;}}
 
-if(abstractIndex>conclusionIndex){Issue issue=createIntegrityIssue("ERR_INT_STRUCT_001","文档结构错误: 摘要应在结论之前",0,"调整章节顺序，确保摘要在结论之前","");results.add(issue);}}
+if(abstractIndex>conclusionIndex){Issue issue=createIntegrityIssue("ERR_INT_STRUCT_001","Document structure error: Abstract should be before Conclusion",0,"Adjust section order to ensure Abstract is before Conclusion","");results.add(issue);}}
 
-// 检查必备结构元素
-if(!hasAbstract){results.add(createIntegrityIssue("ERR_INT_STRUCT_002","文档缺少摘要部分",0,"添加摘要章节",""));}
+// Check required structural elements
+if(!hasAbstract){results.add(createIntegrityIssue("ERR_INT_STRUCT_002","Document missing Abstract section",0,"Add Abstract section",""));}
 
-if(!hasConclusion){results.add(createIntegrityIssue("ERR_INT_STRUCT_003","文档缺少结论部分",0,"添加结论章节",""));}
+if(!hasConclusion){results.add(createIntegrityIssue("ERR_INT_STRUCT_003","Document missing Conclusion section",0,"Add Conclusion section",""));}
 
-if(!hasReferences){results.add(createIntegrityIssue("ERR_INT_STRUCT_004","文档缺少参考文献部分",0,"添加参考文献章节",""));}
+if(!hasReferences){results.add(createIntegrityIssue("ERR_INT_STRUCT_004","Document missing References section",0,"Add References section",""));}
 
-logger.debug("文档结构完整性检查完成");
+logger.debug("Document structure integrity check completed");
 end
 
-// 规则6: 检查空数据
-rule "检查空数据"
+// Rule 6: Check empty data
+rule "Check empty data"
 when $data:ParsedData($data==null||getSectionsCount()==0)
-then results.add(createErrorIssue("ERR_INTEGRITY_CHECK","输入数据为空或没有章节",0,Severity.MEDIUM));logger.warn("完整性检查: 输入数据为空或没有章节");
+then results.add(createErrorIssue("ERR_INTEGRITY_CHECK","Input data is empty or has no sections",0,Severity.MEDIUM));logger.warn("Integrity check: input data is empty or has no sections");
 end
 
-// 规则7: 检查重复章节
-rule "检查重复章节"
+// Rule 7: Check duplicate sections
+rule "Check duplicate sections"
 when $data:ParsedData()
 then Set<Integer>seenSectionIds=new HashSet<>();
 
-for(Section section:$data.getSectionsList()){int sectionId=section.getSectionId();if(seenSectionIds.contains(sectionId)){Issue issue=createIntegrityIssue("ERR_INT_DUPLICATE_001","发现重复章节编号: "+sectionId,sectionId,"修改章节编号以避免重复",section.getText());results.add(issue);}else{seenSectionIds.add(sectionId);}}logger.debug("重复章节检查完成");
+for(Section section:$data.getSectionsList()){int sectionId=section.getSectionId();if(seenSectionIds.contains(sectionId)){Issue issue=createIntegrityIssue("ERR_INT_DUPLICATE_001","Duplicate section number found: "+sectionId,sectionId,"Modify section number to avoid duplication",section.getText());results.add(issue);}else{seenSectionIds.add(sectionId);}}logger.debug("Duplicate sections check completed");
 end
 
-// 规则8: 检查章节标题格式
-rule "检查章节标题格式"
+// Rule 8: Check section title format
+rule "Check section title format"
 when $section:Section(type=="heading")
 then String text=$section.getText().trim();
 
-// 检查是否以数字开头
-if(!text.matches("^\\d+\\..*")&&!text.matches("^[一二三四五六七八九十]+、.*")){Issue issue=createIntegrityIssue("ERR_INT_HEADING_FORMAT_001","章节标题格式不规范: 应以数字或中文序号开头",$section.getSectionId(),"修改标题格式，如 '1. 章节标题' 或 '一、章节标题'",text);results.add(issue);}
+// Check if starts with a number
+if(!text.matches("^\\d+\\..*")&&!text.matches("^[一二三四五六七八九十]+、.*")){Issue issue=createIntegrityIssue("ERR_INT_HEADING_FORMAT_001","Section title format is not standard: should start with a number or Chinese numeral",$section.getSectionId(),"Modify title format, e.g. '1. Section Title' or '一、Section Title'",text);results.add(issue);}
 
-// 检查标题长度
-if(text.length()<3){Issue issue=createIntegrityIssue("ERR_INT_HEADING_FORMAT_002","章节标题过短: 标题应能准确描述内容",$section.getSectionId(),"完善章节标题",text);results.add(issue);}
+// Check title length
+if(text.length()<3){Issue issue=createIntegrityIssue("ERR_INT_HEADING_FORMAT_002","Section title is too short: title should accurately describe content",$section.getSectionId(),"Improve section title",text);results.add(issue);}
 end
 
-// 规则9: 检查正文段落格式
-rule "检查正文段落格式"
+// Rule 9: Check paragraph format in body text
+rule "Check paragraph format in body text"
 when $section:Section(type=="paragraph",text!=null&&text.trim().length()>0)
 then String text=$section.getText().trim();
 
-// 检查段落是否以缩进开始
-if(!text.startsWith("    ")&&!text.startsWith("\t")){Issue issue=createIntegrityIssue("ERR_INT_PARAGRAPH_FORMAT_001","正文段落缺少首行缩进",$section.getSectionId(),"为首行添加4个空格或1个制表符缩进",text.length()>50?text.substring(0,50)+"...":text);results.add(issue);}
+// Check if paragraph starts with indentation
+if(!text.startsWith("    ")&&!text.startsWith("\t")){Issue issue=createIntegrityIssue("ERR_INT_PARAGRAPH_FORMAT_001","Body paragraph missing first-line indentation",$section.getSectionId(),"Add 4 spaces or 1 tab for first-line indentation",text.length()>50?text.substring(0,50)+"...":text);results.add(issue);}
 
-// 检查段落长度
-if(text.length()<20){Issue issue=createIntegrityIssue("ERR_INT_PARAGRAPH_FORMAT_002","正文段落过短，内容可能不完整",$section.getSectionId(),"补充段落内容",text);results.add(issue);}
+// Check paragraph length
+if(text.length()<20){Issue issue=createIntegrityIssue("ERR_INT_PARAGRAPH_FORMAT_002","Body paragraph is too short, content may be incomplete",$section.getSectionId(),"Add more content to paragraph",text);results.add(issue);}
 end
 
-// 规则10: 检查章节之间的逻辑顺序
-rule "检查章节之间的逻辑顺序"
+// Rule 10: Check logical order between sections
+rule "Check logical order between sections"
 when $data:ParsedData(getSectionsCount()>1)
 then List<Section>sections=$data.getSectionsList();
 
 for(int i=1;i<sections.size();i++){Section prevSection=sections.get(i-1);Section currSection=sections.get(i);
 
-// 检查章节类型转换是否合理
+// Check if section type transitions are reasonable
 String prevType=prevSection.getType();String currType=currSection.getType();
 
 if("heading".equals(prevType)&&"heading".equals(currType)){int prevLevel=prevSection.getLevel();int currLevel=currSection.getLevel();
 
-// 检查标题降级是否合理
-if(prevLevel>currLevel&&(prevLevel-currLevel)>2){Issue issue=createIntegrityIssue("ERR_INT_ORDER_001","标题层级降级过大: 从 "+prevLevel+" 级降至 "+currLevel+" 级",currSection.getSectionId(),"调整标题层级，逐级变化",currSection.getText());results.add(issue);}}}logger.debug("章节逻辑顺序检查完成");
+// Check if heading level downgrade is reasonable
+if(prevLevel>currLevel&&(prevLevel-currLevel)>2){Issue issue=createIntegrityIssue("ERR_INT_ORDER_001","Heading level downgrade too large: from level "+prevLevel+" to level "+currLevel,currSection.getSectionId(),"Adjust heading levels to change stepwise",currSection.getText());results.add(issue);}}}logger.debug("Section logical order check completed");
 end
 
-// 规则11: 检查图表与正文的关联
-rule "检查图表与正文的关联"
+// Rule 11: Check association between figures/tables and body text
+rule "Check association between figures/tables and body text"
 when $data:ParsedData()
 then int figureTableCount=0;int mentionedCount=0;
 
 for(Section section:$data.getSectionsList()){if("figure".equals(section.getType())||"table".equals(section.getType())){figureTableCount++;
 
-// 检查是否在正文中被引用
+// Check if referenced in body text
 boolean mentioned=false;String figureTableName=section.getText().toLowerCase();
 
 for(Section textSection:$data.getSectionsList()){if("paragraph".equals(textSection.getType())){String text=textSection.getText().toLowerCase();if(text.contains("图")||text.contains("表")||text.contains("figure")||text.contains("table")){mentioned=true;break;}}}
 
-if(!mentioned){Issue issue=createIntegrityIssue("ERR_INT_CHART_REF_001","图表在正文中未被引用: "+section.getText().substring(0,Math.min(30,section.getText().length())),section.getSectionId(),"在正文中添加对图表的引用说明",section.getText());results.add(issue);}else{mentionedCount++;}}}
+if(!mentioned){Issue issue=createIntegrityIssue("ERR_INT_CHART_REF_001","Figure/table not referenced in body text: "+section.getText().substring(0,Math.min(30,section.getText().length())),section.getSectionId(),"Add references to figure/table in body text",section.getText());results.add(issue);}else{mentionedCount++;}}}
 
-logger.debug("图表与正文关联检查完成，图表总数: {}，被引用数: {}",figureTableCount,mentionedCount);
+logger.debug("Figure/table and body text association check completed, total figures/tables: {}, referenced count: {}",figureTableCount,mentionedCount);
 end

@@ -10,15 +10,15 @@ public class RealReferenceGeneratorTest {
     public void testGenerateReferences() {
         List<Reference> references = RealReferenceDataGenerator.generateReferences();
         
-        System.out.println("\n生成的参考文献统计:");
-        System.out.println("总数: " + references.size());
-        System.out.println("期刊 [J]: 50");
-        System.out.println("专著 [M]: 50");
-        System.out.println("学位论文 [D]: 50");
-        System.out.println("会议录 [C]: 50");
+        System.out.println("\nGenerated Reference Statistics:");
+        System.out.println("Total: " + references.size());
+        System.out.println("Journal [J]: 50");
+        System.out.println("Monograph [M]: 50");
+        System.out.println("Thesis [D]: 50");
+        System.out.println("Conference Proceedings [C]: 50");
         
-        // 输出前 10 条示例
-        System.out.println("\n前 10 条参考文献示例:");
+        // Output first 10 examples
+        System.out.println("\nFirst 10 Reference Examples:");
         for (int i = 0; i < Math.min(10, references.size()); i++) {
             Reference ref = references.get(i);
             System.out.println(ref.getRefId() + " " + ref.getRawText());

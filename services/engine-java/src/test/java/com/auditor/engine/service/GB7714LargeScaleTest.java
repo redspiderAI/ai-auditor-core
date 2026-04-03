@@ -12,8 +12,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * GB/T 7714 大规模压力测试 - 模拟 20 种真实错误类型
- * 自动生成 200 条随机内容的参考文献及 200 个排版段落
+ * GB/T 7714 Large Scale Stress Test - Simulate 20 Types of Real Errors
+ * Automatically generate 200 random reference entries and 200 formatting paragraphs
  */
 public class GB7714LargeScaleTest {
     
@@ -21,7 +21,7 @@ public class GB7714LargeScaleTest {
     private final ReferenceChecker referenceChecker = new ReferenceChecker();
     private final FormattingAuditor formattingAuditor = new FormattingAuditor();
     
-    // 随机素材池
+    // Random material pool
     private final String[] AUTHORS = {"张三", "李四", "王五", "赵六", "钱七", "Sun W.", "James A.", "Liu Y.", "Chen H."};
     private final String[] TITLES = {"深度学习研究", "区块链审计系统", "大语言模型综述", "分布式系统设计", "规则引擎实战"};
     private final String[] JOURNALS = {"计算机学报", "软件学报", "IEEE Transactions", "Nature", "Science"};
@@ -29,18 +29,18 @@ public class GB7714LargeScaleTest {
 
     @Test
     public void testGB7714With200References() throws Exception {
-        // 1. 生成 200 条具有随机性的测试数据
+        // 1. Generate 200 random test data entries
         ParsedData data = generateLargeScaleTestData();
         
-        // 2. 执行审计
+        // 2. Perform audit
         List<Issue> issues = referenceChecker.checkReferences(data);
         
-        // 3. 统计结果并打印
-        printSummary("GB/T 7714 参考文献大规模审计", 200, issues);
+        // 3. Count results and print
+        printSummary("GB/T 7714 Reference Large Scale Audit", 200, issues);
         
-        // 4. 打印前 40 条明细采样
-        System.out.println("\n>>> [审计证据采样] 参考文献明细 (前40条):");
-        System.out.printf("%-6s | %-30s | %-25s | %s\n", "序号", "错误代码", "文本片段", "建议");
+        // 4. Print first 40 detail samples
+        System.out.println("\n>>> [Audit Evidence Sample] Reference Details (First 40):");
+        System.out.printf("%-6s | %-30s | %-25s | %s\n", "Index", "Error Code", "Text Snippet", "Suggestion");
         System.out.println("---------------------------------------------------------------------------------------");
         
         issues.stream().limit(40).forEach(issue -> {
@@ -54,9 +54,9 @@ public class GB7714LargeScaleTest {
                 issue.getSuggestion());
         });
 
-        // 5. 持久化到文件
+        // 5. Persist to file
         saveIssuesToFile(issues, "target/reference_audit_detail.txt");
-        assertTrue(issues.size() >= 200, "200条测试数据应至少检出200个问题");
+        assertTrue(issues.size() >= 200, "200 test entries should detect at least 200 issues");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class GB7714LargeScaleTest {
         ParsedData data = generateFormattingTestData();
         List<Issue> issues = formattingAuditor.checkFormatting(data);
         
-        printSummary("排版规则大规模审计", 200, issues);
+        printSummary("Formatting Rules Large Scale Audit", 200, issues);
         saveIssuesToFile(issues, "target/formatting_audit_detail.txt");
         assertTrue(issues.size() > 0);
     }
@@ -72,7 +72,7 @@ public class GB7714LargeScaleTest {
     private ParsedData generateLargeScaleTestData() {
         ParsedData.Builder builder = ParsedData.newBuilder().setDocId("REF-VOL-2026");
         
-        // 生成 200 条，循环 10 次 20 种错误
+        // Generate 200 entries, loop 10 times over 20 error types
         for (int i = 1; i <= 200; i++) {
             int type = (i - 1) % 20; 
             String author = AUTHORS[i % AUTHORS.length];
@@ -116,37 +116,37 @@ public class GB7714LargeScaleTest {
 
     private ParsedData generateFormattingTestData() {
         ParsedData.Builder builder = ParsedData.newBuilder().setDocId("F-200");
-        // 生成 200 个 section，每种类型循环覆盖 5 种格式错误
-        // 规则引擎使用 getPropsMap().get(key) 读取 props，key 为连字符格式
+        // Generate 200 sections, each type loops over 5 format errors
+        // Rule engine uses getPropsMap().get(key) to read props, key is hyphenated format
         for (int i = 1; i <= 200; i++) {
             int errorType = (i - 1) % 5;
             Section.Builder sb = Section.newBuilder()
                     .setSectionId(i)
-                    .setText("测试排版段落 " + i);
+                    .setText("Test formatting paragraph " + i);
             switch (errorType) {
                 case 0:
-                    // 行距不符合标准（应为 1.5，给 2.0 触发 FMT_LINE_HEIGHT_001）
+                    // Line spacing does not meet standard (should be 1.5, given 2.0 triggers FMT_LINE_HEIGHT_001)
                     sb.setType("paragraph")
                       .putProps("line-height", "2.0")
                       .putProps("font-family", "SimSun")
                       .putProps("font-size", "12");
                     break;
                 case 1:
-                    // 正文字体错误（应为 SimSun，给 Arial 触发字体规则）
+                    // Body font error (should be SimSun, given Arial triggers font rule)
                     sb.setType("paragraph")
                       .putProps("line-height", "1.5")
                       .putProps("font-family", "Arial")
                       .putProps("font-size", "12");
                     break;
                 case 2:
-                    // 正文字号错误（应为 12，给 14 触发字号规则）
+                    // Body font size error (should be 12, given 14 triggers size rule)
                     sb.setType("paragraph")
                       .putProps("line-height", "1.5")
                       .putProps("font-family", "SimSun")
                       .putProps("font-size", "14");
                     break;
                 case 3:
-                    // 对齐方式错误（应为 LEFT，给 CENTER 触发对齐规则）
+                    // Alignment error (should be LEFT, given CENTER triggers alignment rule)
                     sb.setType("paragraph")
                       .putProps("line-height", "1.5")
                       .putProps("font-family", "SimSun")
@@ -154,7 +154,7 @@ public class GB7714LargeScaleTest {
                       .putProps("alignment", "CENTER");
                     break;
                 case 4:
-                    // 标题字体错误（应为 SimHei，给 Arial）
+                    // Heading font error (should be SimHei, given Arial)
                     sb.setType("heading")
                       .setLevel(1)
                       .putProps("line-height", "1.5")
@@ -174,7 +174,7 @@ public class GB7714LargeScaleTest {
 
     private void saveIssuesToFile(List<Issue> issues, String filePath) throws Exception {
         try (PrintWriter writer = new PrintWriter(filePath, StandardCharsets.UTF_8)) {
-            writer.println("审计模块详细明细报告 - " + new Date());
+            writer.println("Audit Module Detailed Report - " + new Date());
             writer.println("==================================================");
             for (Issue issue : issues) {
                 writer.printf("ID: %d | Code: %s | Suggestion: %s | Text: %s\n", 
@@ -187,7 +187,7 @@ public class GB7714LargeScaleTest {
         Map<String, Integer> stats = new TreeMap<>();
         issues.forEach(i -> stats.put(i.getCode(), stats.getOrDefault(i.getCode(), 0) + 1));
         System.out.println("\n========== " + title + " ==========");
-        System.out.println("样本总数: " + total + " | 检出总数: " + issues.size());
-        stats.forEach((code, count) -> System.out.println("  - " + code + ": " + count + " 条"));
+        System.out.println("Total Samples: " + total + " | Total Detected: " + issues.size());
+        stats.forEach((code, count) -> System.out.println("  - " + code + ": " + count + " entries"));
     }
 }

@@ -10,14 +10,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Drools 热更新服务单元测试
+ * Drools hot reload service unit test
  */
-@DisplayName("Drools 规则热更新服务测试")
+@DisplayName("Drools Rule Hot Reload Service Test")
 public class DroolsHotReloadServiceTest {
 
     private DroolsHotReloadService hotReloadService;
 
-    // 最小可编译的 DRL 内容（用于测试）
+    // Minimal compilable DRL content (for testing)
     private static final String VALID_DRL =
         "package rules.formatting;\n" +
         "import com.auditor.grpc.Section;\n" +
@@ -27,13 +27,13 @@ public class DroolsHotReloadServiceTest {
         "global java.util.List results;\n" +
         "global org.slf4j.Logger logger;\n" +
         "\n" +
-        "rule \"热更新测试规则\"\n" +
+        "rule \"Hot Reload Test Rule\"\n" +
         "    when\n" +
         "        $s : Section(type == \"test_hot_reload\")\n" +
         "    then\n" +
         "        Issue issue = Issue.newBuilder()\n" +
         "            .setCode(\"HOT_RELOAD_001\")\n" +
-        "            .setMessage(\"热更新规则已生效\")\n" +
+        "            .setMessage(\"Hot reload rule is effective\")\n" +
         "            .setSeverity(Severity.INFO)\n" +
         "            .build();\n" +
         "        results.add(issue);\n" +
@@ -49,81 +49,81 @@ public class DroolsHotReloadServiceTest {
     }
 
     @Test
-    @DisplayName("初始化后应有活跃的 KieContainer")
+    @DisplayName("Should have active KieContainer after initialization")
     void testInitialization() {
         KieContainer container = hotReloadService.getActiveContainer();
-        assertNotNull(container, "初始化后 KieContainer 不应为 null");
+        assertNotNull(container, "KieContainer should not be null after initialization");
 
         DroolsHotReloadService.RuleStatus status = hotReloadService.getStatus();
-        assertTrue(status.containerActive, "容器应处于活跃状态");
-        assertEquals(0, status.totalReloads, "初始热更新次数应为 0");
+        assertTrue(status.containerActive, "Container should be active");
+        assertEquals(0, status.totalReloads, "Initial hot reload count should be 0");
     }
 
     @Test
-    @DisplayName("相同内容热更新应返回 noChange（基于 MD5 哈希快速对齐）")
+    @DisplayName("Reload with same content should return noChange (fast alignment based on MD5 hash)")
     void testNoChangeWhenSameContent() {
-        // 第一次更新（建立基准）
+        // First update (establish baseline)
         hotReloadService.reloadRule("formatting/test.drl", VALID_DRL);
 
-        // 第二次用相同内容更新
+        // Second update with same content
         DroolsHotReloadService.HotReloadResult result =
             hotReloadService.reloadRule("formatting/test.drl", VALID_DRL);
 
-        assertTrue(result.success, "相同内容应返回成功");
-        assertFalse(result.changed, "相同内容不应触发重编译");
-        assertEquals(0, result.elapsedMs, "未变化时耗时应为 0");
-        System.out.println("✅ MD5 哈希快速对齐：相同内容跳过重编译");
+        assertTrue(result.success, "Same content should return success");
+        assertFalse(result.changed, "Same content should not trigger recompilation");
+        assertEquals(0, result.elapsedMs, "Elapsed time should be 0 when no changes");
+        System.out.println("✅ MD5 hash fast alignment: skip recompilation for same content");
     }
 
     @Test
-    @DisplayName("无效 DRL 应编译失败并自动回滚，旧容器保持可用")
+    @DisplayName("Invalid DRL should fail compilation and auto rollback, old container remains usable")
     void testInvalidDrlRollback() {
-        // 记录旧容器
+        // Record old container
         KieContainer oldContainer = hotReloadService.getActiveContainer();
 
-        // 尝试加载无效 DRL
+        // Attempt to load invalid DRL
         DroolsHotReloadService.HotReloadResult result =
             hotReloadService.reloadRule("formatting/invalid.drl", INVALID_DRL);
 
-        assertFalse(result.success, "无效 DRL 应返回失败");
-        assertNotNull(result.errorMessage, "应有错误信息");
+        assertFalse(result.success, "Invalid DRL should return failure");
+        assertNotNull(result.errorMessage, "Error message should be present");
 
-        // 验证旧容器仍然可用（自动回滚）
+        // Verify old container is still usable (auto rollback)
         KieContainer currentContainer = hotReloadService.getActiveContainer();
-        assertNotNull(currentContainer, "回滚后容器不应为 null");
-        System.out.println("✅ 自动回滚：无效 DRL 编译失败，旧规则保持可用");
-        System.out.println("   错误信息: " + result.errorMessage.substring(0, Math.min(100, result.errorMessage.length())));
+        assertNotNull(currentContainer, "Container should not be null after rollback");
+        System.out.println("✅ Auto rollback: invalid DRL compilation failed, old rules remain usable");
+        System.out.println("   Error message: " + result.errorMessage.substring(0, Math.min(100, result.errorMessage.length())));
     }
 
     @Test
-    @DisplayName("从 classpath 重新加载应成功")
+    @DisplayName("Reloading from classpath should succeed")
     void testReloadFromClasspath() {
         DroolsHotReloadService.HotReloadResult result = hotReloadService.reloadFromClasspath();
 
-        assertTrue(result.success, "从 classpath 重新加载应成功");
-        assertNotNull(hotReloadService.getActiveContainer(), "重新加载后容器不应为 null");
-        System.out.println("✅ classpath 重新加载成功");
+        assertTrue(result.success, "Reloading from classpath should succeed");
+        assertNotNull(hotReloadService.getActiveContainer(), "Container should not be null after reload");
+        System.out.println("✅ Classpath reload succeeded");
     }
 
     @Test
-    @DisplayName("热更新历史记录应正确追踪")
+    @DisplayName("Hot reload history should be tracked correctly")
     void testReloadHistory() {
-        // 执行几次热更新
+        // Perform several hot reloads
         hotReloadService.reloadRule("test/rule1.drl", VALID_DRL);
         hotReloadService.reloadRule("test/rule2.drl", VALID_DRL);
-        hotReloadService.reloadRule("test/invalid.drl", INVALID_DRL); // 失败的
+        hotReloadService.reloadRule("test/invalid.drl", INVALID_DRL); // failed one
 
         DroolsHotReloadService.RuleStatus status = hotReloadService.getStatus();
-        assertTrue(status.totalReloads >= 2, "应有至少 2 条历史记录");
+        assertTrue(status.totalReloads >= 2, "There should be at least 2 history records");
 
-        // 最后一条应是失败的
-        assertNotNull(status.lastReload, "应有最后一条记录");
+        // Last one should be failure
+        assertNotNull(status.lastReload, "There should be a last record");
 
-        System.out.println("✅ 热更新历史记录正确，共 " + status.totalReloads + " 条");
+        System.out.println("✅ Hot reload history is correct, total " + status.totalReloads + " entries");
     }
 
     @Test
-    @DisplayName("并发读取 KieContainer 应线程安全")
+    @DisplayName("Concurrent access to KieContainer should be thread-safe")
     void testConcurrentContainerAccess() throws InterruptedException {
         int threadCount = 20;
         java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(threadCount);
@@ -141,7 +141,7 @@ public class DroolsHotReloadServiceTest {
         }
 
         latch.await(10, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(0, nullCount.get(), "并发读取时所有线程都应获得非 null 容器");
-        System.out.println("✅ 并发读取线程安全：" + threadCount + " 条虚拟线程同时读取，无 null");
+        assertEquals(0, nullCount.get(), "All threads should get non-null container during concurrent reads");
+        System.out.println("✅ Concurrent read thread safety: " + threadCount + " virtual threads read simultaneously with no null");
     }
 }

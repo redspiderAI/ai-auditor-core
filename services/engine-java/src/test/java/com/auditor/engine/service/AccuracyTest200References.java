@@ -10,8 +10,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 准确率测试：200 条参考文献，每条整好 1 个错误
- * 用于计算真实的检出准确率
+ * Accuracy test: 200 references, each with exactly 1 error
+ * Used to calculate the true detection accuracy
  */
 public class AccuracyTest200References {
     
@@ -19,24 +19,24 @@ public class AccuracyTest200References {
     
     @Test
     public void testAccuracy200References() {
-        // 生成 200 条参考文献，每条整好 1 个错误
+        // Generate 200 references, each with exactly 1 error
         List<Reference> references = generate200References();
         
-        // 构建 ParsedData
+        // Build ParsedData
         ParsedData data = ParsedData.newBuilder()
             .addAllReferences(references)
             .build();
         
-        // 运行检查
+        // Run check
         ReferenceChecker checker = new ReferenceChecker();
         List<Issue> issues = checker.checkReferences(data);
         
-        // 统计结果
+        // Count results
         int totalReferences = references.size();
         int detectedIssues = issues.size();
         
-        // 计算准确率
-        // 只计算格式错误(ERR_开头)，排除未被引用的警告(WARN_开头)
+        // Calculate accuracy
+        // Only count format errors (starting with ERR_), exclude warnings (starting with WARN_)
         int formatErrors = 0;
         for (Issue issue : issues) {
             if (issue.getCode().startsWith("ERR_")) {
@@ -44,65 +44,65 @@ public class AccuracyTest200References {
             }
         }
         
-        // 准确率 = 有格式错误的文献数 / 总文献数
-        // 因为每条文献只有 1 个错误，所以准确率 = 格式错误数 / 总文献数
+        // Accuracy = number of references with format errors / total references
+        // Since each reference has only 1 error, accuracy = format error count / total references
         double accuracy = (formatErrors * 100.0) / totalReferences;
         
-        logger.info("========== 准确率测试结果 ==========");
-        logger.info("总参考文献数: {}", totalReferences);
-        logger.info("格式错误数: {}", formatErrors);
-        logger.info("其他问题数: {}", detectedIssues - formatErrors);
-        logger.info(String.format("准确率: %.2f%%", accuracy));
+        logger.info("========== Accuracy Test Results ==========");
+        logger.info("Total references: {}", totalReferences);
+        logger.info("Format errors: {}", formatErrors);
+        logger.info("Other issues: {}", detectedIssues - formatErrors);
+        logger.info(String.format("Accuracy: %.2f%%", accuracy));
         logger.info("=====================================");
         
-        // 打印所有检出的问题
-        logger.info("\n检出的问题详情:");
+        // Print all detected issues
+        logger.info("\nDetails of detected issues:");
         for (Issue issue : issues) {
             logger.info("✓ [{}] {}", issue.getCode(), issue.getMessage());
         }
         
-        // 验证准确率 > 98%
+        // Verify accuracy > 98%
         assertTrue(accuracy >= 98.0, 
-            String.format("准确率 %.2f%% < 98%%，检出问题数 %d < %d", 
+            String.format("Accuracy %.2f%% < 98%%, detected issues %d < %d", 
                 accuracy, detectedIssues, (int)(totalReferences * 0.98)));
     }
     
     /**
-     * 生成 200 条参考文献，每条整好 1 个错误
+     * Generate 200 references, each with exactly 1 error
      * 
-     * 错误分布：
-     * - 期刊 [J]: 50 条（每种错误 10 条）
-     *   - 全角逗号: 10 条
-     *   - 年份超出范围: 10 条
-     *   - [J] 后无点号: 10 条
-     *   - 缺少卷期: 10 条
-     *   - 缺少页码: 10 条
-     * - 专著 [M]: 50 条（每种错误 10 条）
-     *   - 全角句号: 10 条
-     *   - 年份超出范围: 10 条
-     *   - [M] 后无点号: 10 条
-     *   - 缺少出版地: 10 条
-     *   - 缺少出版者: 10 条
-     * - 学位论文 [D]: 50 条（每种错误 10 条）
-     *   - 全角句号: 10 条
-     *   - 年份超出范围: 10 条
-     *   - [D] 后无点号: 10 条
-     *   - 缺少学位授予单位: 10 条
-     *   - 缺少年份: 10 条
-     * - 会议录 [C]: 50 条（每种错误 10 条）
-     *   - 全角逗号: 10 条
-     *   - 年份超出范围: 10 条
-     *   - [C] 后无点号: 10 条
-     *   - 缺少会议地点: 10 条
-     *   - 缺少会议名称: 10 条
+     * Error distribution:
+     * - Journal [J]: 50 entries (10 for each error type)
+     *   - Full-width comma: 10 entries
+     *   - Year out of range: 10 entries
+     *   - No period after [J]: 10 entries
+     *   - Missing volume and issue: 10 entries
+     *   - Missing page numbers: 10 entries
+     * - Monograph [M]: 50 entries (10 for each error type)
+     *   - Full-width period: 10 entries
+     *   - Year out of range: 10 entries
+     *   - No period after [M]: 10 entries
+     *   - Missing place of publication: 10 entries
+     *   - Missing publisher: 10 entries
+     * - Thesis [D]: 50 entries (10 for each error type)
+     *   - Full-width period: 10 entries
+     *   - Year out of range: 10 entries
+     *   - No period after [D]: 10 entries
+     *   - Missing degree awarding institution: 10 entries
+     *   - Missing year: 10 entries
+     * - Conference Proceedings [C]: 50 entries (10 for each error type)
+     *   - Full-width comma: 10 entries
+     *   - Year out of range: 10 entries
+     *   - No period after [C]: 10 entries
+     *   - Missing conference location: 10 entries
+     *   - Missing conference name: 10 entries
      */
     private static List<Reference> generate200References() {
         List<Reference> references = new ArrayList<>();
         int refId = 1;
         
-        // ============ 期刊 [J] - 50 条 ============
+        // ============ Journal [J] - 50 entries ============
         
-        // 错误 1: 全角逗号 - 10 条
+        // Error 1: Full-width comma - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -111,7 +111,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 2: 年份超出范围 - 10 条
+        // Error 2: Year out of range - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -120,7 +120,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 3: [J] 后无点号 - 10 条
+        // Error 3: No period after [J] - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -129,7 +129,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 4: 缺少卷期 - 10 条
+        // Error 4: Missing volume and issue - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -138,7 +138,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 5: 缺少页码 - 10 条
+        // Error 5: Missing page numbers - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -147,9 +147,9 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // ============ 专著 [M] - 50 条 ============
+        // ============ Monograph [M] - 50 entries ============
         
-        // 错误 6: 全角句号 - 10 条
+        // Error 6: Full-width period - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -158,7 +158,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 7: 年份超出范围 - 10 条
+        // Error 7: Year out of range - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -167,7 +167,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 8: [M] 后无点号 - 10 条
+        // Error 8: No period after [M] - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -176,7 +176,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 9: 缺少出版地 - 10 条
+        // Error 9: Missing place of publication - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -185,7 +185,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 10: 缺少出版者 - 10 条
+        // Error 10: Missing publisher - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -194,9 +194,9 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // ============ 学位论文 [D] - 50 条 ============
+        // ============ Thesis [D] - 50 entries ============
         
-        // 错误 11: 全角句号 - 10 条
+        // Error 11: Full-width period - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -205,7 +205,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 12: 年份超出范围 - 10 条
+        // Error 12: Year out of range - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -214,7 +214,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 13: [D] 后无点号 - 10 条
+        // Error 13: No period after [D] - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -223,7 +223,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 14: 缺少学位授予单位 - 10 条
+        // Error 14: Missing degree awarding institution - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -232,7 +232,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 15: 缺少年份 - 10 条
+        // Error 15: Missing year - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -241,9 +241,9 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // ============ 会议录 [C] - 50 条 ============
+        // ============ Conference Proceedings [C] - 50 entries ============
         
-        // 错误 16: 全角逗号 - 10 条
+        // Error 16: Full-width comma - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -252,7 +252,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 17: 年份超出范围 - 10 条
+        // Error 17: Year out of range - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -261,7 +261,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 18: [C] 后无点号 - 10 条
+        // Error 18: No period after [C] - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -270,7 +270,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 19: 缺少会议地点 - 10 条
+        // Error 19: Missing conference location - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")
@@ -279,7 +279,7 @@ public class AccuracyTest200References {
             refId++;
         }
         
-        // 错误 20: 缺少会议名称 - 10 条
+        // Error 20: Missing conference name - 10 entries
         for (int i = 0; i < 10; i++) {
             references.add(Reference.newBuilder()
                 .setRefId("[" + refId + "]")

@@ -18,16 +18,16 @@ public class FormattingAuditor {
     private static final Logger logger = LoggerFactory.getLogger(FormattingAuditor.class);
     private KieContainer kieContainer;
 
-    /** section 预过滤服务（停止检测 + 白名单） */
+    /** section pre-filtering service (stop detection + whitelist) */
     private final SectionFilterService sectionFilterService = new SectionFilterService();
 
     public FormattingAuditor() {
         try {
             KieServices kieServices = KieServices.Factory.get();
             kieContainer = kieServices.getKieClasspathContainer();
-            logger.info("格式检查规则引擎初始化成功");
+            logger.info("Formatting check rules engine initialized successfully");
         } catch (Exception e) {
-            logger.warn("Drools 规则引擎初始化失败，将使用模拟引擎: {}", e.getMessage());
+            logger.warn("Drools rules engine initialization failed, using mock engine: {}", e.getMessage());
             kieContainer = null;
         }
     }
@@ -36,20 +36,20 @@ public class FormattingAuditor {
         List<Issue> issues = new ArrayList<>();
 
         if (rawData == null || rawData.getSectionsCount() == 0) {
-            logger.warn("输入数据为空或没有章节");
+            logger.warn("Input data is empty or has no sections");
             return issues;
         }
 
-        // ── 预过滤：截断「学位论文数据集」及后续 sections ──
+        // ── Pre-filter: truncate "Thesis Dataset" and subsequent sections ──
         ParsedData data = sectionFilterService.filterSections(rawData);
-        logger.info("排版检查 section 预过滤：原始 {} 个 → 过滤后 {} 个",
+        logger.info("Formatting check section pre-filter: original {} → filtered {}",
                 rawData.getSectionsCount(), data.getSectionsCount());
 
-        // 如果 Drools 可用，使用 Drools；否则使用模拟引擎
+        // Use Drools if available, otherwise use mock engine
         if (kieContainer != null) {
             return checkFormattingWithDrools(data, issues);
         } else {
-            logger.info("使用模拟 Drools 引擎进行格式检查");
+            logger.info("Using mock Drools engine for formatting check");
             return MockDroolsEngine.checkFormattingRules(data);
         }
     }
@@ -73,22 +73,22 @@ public class FormattingAuditor {
             }
 
             int firedRules = kieSession.fireAllRules();
-            logger.info("格式检查完成，触发 {} 条规则，发现 {} 个问题",
+            logger.info("Formatting check completed, fired {} rules, found {} issues",
                     firedRules, issues.size());
 
         } catch (Exception e) {
-            logger.error("格式检查执行异常", e);
+            logger.error("Formatting check execution exception", e);
 
             Issue errorIssue = Issue.newBuilder()
                     .setCode("RULE_ENGINE_ERROR")
-                    .setMessage("格式检查引擎异常: " + e.getMessage())
+                    .setMessage("Formatting check engine exception: " + e.getMessage())
                     .setSeverity(Severity.CRITICAL)
                     .build();
             issues.add(errorIssue);
         } finally {
             if (kieSession != null) {
                 kieSession.dispose();
-                logger.debug("KieSession 资源已释放");
+                logger.debug("KieSession resources released");
             }
         }
 

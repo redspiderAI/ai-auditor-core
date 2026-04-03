@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 完整性模块大规模逻辑压力测试
- * 模拟 200 组文档样本，验证 Drools 规则引擎的鲁棒性
+ * Integrity module large-scale logic stress test
+ * Simulate 200 sets of document samples to verify the robustness of the Drools rule engine
  */
 public class IntegrityLargeScaleTest {
 
@@ -21,49 +21,49 @@ public class IntegrityLargeScaleTest {
         IntegrityScanner scanner = new IntegrityScanner();
         List<Issue> allDetectedIssues = new ArrayList<>();
         
-        System.out.println(">>> 开始执行完整性模块 200 组样本测试...");
+        System.out.println(">>> Starting integrity module 200 sample tests...");
 
         for (int i = 1; i <= 200; i++) {
             ParsedData.Builder docBuilder = ParsedData.newBuilder()
                     .setDocId("BATCH-TEST-" + i)
                     .setMetadata(DocumentMetadata.newBuilder()
-                            .setTitle("大规模测试样本第 " + i + " 号")
-                            .setPageCount(i % 50 + 1) // 模拟不同页数
+                            .setTitle("Large-scale test sample No. " + i)
+                            .setPageCount(i % 50 + 1) // Simulate different page counts
                             .build());
 
-            // --- 循环注入 13 种不同的逻辑错误 ---
+            // --- Inject 13 different logical errors in a loop ---
             
             if (i % 4 == 1) { 
-                // 模式 1：致命缺失 (REQ) - 只有第一章，缺少摘要、引言、结论、文献
-                docBuilder.addSections(createSection(1, "第一章 绪论", 1));
+                // Mode 1: Fatal missing (REQ) - only chapter one, missing abstract, introduction, conclusion, references
+                docBuilder.addSections(createSection(1, "Chapter One Introduction", 1));
             } 
             else if (i % 4 == 2) { 
-                // 模式 2：标题层级冲突 (HIER) - 1级直接跳3级
-                docBuilder.addSections(createSection(1, "摘要", 1));
-                docBuilder.addSections(createSection(2, "1.1.1 某种背景", 3)); 
+                // Mode 2: Title hierarchy conflict (HIER) - level 1 directly jumps to level 3
+                docBuilder.addSections(createSection(1, "Abstract", 1));
+                docBuilder.addSections(createSection(2, "1.1.1 Some Background", 3)); 
             }
             else if (i % 4 == 3) {
-                // 模式 3：重复性错误 (DUPLICATE) - ID 重复
-                docBuilder.addSections(createSection(1, "摘要", 1));
-                docBuilder.addSections(createSection(1, "重复的摘要", 1));
+                // Mode 3: Duplication error (DUPLICATE) - duplicate ID
+                docBuilder.addSections(createSection(1, "Abstract", 1));
+                docBuilder.addSections(createSection(1, "Duplicate Abstract", 1));
             }
             else {
-                // 模式 4：不完整元数据或边界情况
-                docBuilder.addSections(createSection(1, "正文内容", 0)); // 无级别的正文
+                // Mode 4: Incomplete metadata or boundary cases
+                docBuilder.addSections(createSection(1, "Main Content", 0)); // paragraph without level
             }
 
-            // 执行 Drools 审计
+            // Execute Drools audit
             List<Issue> currentIssues = scanner.scanIntegrity(docBuilder.build());
             allDetectedIssues.addAll(currentIssues);
         }
 
-        // 将 200 组测试的明细汇总写入 TXT 文件
+        // Write detailed summary of 200 tests to TXT file
         writeReportToTxt(allDetectedIssues);
 
-        System.out.println(">>> 测试完成！");
-        System.out.println(">>> 总计审计样本数: 200");
-        System.out.println(">>> 规则引擎发现问题总数: " + allDetectedIssues.size());
-        System.out.println(">>> 报告生成路径: services/engine-java/target/integrity_audit_detail.txt");
+        System.out.println(">>> Test completed!");
+        System.out.println(">>> Total audited samples: 200");
+        System.out.println(">>> Total issues found by rule engine: " + allDetectedIssues.size());
+        System.out.println(">>> Report generated at: services/engine-java/target/integrity_audit_detail.txt");
     }
 
     private Section createSection(int id, String text, int level) {
@@ -81,9 +81,9 @@ public class IntegrityLargeScaleTest {
 
         String filePath = "target/integrity_audit_detail.txt";
         try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-            writer.println("完整性模块大规模审计明细报告");
-            writer.println("测试时间: " + LocalDateTime.now());
-            writer.println("样本总数: 200 组");
+            writer.println("Integrity Module Large-Scale Audit Detailed Report");
+            writer.println("Test Time: " + LocalDateTime.now());
+            writer.println("Total Samples: 200 sets");
             writer.println("==================================================");
             
             for (int i = 0; i < issues.size(); i++) {
@@ -95,7 +95,7 @@ public class IntegrityLargeScaleTest {
                     issue.getMessage());
             }
             writer.println("==================================================");
-            writer.println("报告结束 - 共计 " + issues.size() + " 条记录");
+            writer.println("End of Report - Total " + issues.size() + " records");
         }
     }
 }

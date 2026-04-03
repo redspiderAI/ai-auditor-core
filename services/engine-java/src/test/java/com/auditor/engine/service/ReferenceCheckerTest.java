@@ -22,7 +22,7 @@ public class ReferenceCheckerTest {
         List<Issue> issues = referenceChecker.checkReferences(data);
         
         assertNotNull(issues);
-        // 有效数据应该没有 CRITICAL 级别的问题
+        // Valid data should have no CRITICAL level issues
         assertFalse(issues.stream().anyMatch(i -> i.getSeverity() == Severity.CRITICAL));
     }
 
@@ -45,8 +45,8 @@ public class ReferenceCheckerTest {
         List<Issue> issues = referenceChecker.checkReferences(data);
         
         assertNotNull(issues);
-        // 应该发现缺失的参考文献问题
-        assertTrue(issues.size() > 0, "应该发现缺失的参考文献问题");
+        // Should detect missing reference issues
+        assertTrue(issues.size() > 0, "Should detect missing reference issues");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ReferenceCheckerTest {
         List<Issue> issues = referenceChecker.checkReferences(data);
         
         assertNotNull(issues);
-        // 有效的参考文献应该没有 CRITICAL 问题
+        // Valid references should have no CRITICAL issues
         assertFalse(issues.stream().anyMatch(i -> i.getSeverity() == Severity.CRITICAL));
     }
 
@@ -106,7 +106,7 @@ public class ReferenceCheckerTest {
         List<Issue> issues = referenceChecker.checkReferences(data);
         
         assertNotNull(issues);
-        // 多个有效的参考文献应该没有 CRITICAL 问题
+        // Multiple valid references should have no CRITICAL issues
         assertFalse(issues.stream().anyMatch(i -> i.getSeverity() == Severity.CRITICAL));
     }
 
@@ -139,8 +139,8 @@ public class ReferenceCheckerTest {
         List<Issue> issues = referenceChecker.checkReferences(data);
         
         assertNotNull(issues);
-        // 应该至少发现一个问题（未使用的参考文献）
-        assertTrue(issues.size() > 0, "应该发现问题");
+        // Should detect at least one issue (unused reference)
+        assertTrue(issues.size() > 0, "Should detect issues");
     }
 
     @Test
@@ -149,9 +149,9 @@ public class ReferenceCheckerTest {
         List<Issue> issues = referenceChecker.checkReferences(data);
         
         for (Issue issue : issues) {
-            assertNotNull(issue.getCode(), "Issue code 不能为空");
-            assertNotNull(issue.getMessage(), "Issue message 不能为空");
-            assertNotNull(issue.getSeverity(), "Issue severity 不能为空");
+            assertNotNull(issue.getCode(), "Issue code cannot be null");
+            assertNotNull(issue.getMessage(), "Issue message cannot be null");
+            assertNotNull(issue.getSeverity(), "Issue severity cannot be null");
         }
     }
 

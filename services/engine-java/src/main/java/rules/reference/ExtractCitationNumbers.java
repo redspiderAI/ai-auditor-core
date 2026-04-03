@@ -6,17 +6,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 参考文献规则辅助类：提取正文中的引用编号
- * 供原始 26 条 reference.drl 规则调用
+ * Reference rules helper class: extract citation numbers from the main text
+ * Used by the original 26 reference.drl rules
  */
 public class ExtractCitationNumbers {
-    // 支持 [1], [1,2], [1-3] 等格式
+    // Supports formats like [1], [1,2], [1-3], etc.
     private static final Pattern CITATION_PATTERN = Pattern.compile("\\[\\s*(\\d+(?:\\s*[-,\\s]\\s*\\d+)*)\\s*\\]");
 
     /**
-     * 提取引用编号
-     * @param text 输入文本
-     * @return 编号列表
+     * Extract citation numbers
+     * @param text input text
+     * @return list of numbers
      */
     public static List<Integer> extractCitationNumbers(String text) {
         List<Integer> numbers = new ArrayList<>();

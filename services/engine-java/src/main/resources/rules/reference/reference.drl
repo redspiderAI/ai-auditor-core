@@ -11,10 +11,9 @@ global Logger logger
 
 dialect "java"
 
-// ==================== 规则定义 ====================
+// ==================== Rule Definitions ====================
 
-// 规则1: 期刊 [J] 格式检查 - 全角逗号检查
-rule "期刊文献全角逗号检查"
+// Rule 1: Journal [J] Format Check - Full-width Comma Checkrule "Journal Reference Full-width Comma Check"
 when 
     $ref: Reference(rawText.contains("[J]") && rawText.contains("，"))
 then
@@ -27,24 +26,23 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 期刊文献 [{}] 检查到全角逗号", refNum);
+        logger.debug("DEBUG: Journal reference [{}] detected full-width comma", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_JOURNAL_FULL_COMMA")
-                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：使用了全角逗号，应使用英文逗号")
+                .setMessage("Reference [" + refNum + "] journal format error: used full-width comma, should use English comma")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("将全角逗号（，）替换为英文逗号（,）")
+                .setSuggestion("Replace full-width comma (，) with English comma (,)")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则2: 期刊 [J] 格式检查 - 年份超出范围
-rule "期刊文献年份超出范围检查"
+// Rule 2: Journal [J] Format Check - Year Out of Rangerule "Journal Reference Year Out of Range Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then
@@ -57,7 +55,7 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
@@ -70,25 +68,24 @@ then
                 int currentYear = 2026;
                 
                 if (year > currentYear) {
-                    logger.debug("DEBUG: 期刊文献 [{}] 年份 {} > {}", refNum, year, currentYear);
+                    logger.debug("DEBUG: Journal reference [{}] year {} > {}", refNum, year, currentYear);
                     results.add(Issue.newBuilder()
                             .setCode("ERR_REF_JOURNAL_YEAR_EXCEED")
-                            .setMessage("参考文献 [" + refNum + "] 年份超出范围：" + year + " > " + currentYear)
+                            .setMessage("Reference [" + refNum + "] year out of range: " + year + " > " + currentYear)
                             .setSectionId(0)
                             .setSeverity(Severity.HIGH)
-                            .setSuggestion("请检查年份是否正确")
+                            .setSuggestion("Please check if the year is correct")
                             .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                             .build());
                 }
             } catch (NumberFormatException e) {
-                logger.warn("无法解析年份");
+                logger.warn("Unable to parse year");
             }
         }
     }
 end
 
-// 规则3: 期刊 [J] 格式检查 - [J] 后面没有点号
-rule "期刊文献J标记后无点号检查"
+// Rule 3: Journal [J] Format Check - No Dot After [J]rule "Journal Reference J Mark No Dot Check"
 when 
     $ref: Reference(rawText.contains("[J]") && !rawText.contains("[J]."))
 then
@@ -101,24 +98,23 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 期刊文献 [{}] [J] 后面没有点号", refNum);
+        logger.debug("DEBUG: Journal reference [{}] no dot after [J]", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_JOURNAL_NO_DOT")
-                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：[J] 后面应有句点")
+                .setMessage("Reference [" + refNum + "] journal format error: there should be a period after [J]")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("在 [J] 后面添加英文句点")
+                .setSuggestion("Add an English period after [J]")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则4: 期刊 [J] 格式检查 - 缺少卷(期)
-rule "期刊文献缺少卷期检查"
+// Rule 4: Journal [J] Format Check - Missing Volume(Issue)rule "Journal Reference Missing Volume and Issue Check"
 when 
     $ref: Reference(rawText.contains("[J]") && !rawText.matches(".*\\d+\\s*\\(\\s*\\d+\\s*\\).*"))
 then
@@ -131,24 +127,23 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 期刊文献 [{}] 缺少卷(期)", refNum);
+        logger.debug("DEBUG: Journal reference [{}] missing volume(issue)", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_JOURNAL_NO_VOLUME")
-                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：缺少卷(期)信息")
+                .setMessage("Reference [" + refNum + "] journal format error: missing volume(issue) information")
                 .setSectionId(0)
                 .setSeverity(Severity.MEDIUM)
-                .setSuggestion("添加卷(期)信息，格式如 10(2)")
+                .setSuggestion("Add volume(issue) information, format like 10(2)")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则5: 期刊 [J] 格式检查 - 缺少页码
-rule "期刊文献缺少页码检查"
+// Rule 5: Journal [J] Format Check - Missing Pagerule "Journal Reference Missing Page Check"
 when 
     $ref: Reference(rawText.contains("[J]") && !rawText.matches(".*:\\s*\\d+\\s*[-~]?\\s*\\d*.*"))
 then
@@ -161,24 +156,23 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 期刊文献 [{}] 缺少页码", refNum);
+        logger.debug("DEBUG: Journal reference [{}] missing page", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_JOURNAL_NO_PAGE")
-                .setMessage("参考文献 [" + refNum + "] 期刊格式错误：缺少页码信息")
+                .setMessage("Reference [" + refNum + "] journal format error: missing page information")
                 .setSectionId(0)
                 .setSeverity(Severity.MEDIUM)
-                .setSuggestion("添加页码信息，格式如 1-10")
+                .setSuggestion("Add page information, format like 1-10")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则6: 期刊 [J] 格式检查 - 多作者但没有"等"
-rule "期刊文献多作者无等检查"
+// Rule 6: Journal [J] Format Check - Multiple Authors but No "et al."rule "Journal Reference Multiple Authors No Et Al. Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then
@@ -191,7 +185,7 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
@@ -208,13 +202,13 @@ then
             if (commaCount > 2) {
                 if (!authorPart.contains("等") && !authorPart.contains("et al.") && 
                     !authorPart.contains("et al") && !authorPart.contains("等.")) {
-                    logger.debug("DEBUG: 期刊文献 [{}] 多作者但没有等", refNum);
+                    logger.debug("DEBUG: Journal reference [{}] multiple authors but no et al.", refNum);
                     results.add(Issue.newBuilder()
                             .setCode("ERR_REF_JOURNAL_MULTI_AUTHOR")
-                            .setMessage("参考文献 [" + refNum + "] 多作者格式错误：超过2个作者应使用'等'或'et al.'")
+                            .setMessage("Reference [" + refNum + "] multiple authors format error: more than 2 authors should use 'et al.' or '等'")
                             .setSectionId(0)
                             .setSeverity(Severity.MEDIUM)
-                            .setSuggestion("在第2个作者后添加'等'或'et al.'")
+                            .setSuggestion("Add 'et al.' or '等' after the 2nd author")
                             .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                             .build());
                 }
@@ -223,8 +217,8 @@ then
     }
 end
 
-// 规则7: 专著 [M] 格式检查 - 全角句号检查
-rule "专著文献全角句号检查"
+// Rule 7: Monograph [M] Format Check - Full-width Period Check
+rule "Monograph Reference Full-width Period Check"
 when 
     $ref: Reference(rawText.contains("[M]") && rawText.contains("。"))
 then
@@ -237,24 +231,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 专著文献 [{}] 检查到全角句号", refNum);
+        logger.debug("DEBUG: Monograph reference [{}] detected full-width period", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_MONO_FULL_PERIOD")
-                .setMessage("参考文献 [" + refNum + "] 专著格式错误：使用了全角句号，应使用英文句点")
+                .setMessage("Reference [" + refNum + "] monograph format error: used full-width period, should use English period")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("将全角句号（。）替换为英文句点（.）")
+                .setSuggestion("Replace full-width period (。) with English period (.)")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则8: 专著 [M] 格式检查 - 年份超出范围
-rule "专著文献年份超出范围检查"
+// Rule 8: Monograph [M] Format Check - Year Out of Range
+rule "Monograph Reference Year Out of Range Check"
 when 
     $ref: Reference(rawText.contains("[M]"))
 then
@@ -267,7 +261,7 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
@@ -280,25 +274,25 @@ then
                 int currentYear = 2026;
                 
                 if (year > currentYear) {
-                    logger.debug("DEBUG: 专著文献 [{}] 年份 {} > {}", refNum, year, currentYear);
+                    logger.debug("DEBUG: Monograph reference [{}] year {} > {}", refNum, year, currentYear);
                     results.add(Issue.newBuilder()
                             .setCode("ERR_REF_MONO_YEAR_EXCEED")
-                            .setMessage("参考文献 [" + refNum + "] 年份超出范围：" + year + " > " + currentYear)
+                            .setMessage("Reference [" + refNum + "] year out of range: " + year + " > " + currentYear)
                             .setSectionId(0)
                             .setSeverity(Severity.HIGH)
-                            .setSuggestion("请检查年份是否正确")
+                            .setSuggestion("Please check if the year is correct")
                             .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                             .build());
                 }
             } catch (NumberFormatException e) {
-                logger.warn("无法解析年份");
+                logger.warn("Unable to parse year");
             }
         }
     }
 end
 
-// 规则9: 专著 [M] 格式检查 - [M] 后面没有点号
-rule "专著文献M标记后无点号检查"
+// Rule 9: Monograph [M] Format Check - No Period After [M]
+rule "Monograph Reference No Period After M Mark Check"
 when 
     $ref: Reference(rawText.contains("[M]") && !rawText.contains("[M]."))
 then
@@ -311,24 +305,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 专著文献 [{}] [M] 后面没有点号", refNum);
+        logger.debug("DEBUG: Monograph reference [{}] no period after [M]", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_MONO_NO_DOT")
-                .setMessage("参考文献 [" + refNum + "] 专著格式错误：[M] 后面应有句点")
+                .setMessage("Reference [" + refNum + "] monograph format error: there should be a period after [M]")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("在 [M] 后面添加英文句点")
+                .setSuggestion("Add an English period after [M]")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则10: 专著 [M] 格式检查 - 缺少出版地:出版者
-rule "专著文献缺少出版地出版者检查"
+// Rule 10: Monograph [M] Format Check - Missing Place of Publication: Publisher
+rule "Monograph Reference Missing Place of Publication and Publisher Check"
 when 
     $ref: Reference(rawText.contains("[M]") && !rawText.matches(".*[\\u4e00-\\u9fff\\w]+\\s*:\\s*[\\u4e00-\\u9fff\\w]+.*"))
 then
@@ -341,24 +335,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 专著文献 [{}] 缺少出版地:出版者", refNum);
+        logger.debug("DEBUG: Monograph reference [{}] missing place of publication and publisher", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_MONO_NO_PUBLISHER")
-                .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少出版地:出版者信息")
+                .setMessage("Reference [" + refNum + "] monograph format error: missing place of publication and publisher information")
                 .setSectionId(0)
                 .setSeverity(Severity.MEDIUM)
-                .setSuggestion("添加出版地:出版者信息，格式如 北京: 出版社")
+                .setSuggestion("Add place of publication and publisher information, format like Beijing: Publisher")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则11: 专著 [M] 格式检查 - 多作者但没有"等"
-rule "专著文献多作者无等检查"
+// Rule 11: Monograph [M] Format Check - Multiple Authors but No 'et al.'
+rule "Monograph Reference Multiple Authors Without Et Al Check"
 when 
     $ref: Reference(rawText.contains("[M]"))
 then
@@ -371,7 +365,7 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
@@ -388,13 +382,13 @@ then
             if (commaCount > 2) {
                 if (!authorPart.contains("等") && !authorPart.contains("et al.") && 
                     !authorPart.contains("et al") && !authorPart.contains("等.")) {
-                    logger.debug("DEBUG: 专著文献 [{}] 多作者但没有等", refNum);
+                    logger.debug("DEBUG: Monograph reference [{}] multiple authors but no et al.", refNum);
                     results.add(Issue.newBuilder()
                             .setCode("ERR_REF_MONO_MULTI_AUTHOR")
-                            .setMessage("参考文献 [" + refNum + "] 多作者格式错误：超过2个作者应使用'等'或'et al.'")
+                            .setMessage("Reference [" + refNum + "] multiple authors format error: more than 2 authors should use 'et al.' or '等'")
                             .setSectionId(0)
                             .setSeverity(Severity.MEDIUM)
-                            .setSuggestion("在第2个作者后添加'等'或'et al.'")
+                            .setSuggestion("Add 'et al.' or '等' after the second author")
                             .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                             .build());
                 }
@@ -403,15 +397,15 @@ then
     }
 end
 
-// 规则12: 引用一致性检查 - 缺失的参考文献
-rule "检查缺失的参考文献"
+// Rule 12: Citation Consistency Check - Missing References
+rule "Check Missing References"
 when 
     $data: ParsedData()
 then
     Set<Integer> citedNumbers = new HashSet<>();
     Set<Integer> existingRefNumbers = new HashSet<>();
     
-    // 提取正文中的所有引用
+    // Extract all citations in the main text
     for (Section section : $data.getSectionsList()) {
         Pattern citationPattern = Pattern.compile("\\[(\\d+)\\]");
         Matcher matcher = citationPattern.matcher(section.getText());
@@ -419,12 +413,12 @@ then
             try {
                 citedNumbers.add(Integer.parseInt(matcher.group(1)));
             } catch (NumberFormatException e) {
-                logger.warn("无法解析引用编号");
+                logger.warn("Unable to parse citation number");
             }
         }
     }
     
-    // 提取参考文献列表中的所有编号
+    // Extract all numbers in the reference list
     for (Reference ref : $data.getReferencesList()) {
         String refId = ref.getRefId();
         if (refId != null && !refId.isEmpty()) {
@@ -432,29 +426,29 @@ then
                 String cleaned = refId.replaceAll("\\[|\\]", "").trim();
                 existingRefNumbers.add(Integer.parseInt(cleaned));
             } catch (NumberFormatException e) {
-                logger.warn("无法解析参考文献编号");
+                logger.warn("Unable to parse reference number");
             }
         }
     }
     
-    // 检查缺失的引用
+    // Check for missing citations
     for (Integer citedNum : citedNumbers) {
         if (!existingRefNumbers.contains(citedNum)) {
-            logger.debug("DEBUG: 检查到缺失的参考文献 [{}]", citedNum);
+            logger.debug("DEBUG: Missing reference detected [{}]", citedNum);
             results.add(Issue.newBuilder()
                     .setCode("ERR_REF_MISSING")
-                    .setMessage("参考文献 [" + citedNum + "] 在正文中被引用，但在参考文献列表中缺失")
+                    .setMessage("Reference [" + citedNum + "] is cited in the main text but missing in the reference list")
                     .setSectionId(0)
                     .setSeverity(Severity.CRITICAL)
-                    .setSuggestion("请添加参考文献 [" + citedNum + "]")
-                    .setOriginalSnippet("引用 [" + citedNum + "]")
+                    .setSuggestion("Please add reference [" + citedNum + "]")
+                    .setOriginalSnippet("Citation [" + citedNum + "]")
                     .build());
         }
     }
 end
 
-// 规则13: 期刊 [J] 格式检查 - 年份过早
-rule "期刊文献年份过早检查"
+// Rule 13: Journal [J] Format Check - Year Too Early
+rule "Journal Reference Year Too Early Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then
@@ -467,7 +461,7 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
@@ -479,25 +473,25 @@ then
                 int year = Integer.parseInt(yearMatcher.group(1));
                 
                 if (year < 1900) {
-                    logger.debug("DEBUG: 期刊文献 [{}] 年份 {} < 1900", refNum, year);
+                    logger.debug("DEBUG: Journal reference [{}] year {} < 1900", refNum, year);
                     results.add(Issue.newBuilder()
                             .setCode("ERR_REF_JOURNAL_YEAR_EARLY")
-                            .setMessage("参考文献 [" + refNum + "] 年份过早：" + year + " < 1900")
+                            .setMessage("Reference [" + refNum + "] year too early: " + year + " < 1900")
                             .setSectionId(0)
                             .setSeverity(Severity.MEDIUM)
-                            .setSuggestion("请检查年份是否正确")
+                            .setSuggestion("Please check if the year is correct")
                             .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                             .build());
                 }
             } catch (NumberFormatException e) {
-                logger.warn("无法解析年份");
+                logger.warn("Unable to parse year");
             }
         }
     }
 end
 
-// 规则14: 专著 [M] 格式检查 - 年份过早
-rule "专著文献年份过早检查"
+// Rule 14: Monograph [M] Format Check - Year Too Early
+rule "Monograph Reference Year Too Early Check"
 when 
     $ref: Reference(rawText.contains("[M]"))
 then
@@ -510,7 +504,7 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
@@ -522,25 +516,25 @@ then
                 int year = Integer.parseInt(yearMatcher.group(1));
                 
                 if (year < 1900) {
-                    logger.debug("DEBUG: 专著文献 [{}] 年份 {} < 1900", refNum, year);
+                    logger.debug("DEBUG: Monograph reference [{}] year {} < 1900", refNum, year);
                     results.add(Issue.newBuilder()
                             .setCode("ERR_REF_MONO_YEAR_EARLY")
-                            .setMessage("参考文献 [" + refNum + "] 年份过早：" + year + " < 1900")
+                            .setMessage("Reference [" + refNum + "] year too early: " + year + " < 1900")
                             .setSectionId(0)
                             .setSeverity(Severity.MEDIUM)
-                            .setSuggestion("请检查年份是否正确")
+                            .setSuggestion("Please check if the year is correct")
                             .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                             .build());
                 }
             } catch (NumberFormatException e) {
-                logger.warn("无法解析年份");
+                logger.warn("Unable to parse year");
             }
         }
     }
 end
 
-// 规则15: 期刊 [J] 格式检查 - 小写 [j]
-rule "期刊文献小写j检查"
+// Rule 15: Journal [J] Format Check - Lowercase [j]
+rule "Journal Reference Lowercase j Check"
 when 
     $ref: Reference(rawText.contains("[j]"))
 then
@@ -553,25 +547,25 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 期刊文献 [{}] 使用小写 [j]", refNum);
+        logger.debug("DEBUG: Journal reference [{}] uses lowercase [j]", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_JOURNAL_LOWERCASE")
-                .setMessage("参考文献 [" + refNum + "] 期刊标记错误：应使用大写 [J] 而非小写 [j]")
+                .setMessage("Reference [" + refNum + "] journal tag error: should use uppercase [J] instead of lowercase [j]")
                 .setSectionId(0)
                 .setSeverity(Severity.MEDIUM)
-                .setSuggestion("将 [j] 改为 [J]")
+                .setSuggestion("Change [j] to [J]")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
 
-// 规则16: 期刊 [J] 格式检查 - 年份为两位数（在逗号后面）
-rule "期刊文献年份两位数检查"
+// Rule 16: Journal [J] Format Check - Year is Two Digits (after comma)
+rule "Journal Reference Two-Digit Year Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then
@@ -584,11 +578,11 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        // 只检查在逗号后面的两位数年份
+        // Only check two-digit year after comma
         Pattern twoDigitYearPattern = Pattern.compile(",\\s*(\\d{2})\\s*,");
         Matcher matcher = twoDigitYearPattern.matcher(rawText);
         
@@ -596,24 +590,24 @@ then
             String twoDigit = matcher.group(1);
             try {
                 int year = Integer.parseInt(twoDigit);
-                logger.debug("DEBUG: 期刊文献 [{}] 年份为两位数 {}", refNum, twoDigit);
+                logger.debug("DEBUG: Journal reference [{}] year is two digits {}", refNum, twoDigit);
                 results.add(Issue.newBuilder()
                         .setCode("ERR_REF_JOURNAL_YEAR_TWO_DIGIT")
-                        .setMessage("参考文献 [" + refNum + "] 年份格式错误：年份应为四位数，而非两位数 " + twoDigit)
+                        .setMessage("Reference [" + refNum + "] year format error: year should be four digits, not two digits " + twoDigit)
                         .setSectionId(0)
                         .setSeverity(Severity.MEDIUM)
-                        .setSuggestion("将两位数年份改为四位数，如 20" + twoDigit)
+                        .setSuggestion("Change two-digit year to four digits, e.g. 20" + twoDigit)
                         .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                         .build());
             } catch (NumberFormatException e) {
-                logger.warn("无法解析年份");
+                logger.warn("Unable to parse year");
             }
         }
     }
 end
 
-// 规则17: 专著 [M] 格式检查 - 年份为两位数（在逗号后面）
-rule "专著文献年份两位数检查"
+// Rule 17: Monograph [M] Format Check - Year is Two Digits (after comma)
+rule "Monograph Reference Year Two-Digit Check"
 when 
     $ref: Reference(rawText.contains("[M]"))
 then
@@ -626,11 +620,11 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        // 只检查在逗号后面的两位数年份或末尾的两位数
+        // Only check two-digit year after comma or at the end
         Pattern twoDigitYearPattern = Pattern.compile(",\\s*(\\d{2})\\s*[,.]$");
         Matcher matcher = twoDigitYearPattern.matcher(rawText);
         
@@ -638,24 +632,24 @@ then
             String twoDigit = matcher.group(1);
             try {
                 int year = Integer.parseInt(twoDigit);
-                logger.debug("DEBUG: 专著文献 [{}] 年份为两位数 {}", refNum, twoDigit);
+                logger.debug("DEBUG: Monograph reference [{}] year is two digits {}", refNum, twoDigit);
                 results.add(Issue.newBuilder()
                         .setCode("ERR_REF_MONO_YEAR_TWO_DIGIT")
-                        .setMessage("参考文献 [" + refNum + "] 年份格式错误：年份应为四位数，而非两位数 " + twoDigit)
+                        .setMessage("Reference [" + refNum + "] year format error: year should be four digits, not two digits " + twoDigit)
                         .setSectionId(0)
                         .setSeverity(Severity.MEDIUM)
-                        .setSuggestion("将两位数年份改为四位数，如 20" + twoDigit)
+                        .setSuggestion("Change two-digit year to four digits, e.g. 20" + twoDigit)
                         .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                         .build());
             } catch (NumberFormatException e) {
-                logger.warn("无法解析年份");
+                logger.warn("Unable to parse year");
             }
         }
     }
 end
 
-// 规则18: 期刊 [J] 格式检查 - 缺少作者
-rule "期刊文献缺少作者检查"
+// Rule 18: Journal [J] Format Check - Missing Author
+rule "Journal Reference Missing Author Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then
@@ -668,22 +662,22 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
         int typeIndex = rawText.indexOf("[J]");
         if (typeIndex > 0) {
             String beforeType = rawText.substring(0, typeIndex);
-            // 检查是否没有作者（即 [J] 前面没有句点或没有足够的文本）
+            // Check if no author (i.e. no period before [J] or insufficient text)
             if (!beforeType.contains(".") || beforeType.trim().length() < 3) {
-                logger.debug("DEBUG: 期刊文献 [{}] 缺少作者", refNum);
+                logger.debug("DEBUG: Journal reference [{}] missing author", refNum);
                 results.add(Issue.newBuilder()
                         .setCode("ERR_REF_JOURNAL_NO_AUTHOR")
-                        .setMessage("参考文献 [" + refNum + "] 期刊格式错误：缺少作者信息")
+                        .setMessage("Reference [" + refNum + "] journal format error: missing author information")
                         .setSectionId(0)
                         .setSeverity(Severity.HIGH)
-                        .setSuggestion("添加作者信息，格式如 作者. 题名[J].")
+                        .setSuggestion("Add author information, format like Author. Title[J].")
                         .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                         .build());
             }
@@ -691,8 +685,8 @@ then
     }
 end
 
-// 规则19: 专著 [M] 格式检查 - 缺少作者
-rule "专著文献缺少作者检查"
+// Rule 19: Monograph [M] Format Check - Missing Author
+rule "Monograph Reference Missing Author Check"
 when 
     $ref: Reference(rawText.contains("[M]"))
 then
@@ -705,22 +699,22 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
         int typeIndex = rawText.indexOf("[M]");
         if (typeIndex > 0) {
             String beforeType = rawText.substring(0, typeIndex);
-            // 检查是否没有作者（即 [M] 前面没有句点或没有足够的文本）
+            // Check if no author (i.e. no period before [M] or insufficient text)
             if (!beforeType.contains(".") || beforeType.trim().length() < 3) {
-                logger.debug("DEBUG: 专著文献 [{}] 缺少作者", refNum);
+                logger.debug("DEBUG: Monograph reference [{}] missing author", refNum);
                 results.add(Issue.newBuilder()
                         .setCode("ERR_REF_MONO_NO_AUTHOR")
-                        .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少作者信息")
+                        .setMessage("Reference [" + refNum + "] monograph format error: missing author information")
                         .setSectionId(0)
                         .setSeverity(Severity.HIGH)
-                        .setSuggestion("添加作者信息，格式如 作者. 书名[M].")
+                        .setSuggestion("Add author information, format like Author. Book Title[M].")
                         .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                         .build());
             }
@@ -729,15 +723,15 @@ then
 end
 
 
-// 规则20: 检查未使用的参考文献
-rule "检查未使用的参考文献"
+// Rule 20: Check Unused References
+rule "Check Unused References"
 when 
     $data: ParsedData()
 then
     Set<Integer> citedNumbers = new HashSet<>();
     Set<Integer> existingRefNumbers = new HashSet<>();
     
-    // 提取正文中的所有引用
+    // Extract all citations in the main text
     for (Section section : $data.getSectionsList()) {
         Pattern citationPattern = Pattern.compile("\\[(\\d+)\\]");
         Matcher matcher = citationPattern.matcher(section.getText());
@@ -745,12 +739,12 @@ then
             try {
                 citedNumbers.add(Integer.parseInt(matcher.group(1)));
             } catch (NumberFormatException e) {
-                logger.warn("无法解析引用编号");
+                logger.warn("Unable to parse citation number");
             }
         }
     }
     
-    // 提取参考文献列表中的所有编号
+    // Extract all numbers in the reference list
     for (Reference ref : $data.getReferencesList()) {
         String refId = ref.getRefId();
         if (refId != null && !refId.isEmpty()) {
@@ -758,21 +752,21 @@ then
                 String cleaned = refId.replaceAll("\\[|\\]", "").trim();
                 existingRefNumbers.add(Integer.parseInt(cleaned));
             } catch (NumberFormatException e) {
-                logger.warn("无法解析参考文献编号");
+                logger.warn("Unable to parse reference number");
             }
         }
     }
     
-    // 检查未使用的引用
+    // Check for unused references
     for (Integer refNum : existingRefNumbers) {
         if (!citedNumbers.contains(refNum)) {
-            logger.debug("DEBUG: 检查到未使用的参考文献 [{}]", refNum);
+            logger.debug("DEBUG: Found unused reference [{}]", refNum);
             results.add(Issue.newBuilder()
                     .setCode("WARN_REF_UNUSED")
-                    .setMessage("参考文献 [" + refNum + "] 在正文中未被引用")
+                    .setMessage("Reference [" + refNum + "] is not cited in the main text")
                     .setSectionId(0)
                     .setSeverity(Severity.LOW)
-                    .setSuggestion("删除未被引用的参考文献或在正文中添加引用")
+                    .setSuggestion("Delete unused references or add citations in the main text")
                     .setOriginalSnippet("")
                     .build());
         }
@@ -780,10 +774,10 @@ then
 end
 
 
-// ==================== 新增规则：检查必需字段 ====================
+// ==================== New Rules: Check Required Fields ====================
 
-// 规则21: 专著 [M] - 缺少出版地
-rule "专著文献缺少出版地检查"
+// Rule 21: Monograph [M] - Missing Place of Publication
+rule "Monograph Reference Missing Place of Publication Check"
 when 
     $ref: Reference(rawText.contains("[M]") && !rawText.matches(".*[：:].*"))
 then
@@ -796,24 +790,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 专著文献 [{}] 缺少出版地", refNum);
+        logger.debug("DEBUG: Monograph reference [{}] missing place of publication", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_MONO_NO_PLACE")
-                .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少出版地")
+                .setMessage("Reference [" + refNum + "] monograph format error: missing place of publication")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("添加出版地信息，格式为 出版地:")
+                .setSuggestion("Add place of publication information, format as Place:")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则22: 专著 [M] - 缺少出版者
-rule "专著文献缺少出版者检查"
+// Rule 22: Monograph [M] - Missing Publisher
+rule "Monograph Reference Missing Publisher Check"
 when 
     $ref: Reference(rawText.contains("[M]") && !rawText.matches(".*[：:] *[^,，]*,.*"))
 then
@@ -826,24 +820,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 专著文献 [{}] 缺少出版者", refNum);
+        logger.debug("DEBUG: Monograph reference [{}] missing publisher", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_MONO_NO_PUBLISHER")
-                .setMessage("参考文献 [" + refNum + "] 专著格式错误：缺少出版者")
+                .setMessage("Reference [" + refNum + "] monograph format error: missing publisher")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("添加出版者信息，格式为 出版地: 出版者")
+                .setSuggestion("Add publisher information, format as Place: Publisher")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则23: 学位论文 [D] - 缺少学位授予单位
-rule "学位论文缺少学位授予单位检查"
+// Rule 23: Thesis [D] - Missing Degree Awarding Institution
+rule "Degree Thesis Missing Degree Awarding Institution Check"
 when 
     $ref: Reference(rawText.contains("[D]") && !rawText.matches(".*[：:] *[^,，]*,.*"))
 then
@@ -856,24 +850,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 学位论文 [{}] 缺少学位授予单位", refNum);
+        logger.debug("DEBUG: Degree thesis [{}] missing degree awarding institution", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_THESIS_NO_UNIVERSITY")
-                .setMessage("参考文献 [" + refNum + "] 学位论文格式错误：缺少学位授予单位")
+                .setMessage("Reference [" + refNum + "] degree thesis format error: missing degree awarding institution")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("添加学位授予单位信息，格式为 城市: 大学名称")
+                .setSuggestion("Add degree awarding institution information, format: City: University Name")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则24: 学位论文 [D] - 缺少年份
-rule "学位论文缺少年份检查"
+// Rule 24: Degree Thesis [D] - Missing Year
+rule "Degree Thesis Missing Year Check"
 when 
     $ref: Reference(rawText.contains("[D]") && !rawText.matches(".*\\d{4}.*"))
 then
@@ -886,24 +880,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 学位论文 [{}] 缺少年份", refNum);
+        logger.debug("DEBUG: Degree thesis [{}] missing year", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_THESIS_NO_YEAR")
-                .setMessage("参考文献 [" + refNum + "] 学位论文格式错误：缺少年份")
+                .setMessage("Reference [" + refNum + "] degree thesis format error: missing year")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("添加年份信息，格式为 YYYY")
+                .setSuggestion("Add year information, format: YYYY")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则25: 会议录 [C] - 缺少会议地点
-rule "会议录缺少会议地点检查"
+// Rule 25: Conference Proceedings [C] - Missing Conference Location
+rule "Conference Proceedings Missing Conference Location Check"
 when 
     $ref: Reference(rawText.contains("[C]") && !rawText.matches(".*,.*,.*"))
 then
@@ -916,24 +910,24 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 会议录 [{}] 缺少会议地点", refNum);
+        logger.debug("DEBUG: Conference proceedings [{}] missing conference location", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_CONF_NO_PLACE")
-                .setMessage("参考文献 [" + refNum + "] 会议录格式错误：缺少会议地点")
+                .setMessage("Reference [" + refNum + "] conference proceedings format error: missing conference location")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("添加会议地点信息，格式为 会议名, 地点, 年份")
+                .setSuggestion("Add conference location information, format: Conference Name, Location, Year")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
 end
 
-// 规则26: 会议录 [C] - 缺少会议名称
-rule "会议录缺少会议名称检查"
+// Rule 26: Conference Proceedings [C] - Missing Conference Name
+rule "Conference Proceedings Missing Conference Name Check"
 when 
     $ref: Reference(rawText.contains("[C]") && !rawText.matches(".*\\[C\\].*\\..*"))
 then
@@ -946,17 +940,17 @@ then
             refNum = Integer.parseInt(cleaned);
         }
     } catch (Exception e) {
-        logger.warn("无法解析参考文献编号");
+        logger.warn("Unable to parse reference number");
     }
     
     if (refNum > 0) {
-        logger.debug("DEBUG: 会议录 [{}] 缺少会议名称", refNum);
+        logger.debug("DEBUG: Conference proceedings [{}] missing conference name", refNum);
         results.add(Issue.newBuilder()
                 .setCode("ERR_REF_CONF_NO_NAME")
-                .setMessage("参考文献 [" + refNum + "] 会议录格式错误：缺少会议名称")
+                .setMessage("Reference [" + refNum + "] conference proceedings format error: missing conference name")
                 .setSectionId(0)
                 .setSeverity(Severity.HIGH)
-                .setSuggestion("添加会议名称信息，格式为 [C]. 会议名称")
+                .setSuggestion("Add conference name information, format: [C]. Conference Name")
                 .setOriginalSnippet(rawText.length() > 150 ? rawText.substring(0, 150) + "..." : rawText)
                 .build());
     }
