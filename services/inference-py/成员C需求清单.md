@@ -7,7 +7,7 @@
 ## 2. 技术栈要求(可修改)
 
 * **模型选型：** Qwen（通过 DashScope API 或私有化 vLLM 部署）。
-* **框架：** FastAPI, PyTorch, LangGraph (处理多步推理逻辑)。
+* **框架：** FastAPI, LangGraph (处理多步推理逻辑)。
 * **向量库：** Milvus / Pinecone (用于参考文献真伪比对)。
 * **性能优化：** TensorRT-LLM 加速。
 

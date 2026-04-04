@@ -80,24 +80,8 @@ public class DocumentAuditorServiceImpl extends com.auditor.grpc.DocumentAuditor
                 logger.warn("Unable to create session: {}, please check kmodule.xml configuration", sessionName);
                 return;
             }
-            try {
-                session.setGlobal("results", results);
-            } catch (RuntimeException re) {
-                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
-                    logger.warn("Drools session '{}' does not declare global 'results'; skipping setGlobal: {}", sessionName, re.getMessage());
-                } else {
-                    throw re;
-                }
-            }
-            try {
-                session.setGlobal("logger", logger);
-            } catch (RuntimeException re) {
-                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
-                    logger.warn("Drools session '{}' does not declare global 'logger'; skipping setGlobal: {}", sessionName, re.getMessage());
-                } else {
-                    throw re;
-                }
-            }
+            session.setGlobal("results", results);
+            session.setGlobal("logger", logger);
 
             // Insert data objects to trigger DRL rules
             session.insert(data);

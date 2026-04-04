@@ -77,25 +77,9 @@ public class ReferenceChecker {
         try {
             kieSession = kieContainer.newKieSession("referenceSession");
 
-            // Set global variables (guard against Unexpected global errors when DRL doesn't declare them)
-            try {
-                kieSession.setGlobal("results", issues);
-            } catch (RuntimeException re) {
-                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
-                    logger.warn("Drools session does not declare global 'results'; skipping setGlobal: {}", re.getMessage());
-                } else {
-                    throw re;
-                }
-            }
-            try {
-                kieSession.setGlobal("logger", logger);
-            } catch (RuntimeException re) {
-                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
-                    logger.warn("Drools session does not declare global 'logger'; skipping setGlobal: {}", re.getMessage());
-                } else {
-                    throw re;
-                }
-            }
+            // Set global variables
+            kieSession.setGlobal("results", issues);
+            kieSession.setGlobal("logger", logger);
 
             // Insert data object
             kieSession.insert(data);

@@ -65,24 +65,8 @@ public class IntegrityScanner {
         try {
             kieSession = kieContainer.newKieSession("integritySession");
 
-            try {
-                kieSession.setGlobal("results", issues);
-            } catch (RuntimeException re) {
-                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
-                    logger.warn("Drools session does not declare global 'results'; skipping setGlobal: {}", re.getMessage());
-                } else {
-                    throw re;
-                }
-            }
-            try {
-                kieSession.setGlobal("logger", logger);
-            } catch (RuntimeException re) {
-                if (re.getMessage() != null && re.getMessage().contains("Unexpected global")) {
-                    logger.warn("Drools session does not declare global 'logger'; skipping setGlobal: {}", re.getMessage());
-                } else {
-                    throw re;
-                }
-            }
+            kieSession.setGlobal("results", issues);
+            kieSession.setGlobal("logger", logger);
 
             kieSession.insert(data);
             for (Section section : data.getSectionsList()) {

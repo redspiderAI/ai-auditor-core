@@ -18,10 +18,10 @@ function Issue createIntegrityIssue(String code,String message,int sectionId,Str
 function Issue createErrorIssue(String code,String message,int sectionId,Severity severity){return Issue.newBuilder().setCode(code).setMessage(message).setSectionId(sectionId).setSeverity(severity).setSuggestion("Please check the document or contact the administrator").setOriginalSnippet("").build();}
 
 // Rule 1: Check section numbering continuity
-rule"Check section numbering continuity"when $data:ParsedData()then int expectedSectionId=1;for(Section section:$data.getSectionsList()){if(section.getSectionId()!=expectedSectionId){Issue issue=createIntegrityIssue("ERR_INT_NUM_001","Section numbering is not continuous: expected "+expectedSectionId+", actual "+section.getSectionId(),section.getSectionId(),"Rearrange section numbering",section.getText());results.add(issue);}expectedSectionId++;}logger.debug("Section numbering continuity check completed");end
+rule "Check section numbering continuity"when $data:ParsedData()then int expectedSectionId=1;for(Section section:$data.getSectionsList()){if(section.getSectionId()!=expectedSectionId){Issue issue=createIntegrityIssue("ERR_INT_NUM_001","Section numbering is not continuous: expected "+expectedSectionId+", actual "+section.getSectionId(),section.getSectionId(),"Rearrange section numbering",section.getText());results.add(issue);}expectedSectionId++;}logger.debug("Section numbering continuity check completed");end
 
 // Rule 2: Check heading hierarchy structure
-rule"Check heading hierarchy structure"when $data:ParsedData()then int lastLevel=0;int lastSectionId=0;
+rule "Check heading hierarchy structure"when $data:ParsedData()then int lastLevel=0;int lastSectionId=0;
 
 for(Section section:$data.getSectionsList()){if("heading".equals(section.getType())){int currentLevel=section.getLevel();
 
@@ -34,7 +34,7 @@ if(currentLevel==lastLevel&&section.getSectionId()<=lastSectionId){Issue issue=c
 lastLevel=currentLevel;lastSectionId=section.getSectionId();}}logger.debug("Heading hierarchy structure check completed");end
 
 // Rule 3: Check required sections
-rule"Check required sections"when $data:ParsedData()then
+rule "Check required sections"when $data:ParsedData()then
 // Required sections for academic papers
 String[]requiredSections={"摘要","引言","正文","结论","参考文献"};
 
@@ -44,14 +44,14 @@ if(!found){Issue issue=createIntegrityIssue("ERR_INT_REQ_001","Missing required 
 "Add "+requiredSection+" section","");results.add(issue);}}logger.debug("Required sections check completed");end
 
 // Rule 4: Check figure and table numbering continuity
-rule"Check figure and table numbering continuity"when $data:ParsedData()then int figureCount=1;int tableCount=1;
+rule "Check figure and table numbering continuity"when $data:ParsedData()then int figureCount=1;int tableCount=1;
 
 for(Section section:$data.getSectionsList()){if("figure".equals(section.getType())){
 // Check figure numbering
 String sectionText=section.getText().toLowerCase();if(!sectionText.contains("图"+figureCount)&&!sectionText.contains("figure "+figureCount)){Issue issue=createIntegrityIssue("ERR_INT_FIG_001","Figure numbering is not continuous: should be figure number "+figureCount,section.getSectionId(),"Renumber figures in order",section.getText());results.add(issue);}figureCount++;}else if("table".equals(section.getType())){String sectionText=section.getText().toLowerCase();if(!sectionText.contains("表"+tableCount)&&!sectionText.contains("table "+tableCount)){Issue issue=createIntegrityIssue("ERR_INT_TAB_001","Table numbering is not continuous: should be table number "+tableCount,section.getSectionId(),"Renumber tables in order",section.getText());results.add(issue);}tableCount++;}}logger.debug("Figure and table numbering continuity check completed, figures: {} , tables: {}",figureCount,tableCount);end
 
 // Rule 5: Check document structure integrity
-rule"Check document structure integrity"when $data:ParsedData()then boolean hasAbstract=false;boolean hasConclusion=false;boolean hasReferences=false;
+rule "Check document structure integrity"when $data:ParsedData()then boolean hasAbstract=false;boolean hasConclusion=false;boolean hasReferences=false;
 
 for(Section section:$data.getSectionsList()){String text=section.getText().toLowerCase();if(text.contains("摘要")||text.contains("abstract")){hasAbstract=true;}if(text.contains("结论")||text.contains("conclusion")){hasConclusion=true;}if(text.contains("参考文献")||text.contains("references")){hasReferences=true;}}
 
@@ -72,15 +72,15 @@ if(!hasReferences){results.add(createIntegrityIssue("ERR_INT_STRUCT_004","Docume
 logger.debug("Document structure integrity check completed");end
 
 // Rule 6: Check for empty data
-rule"Check for empty data"when $data:ParsedData($data==null||getSectionsCount()==0)then results.add(createErrorIssue("ERR_INTEGRITY_CHECK","Input data is empty or has no sections",0,Severity.MEDIUM));logger.warn("Integrity check: input data is empty or has no sections");end
+rule "Check for empty data"when $data:ParsedData($data==null||getSectionsCount()==0)then results.add(createErrorIssue("ERR_INTEGRITY_CHECK","Input data is empty or has no sections",0,Severity.MEDIUM));logger.warn("Integrity check: input data is empty or has no sections");end
 
 // Rule 7: Check for duplicate sections
-rule"Check for duplicate sections"when $data:ParsedData()then Set<Integer>seenSectionIds=new HashSet<>();
+rule "Check for duplicate sections"when $data:ParsedData()then Set<Integer>seenSectionIds=new HashSet<>();
 
 for(Section section:$data.getSectionsList()){int sectionId=section.getSectionId();if(seenSectionIds.contains(sectionId)){Issue issue=createIntegrityIssue("ERR_INT_DUPLICATE_001","Duplicate section number found: "+sectionId,sectionId,"Modify section number to avoid duplicates",section.getText());results.add(issue);}else{seenSectionIds.add(sectionId);}}logger.debug("Duplicate sections check completed");end
 
 // Rule 8: Check section title format
-rule"Check section title format"when $section:Section(type=="heading")then String text=$section.getText().trim();
+rule "Check section title format"when $section:Section(type=="heading")then String text=$section.getText().trim();
 
 // Check if it starts with a number
 if(!text.matches("^\\d+\\..*")&&!text.matches("^[一二三四五六七八九十]+、.*")){Issue issue=createIntegrityIssue("ERR_INT_HEADING_FORMAT_001","Section title format is not standard: should start with a number or Chinese numeral",$section.getSectionId(),"Modify title format, e.g. '1. Section Title' or '一、Section Title'",text);results.add(issue);}
@@ -89,7 +89,7 @@ if(!text.matches("^\\d+\\..*")&&!text.matches("^[一二三四五六七八九十]
 if(text.length()<3){Issue issue=createIntegrityIssue("ERR_INT_HEADING_FORMAT_002","Section title is too short: title should accurately describe content",$section.getSectionId(),"Improve section title",text);results.add(issue);}end
 
 // Rule 9: Check paragraph format in body text
-rule"Check paragraph format in body text"when $section:Section(type=="paragraph",text!=null&&text.trim().length()>0)then String text=$section.getText().trim();
+rule "Check paragraph format in body text"when $section:Section(type=="paragraph",text!=null&&text.trim().length()>0)then String text=$section.getText().trim();
 
 // Check if paragraph starts with indentation
 if(!text.startsWith("    ")&&!text.startsWith("\t")){Issue issue=createIntegrityIssue("ERR_INT_PARAGRAPH_FORMAT_001","Body paragraph missing first-line indentation",$section.getSectionId(),"Add 4 spaces or 1 tab for first-line indentation",text.length()>50?text.substring(0,50)+"...":text);results.add(issue);}
@@ -98,7 +98,7 @@ if(!text.startsWith("    ")&&!text.startsWith("\t")){Issue issue=createIntegrity
 if(text.length()<20){Issue issue=createIntegrityIssue("ERR_INT_PARAGRAPH_FORMAT_002","Body paragraph is too short, content may be incomplete",$section.getSectionId(),"Supplement paragraph content",text);results.add(issue);}end
 
 // Rule 10: Check logical order between sections
-rule"Check logical order between sections"when $data:ParsedData(getSectionsCount()>1)then List<Section>sections=$data.getSectionsList();
+rule "Check logical order between sections"when $data:ParsedData(getSectionsCount()>1)then List<Section>sections=$data.getSectionsList();
 
 for(int i=1;i<sections.size();i++){Section prevSection=sections.get(i-1);Section currSection=sections.get(i);
 
@@ -111,7 +111,7 @@ if("heading".equals(prevType)&&"heading".equals(currType)){int prevLevel=prevSec
 if(prevLevel>currLevel&&(prevLevel-currLevel)>2){Issue issue=createIntegrityIssue("ERR_INT_ORDER_001","Heading level downgrade too large: from level "+prevLevel+" down to level "+currLevel,currSection.getSectionId(),"Adjust heading levels to change stepwise",currSection.getText());results.add(issue);}}}logger.debug("Section logical order check completed");end
 
 // Rule 11: Check association between figures/tables and body text
-rule"Check association between figures/tables and body text"when $data:ParsedData()then int figureTableCount=0;int mentionedCount=0;
+rule "Check association between figures/tables and body text"when $data:ParsedData()then int figureTableCount=0;int mentionedCount=0;
 
 for(Section section:$data.getSectionsList()){if("figure".equals(section.getType())||"table".equals(section.getType())){figureTableCount++;
 

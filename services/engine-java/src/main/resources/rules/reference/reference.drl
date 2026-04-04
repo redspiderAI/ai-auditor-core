@@ -13,7 +13,8 @@ dialect "java"
 
 // ==================== Rule Definitions ====================
 
-// Rule 1: Journal [J] Format Check - Full-width Comma Checkrule "Journal Reference Full-width Comma Check"
+// Rule 1: Journal [J] Format Check - Full-width Comma Check
+rule "Journal Reference Full-width Comma Check"
 when 
     $ref: Reference(rawText.contains("[J]") && rawText.contains("，"))
 then
@@ -42,7 +43,8 @@ then
     }
 end
 
-// Rule 2: Journal [J] Format Check - Year Out of Rangerule "Journal Reference Year Out of Range Check"
+// Rule 2: Journal [J] Format Check - Year Out of Range
+rule "Journal Reference Year Out of Range Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then
@@ -85,7 +87,8 @@ then
     }
 end
 
-// Rule 3: Journal [J] Format Check - No Dot After [J]rule "Journal Reference J Mark No Dot Check"
+// Rule 3: Journal [J] Format Check - No Dot After [J]
+rule "Journal Reference J Mark No Dot Check"
 when 
     $ref: Reference(rawText.contains("[J]") && !rawText.contains("[J]."))
 then
@@ -114,7 +117,8 @@ then
     }
 end
 
-// Rule 4: Journal [J] Format Check - Missing Volume(Issue)rule "Journal Reference Missing Volume and Issue Check"
+// Rule 4: Journal [J] Format Check - Missing Volume(Issue)
+rule "Journal Reference Missing Volume and Issue Check"
 when 
     $ref: Reference(rawText.contains("[J]") && !rawText.matches(".*\\d+\\s*\\(\\s*\\d+\\s*\\).*"))
 then
@@ -143,7 +147,8 @@ then
     }
 end
 
-// Rule 5: Journal [J] Format Check - Missing Pagerule "Journal Reference Missing Page Check"
+// Rule 5: Journal [J] Format Check - Missing Page
+rule "Journal Reference Missing Page Check"
 when 
     $ref: Reference(rawText.contains("[J]") && !rawText.matches(".*:\\s*\\d+\\s*[-~]?\\s*\\d*.*"))
 then
@@ -172,7 +177,8 @@ then
     }
 end
 
-// Rule 6: Journal [J] Format Check - Multiple Authors but No "et al."rule "Journal Reference Multiple Authors No Et Al. Check"
+// Rule 6: Journal [J] Format Check - Multiple Authors but No "et al."
+rule "Journal Reference Multiple Authors No Et Al. Check"
 when 
     $ref: Reference(rawText.contains("[J]"))
 then

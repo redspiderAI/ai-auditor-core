@@ -11,7 +11,7 @@ global java.util.List results
 global Logger logger
 
 // Constant definitions
-dialect"java"
+dialect "java"
 
 // Global function: Check reference format
 function void checkReferenceFormat(Reference ref,List results,Logger logger){String rawText=ref.getRawText();int refNum=extractReferenceNumber(ref.getRefId());
@@ -70,10 +70,10 @@ for(String part:parts){if(part.contains("-")){String[]range=part.split("-");try{
 return citations;}
 
 // Rule 1: Check reference format
-rule"Check Reference Format"when $ref:Reference()then checkReferenceFormat($ref,results,logger);end
+rule "Check Reference Format"when $ref:Reference()then checkReferenceFormat($ref,results,logger);end
 
 // Rule 2: Check citation order
-rule"Check Citation Order"when $data:ParsedData()then
+rule "Check Citation Order"when $data:ParsedData()then
 // Build citation directed graph
 Map<Integer,List<Integer>>graph=new HashMap<>();
 
@@ -87,7 +87,7 @@ int lastCitation=0;for(int i=0;i<orderedCitations.size();i++){int current=ordere
 Issue issue=Issue.newBuilder().setCode("ERR_REF_ORDER_001").setMessage(String.format("Citation number does not follow sequential coding: [%d] appears after [%d], should be [%d] before [%d]",current,lastCitation,lastCitation,current)).setSectionId(violationSection).setSeverity(Severity.HIGH).setSuggestion("Please renumber according to the order of appearance in the text").setOriginalSnippet(String.format("Citation order error: ...[%d]...[%d]...",lastCitation,current)).build();results.add(issue);break;}lastCitation=current;}end
 
 // Rule 3: Check citation closure
-rule"Check Citation Closure"when $data:ParsedData()then
+rule "Check Citation Closure"when $data:ParsedData()then
 // Build citation directed graph
 Map<Integer,List<Integer>>graph=new HashMap<>();Set<Integer>citedNumbers=new HashSet<>();
 
@@ -105,7 +105,7 @@ Issue issue=Issue.newBuilder().setCode("ERR_REF_MISSING_001").setMessage("Refere
 for(Integer refNum:existingRefNumbers){if(!citedNumbers.contains(refNum)){Issue issue=Issue.newBuilder().setCode("WARN_REF_UNUSED_001").setMessage("Reference ["+refNum+"] is not cited in the text").setSectionId(0).setSeverity(Severity.LOW).setSuggestion("Delete unused references or add citations in the text").setOriginalSnippet("").build();results.add(issue);}}end
 
 // Rule 4: Bitmap algorithm check
-rule"Bitmap Algorithm Check"when $data:ParsedData()then
+rule "Bitmap Algorithm Check"when $data:ParsedData()then
 // Get maximum reference number
 int maxRefNumber=0;for(Reference ref:$data.getReferencesList()){int refNum=extractReferenceNumber(ref.getRefId());if(refNum>maxRefNumber){maxRefNumber=refNum;}}
 
@@ -135,4 +135,4 @@ int firstCitation=citationBitmap.nextSetBit(0);if(firstCitation>0){int expected=
 logger.debug("Bitmap algorithm check completed, max number: {}, citation count: {}, reference count: {}",maxRefNumber,citationBitmap.cardinality(),referenceBitmap.cardinality());end
 
 // Rule 5: Null data check
-rule"Null Data Check"when $data:ParsedData($data==null)then results.add(createIssue("ERR_REF_NULL","Input data is null",0,Severity.CRITICAL));end
+rule "Null Data Check"when $data:ParsedData($data==null)then results.add(createIssue("ERR_REF_NULL","Input data is null",0,Severity.CRITICAL));end
